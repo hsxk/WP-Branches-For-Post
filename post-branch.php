@@ -42,9 +42,9 @@ But the button is not showed for branches that have already made future
 function add_post_submitbox_button() {
 	global $post;
 	$show_button_which_post_status = array(	'publish', 
-											'future', 
-											'private'	
-											);
+						'future', 
+						'private'	
+						);
 	if ( in_array( $post->post_status, $show_button_which_post_status ) && $post->ID != 0 ) {
 		if ( !get_post_meta( $post->ID, '_original_post_id', true ) ) {
 			echo '<div><input type="submit" class="button-primary" id="create_branch" name="create_branch" value="Create Branch" /></div>';
@@ -112,8 +112,8 @@ function original_post_pages_update( $id, $post ) {
 		$post['ID'] = $original_id;
 		$post['post_status'] = 'publish';
 		unset(	$post['comment_count'], 
-				$post['post_name'] 
-				);
+			$post['post_name'] 
+			);
 		copy_post_post_meta( $id, $original_id );
 		inherited_branch_attachments( $id, $original_id );
 		copy_post_taxonomies( $id, $original_id, $post['post_type'] );
@@ -132,7 +132,7 @@ Show creator's info in the post list
 */
 function show_branch_info_in_list( $info ) {
 	global $post;
-	if ( $original_id = get_post_meta( $post->ID, '_original_post_id', true ) ) {
+	if ( 	$original_id = get_post_meta( $post->ID, '_original_post_id', true ) ) {
 		$creator_name = get_post_meta( $post->ID, '_creator_name', true );
 		$creator_id = get_post_meta( $post->ID, '_creator_user_id', true );
 		$info[] = sprintf( '%d\'s branch  Creator: %s ID: %d', $original_id, $creator_name, $creator_id );
@@ -169,13 +169,13 @@ function copy_post_post_meta( $original_id, $target_id ) {
 	if ( isset( $original_id, $target_id ) ) {
 		$custom_fields = get_post_custom( $original_id );
 		unset(	$custom_fields['_original_post_id'], 
-				$custom_fields['_creator_user_id'], 
-				$custom_fields['_creator_name'],
-				$custom_fields['_wp_old_slug'],
-				$custom_fields['_wp_old_date'],
-				$custom_fields['_edit_lock'],
-				$custom_fields['_edit_last']
-				);
+			$custom_fields['_creator_user_id'], 
+			$custom_fields['_creator_name'],
+			$custom_fields['_wp_old_slug'],
+			$custom_fields['_wp_old_date'],
+			$custom_fields['_edit_lock'],
+			$custom_fields['_edit_last']
+			);
 		foreach ( $custom_fields as $key => $values ) {
 			foreach ( $values as $value ) {
 				$value = maybe_unserialize( $value );
@@ -216,19 +216,19 @@ function inherited_branch_revision( $original_id, $target_id ) {
 			$revision_guid = preg_replace( '/'.$original_id.'-revision/', $target_id.'-revision', $revisions[0]->guid );
 			$wpdb->query(
 				$wpdb->prepare("UPDATE 
-									$wpdb->posts 
-								SET 
-									post_name = %s , 
-									post_parent = %d,
-									guid = %s
-								WHERE
-									post_parent = %d
-									and post_type = %s",
-									$revision_post_name,
-									$target_id,
-									$revision_guid,
-									$original_id,
-									'revision')
+							$wpdb->posts 
+						SET 
+							post_name = %s , 
+							post_parent = %d,
+							guid = %s
+						WHERE
+							post_parent = %d
+							and post_type = %s",
+							$revision_post_name,
+							$target_id,
+							$revision_guid,
+							$original_id,
+							'revision')
 					);
 		}
 	}
@@ -248,16 +248,16 @@ function inherited_branch_attachments( $original_id, $target_id ) {
 		global $wpdb;
 		$wpdb->query(
 			$wpdb->prepare("UPDATE 
-								$wpdb->posts 
-							SET
-								post_parent = %d
-							WHERE
-								post_parent = %d
-							AND
-								post_type = %s",
-							$target_id,
-							$original_id,
-							'attachment' )
+						$wpdb->posts 
+					SET
+						post_parent = %d
+					WHERE
+						post_parent = %d
+					AND
+						post_type = %s",
+						$target_id,
+						$original_id,
+						'attachment' )
 		);       
 	}
 }
