@@ -47,7 +47,7 @@ function add_post_submitbox_button() {
 											);
 	if ( in_array( $post->post_status, $show_button_which_post_status ) && $post->ID != 0 ) {
 		if ( !get_post_meta( $post->ID, '_original_post_id', true ) ) {
-			echo '<input type="submit" class="button-primary" id="create_branch" name="create_branch" value="Create Branch" />';
+			echo '<div><input type="submit" class="button-primary" id="create_branch" name="create_branch" value="Create Branch" /></div>';
 		}
 	}
 }
