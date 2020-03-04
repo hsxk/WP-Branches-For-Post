@@ -1,7 +1,7 @@
 ===  WP-Branches-For-Post ===
 Contributors: haokexin
 Tags: post branch
-equires at least: 4.6
+Requires at least: 4.6
 Tested up to: 5.3.2
 Requires PHP: 5.6.40
 Stable tag: trunk
@@ -35,6 +35,8 @@ Branch will be deleted after they were made public.
 
 == License ==
 You can use it free of charge on your personal or commercial website.
+
+== Frequently Asked Questions ==
 
 == Upgrade Notice ==
 
