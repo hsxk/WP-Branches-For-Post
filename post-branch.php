@@ -40,7 +40,7 @@ function wbfp_create_post_branch( $id ) {
 		$origin['post_status'] = 'draft';
 		$origin['post_name']   = $origin['post_name'] . '-branch';
 		$branch_id = wp_insert_post( $origin );
-		wbfp_copy_post_post_meta( $id, $branch_id );
+		wbfp_copy_post_meta( $id, $branch_id );
 		wbfp_copy_post_taxonomies( $id, $branch_id, $origin['post_type'] );
 		add_post_meta($branch_id, '_original_post_id', $id);
 		$user = wp_get_current_user();
@@ -60,7 +60,7 @@ Show info on branch post/pages editor
 function wbfp_post_branch_admin_notice() {
 	global $pagenow;
 	if ( $pagenow == 'post.php' ) {
-		$branch_id = get_post_id();
+		$branch_id = get_the_ID();
 		if ( $original_id = get_post_meta( $branch_id, '_original_post_id', true ) ) {
 			$creator_name = get_post_meta( $branch_id, '_creator_name', true );
 			echo '<div class="updated fade" style="text-align:center; color:blue;"><p>' . sprintf( "The post is a branch of <a href='%s' target='__blank' >%s</a>.   Branch creator is %s ",  get_permalink($original_id), $original_id, $creator_name ) . '</p></div>';
@@ -91,12 +91,23 @@ function wbfp_original_post_pages_update( $id, $post ) {
 		unset(	$post['comment_count'], 
 			$post['post_name'] 
 			);
-		copy_post_post_meta( $id, $original_id );
+		$error_detection = wp_update_post( $post, true );
+		if( is_wp_error( $error_detection ) ) {
+			$error_info[] = '<div>';
+			$error_info[] = 'Some errors occurred while updating the content.' . PHP_EOL;
+			$error_info[] = 'Error message:' . PHP_EOL;
+			$error_info[] = $error_detection->get_error_message() . PHP_EOL;
+			$error_info[] = 'Please send this message to haokexin1214@gmail.com' . PHP_EOL;
+			$error_info[] = 'I will do my best to solve the problem.' . PHP_EOL;
+			$error_info[] = '</div>';
+			print_r( $error_info[] );
+			exit;
+		}
+		wbfp_copy_post_meta( $id, $original_id );
 		wbfp_inherited_branch_attachments( $id, $original_id );
 		wbfp_copy_post_taxonomies( $id, $original_id, $post['post_type'] );
 		wbfp_inherited_branch_revision( $id, $original_id );
-		wp_update_post( $post );
-		wp_delete_post( $id );
+		wp_delete_post( $id, true );
 		wp_safe_redirect( admin_url( '/post.php?post=' . $original_id . '&action=edit&message=1' ) );
 		exit;
  	}
@@ -142,7 +153,7 @@ function wbfp_copy_post_taxonomies( $original_id, $target_id, $post_type ) {
 /*
 Copy postmeta
 */
-function wbfp_copy_post_post_meta( $original_id, $target_id ) {
+function wbfp_copy_post_meta( $original_id, $target_id ) {
 	if ( isset( $original_id, $target_id ) ) {
 		$custom_fields = get_post_custom( $original_id );
 		unset(	$custom_fields['_original_post_id'], 
@@ -167,7 +178,7 @@ function wbfp_copy_post_post_meta( $original_id, $target_id ) {
 Postmeta values addslashes
 */
 function wbfp_post_meta_addslashes( $value ) {
-	if (function_exists('map_deep')){
+	if ( function_exists( 'map_deep' ) ) {
 		return map_deep( $value, 'wbfp_map_deep_post_meta_addslashes' );
 	} else {
 		return wp_slash( $value );
@@ -195,7 +206,7 @@ function wbfp_inherited_branch_revision( $original_id, $target_id ) {
 				$wpdb->prepare("UPDATE 
 							$wpdb->posts 
 						SET 
-							post_name = %s , 
+							post_name = %s, 
 							post_parent = %d,
 							guid = %s
 						WHERE
