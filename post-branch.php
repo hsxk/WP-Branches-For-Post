@@ -3,7 +3,7 @@
 Plugin Name: WP-Branches-For-Post
 Plugin URI: https://github.com/hsxk/WP-Branches-For-Post/
 Description: Creating branches of publishing post to modify and publish them without affecting them in Public
-Version: 1.0.0
+Version: 1.0.1
 Author: Haokexin
 Author URI: hkx.monster
 License: GNU General Public License v3.0
@@ -100,7 +100,7 @@ function wbfp_original_post_pages_update( $id, $post ) {
 			$error_info[] = 'Please send this message to haokexin1214@gmail.com' . PHP_EOL;
 			$error_info[] = 'I will do my best to solve the problem.' . PHP_EOL;
 			$error_info[] = '</div>';
-			print_r( $error_info[] );
+			print_r( $error_info );
 			exit;
 		}
 		wbfp_copy_post_meta( $id, $original_id );

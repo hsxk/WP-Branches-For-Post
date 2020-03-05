@@ -42,8 +42,10 @@ You can use it free of charge on your personal or commercial website.
 
 == Changelog ==
 
-= 1.0 =
+= 1.0.0 =
 Publish this plugin.
+= 1.0.1 =
+Fix bug and add error message.
 
 
 == About me ==
