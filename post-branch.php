@@ -48,7 +48,7 @@ function wbfp_add_button_in_list( $actions, $post ) {
 	return $actions;
 }
 add_filter( 'post_row_actions', 'wbfp_add_button_in_list' );
-add_filter('page_row_actions', 'wbfp_add_button_in_list' );
+add_filter( 'page_row_actions', 'wbfp_add_button_in_list' );
 
 /*
 Create a branch before an existing post is updated in the database
