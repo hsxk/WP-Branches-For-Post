@@ -51,19 +51,64 @@ add_filter( 'post_row_actions', 'wbfp_add_button_in_list' );
 add_filter( 'page_row_actions', 'wbfp_add_button_in_list' );
 
 /*
+*** For adminbar ***
+Show button when post is public, future, privacy status
+But the button is not showed for branches that have already made future
+*/
+function wbfp_add_button_in_adminbar() {
+	if( !is_admin_bar_showing() ) return;
+	$post_info = get_queried_object();
+	if ( !empty( $post_info ) ) {
+		$id = $post_info->ID;
+		$status = get_post_status( $id );
+	}
+	if ( is_admin() && isset( $_GET['post'] ) ) {
+		$id = $_GET['post'];
+		$status = get_post_status( $id );	
+	}
+	if( empty( $id ) || empty( $status ) ) {
+		return;
+	}
+	$show_button_which_post_status = array( 'publish',
+	                        'future',
+							'private'
+							);
+	if ( in_array( $status, $show_button_which_post_status ) && $id != 0 ) {
+		if ( !get_post_meta( $id, '_original_post_id', true ) ) {
+			global $wp_admin_bar;
+			$wp_admin_bar->add_menu( array(
+				'id' => 'wbfp_create_branch',
+				'title' => 'Create branch',
+				'href' => wp_nonce_url( admin_url( 'admin.php?action=wbfp_create_post_branch&amp;post=' . $id ), 'wbfp_branch_' . $id )
+			) );
+		}
+	}
+}
+add_action ( 'wp_before_admin_bar_render', 'wbfp_add_button_in_adminbar' );
+
+/*
+Add css for adminbar-icon
+*/
+function wbfp_add_css() {
+	wp_enqueue_style( 'wbfp_css', plugins_url( '/css/wbfp.css', __FILE__ ) );
+}
+add_action( 'wp_enqueue_scripts', 'wbfp_add_css');
+add_action( 'admin_enqueue_scripts', 'wbfp_add_css');
+
+/*
 Create a branch before an existing post is updated in the database
 When $_POST including the [create_branch]
 */
 function wbfp_create_post_branch( $id ) {
-	if ( !( isset( $_GET['post'] ) || isset( $_POST['post'] )  || ( isset( $_GET['action'] ) && $_GET['action'] == 'wbfp_create_post_branch' ) ) ) {
-		wp_die( 'Some error occurred in the URL, please try again' );
-	}
 	if ( isset( $_POST['create_branch'] ) || ( isset( $_GET['action'] ) && $_GET['action'] == 'wbfp_create_post_branch' ) ) {
 		if ( isset( $_GET['post'] ) ) {
 			$id = $_GET['post'];
 			check_admin_referer( 'wbfp_branch_' . $id );
 		}
 		$origin = get_post( $id, ARRAY_A );
+		if ( !$origin ) {
+			wp_die( 'The post does not exist' );
+		}
 		unset( $origin['ID'] );
 		$origin['post_status'] = 'draft';
 		$origin['post_name']   = $origin['post_name'] . '-branch';
@@ -82,6 +127,7 @@ function wbfp_create_post_branch( $id ) {
 }
 add_action( 'pre_post_update', 'wbfp_create_post_branch' );
 add_action( 'admin_action_wbfp_create_post_branch', 'wbfp_create_post_branch' );
+
 /*
 Show info on branch post/pages editor
 */
@@ -96,6 +142,7 @@ function wbfp_post_branch_admin_notice() {
 	}
 }
 add_action( 'admin_notices', 'wbfp_post_branch_admin_notice' );
+
 /*
 Add hooks for custom post_type
 */

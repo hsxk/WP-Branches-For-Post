@@ -43,10 +43,15 @@ You can use it free of charge on your personal or commercial website.
 == Changelog ==
 
 = 1.0.0 =
+2020.02.22
 Publish this plugin.
 = 1.0.1 =
+2020.03.05
 Fix bug and add error message.
-
+= 1.1 =
+2020.03.10
+Add create branch button for adminbar and list 
+Safer code
 
 == About me ==
 I am a Chinese working in Tokyo as a software engineer.
