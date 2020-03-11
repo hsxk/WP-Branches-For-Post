@@ -37,21 +37,22 @@ Branch will be deleted after they were made public.
 You can use it free of charge on your personal or commercial website.
 
 == Frequently Asked Questions ==
+If you have any suggestions please email me
+haokexin1214@gmail.com
 
 == Upgrade Notice ==
 
 == Changelog ==
-
-= 1.0.0 =
-2020.02.22
-Publish this plugin.
+= 1.1.0 =
+2020.03.11
+Add create branch button for adminbar and list
+Safer code
 = 1.0.1 =
 2020.03.05
 Fix bug and add error message.
-= 1.1 =
-2020.03.10
-Add create branch button for adminbar and list 
-Safer code
+= 1.0.0 =
+2020.02.22
+Publish this plugin.
 
 == About me ==
 I am a Chinese working in Tokyo as a software engineer.

@@ -1,5 +1,6 @@
 #wpadminbar #wp-admin-bar-wbfp_create_branch > .ab-item::before {
-	content: url(adminbar.svg);
+	content: url(adminbar-20x20.svg);
+	top: 3px;
 }
 
 @media screen and (max-width: 782px){
@@ -18,6 +19,7 @@
 	}
 
 	#wpadminbar li#wp-admin-bar-wbfp_create_branch > .ab-item::before {
+		content: url(adminbar-32x32.svg);
 		display: block;
 		text-indent: 0;
 		font: 400 32px/1 dashicons;

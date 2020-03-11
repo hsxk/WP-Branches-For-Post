@@ -90,7 +90,7 @@ add_action ( 'wp_before_admin_bar_render', 'wbfp_add_button_in_adminbar' );
 Add css for adminbar-icon
 */
 function wbfp_add_css() {
-	wp_enqueue_style( 'wbfp_css', plugins_url( '/css/wbfp.css', __FILE__ ) );
+	wp_enqueue_style( 'wbfp_css', plugins_url( '/assets/wbfp.css', __FILE__ ) );
 }
 add_action( 'wp_enqueue_scripts', 'wbfp_add_css');
 add_action( 'admin_enqueue_scripts', 'wbfp_add_css');
