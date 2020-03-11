@@ -29,9 +29,12 @@ Branch will be deleted after they were made public.
 2. Activate the plugin through the 'Plugins' screen in WordPress.
 
 == Screenshots ==
-1. WP-Branches-For-Post button
-2. WP-Branches-For-Post message
-3. WP-Branches-For-Post message in all posts
+1. WP-Branches-For-Post button for classic editor
+2. WP-Branches-For-Post button for front
+3. WP-Branches-For-Post button for list
+4. WP-Branches-For-Post button for block editor
+5. WP-Branches-For-Post message in classic editor
+6. WP-Branches-For-Post message in list
 
 == License ==
 You can use it free of charge on your personal or commercial website.
@@ -41,11 +44,13 @@ If you have any suggestions please email me
 haokexin1214@gmail.com
 
 == Upgrade Notice ==
+block editor can also create branch in this upgrade
 
 == Changelog ==
 = 1.1.0 =
 2020.03.11
-Add create branch button for adminbar and list
+Add create branch button for adminbar and list 
+block editor can also create branch
 Safer code
 = 1.0.1 =
 2020.03.05

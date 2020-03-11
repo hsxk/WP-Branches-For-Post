@@ -34,7 +34,7 @@ add_action( 'post_submitbox_start', 'wbfp_add_post_submitbox_button' );
 Show button when post is public, future, privacy status
 But the button is not showed for branches that have already made future
 */
-function wbfp_add_button_in_list( $actions, $post ) {
+function wbfp_add_button_in_list( $actions ) {
 	global $post;
 	$show_button_which_post_status = array( 'publish',
                         'future',
@@ -101,7 +101,7 @@ When $_POST including the [create_branch]
 */
 function wbfp_create_post_branch( $id ) {
 	if ( isset( $_POST['create_branch'] ) || ( isset( $_GET['action'] ) && $_GET['action'] == 'wbfp_create_post_branch' ) ) {
-		if ( isset( $_GET['post'] ) ) {
+		if ( isset( $_GET['post'] ) && $_GET['action'] == 'wbfp_create_post_branch' ) {
 			$id = $_GET['post'];
 			check_admin_referer( 'wbfp_branch_' . $id );
 		}
