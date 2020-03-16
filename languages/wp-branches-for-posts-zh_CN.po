@@ -1,0 +1,27 @@
+# Translation of Plugins - WP-Branches-For-Post - trunk in Chinese (China)
+# This file is distributed under the same license as the Plugins - WP-Branches-For-Post - trunk package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2020-03-16 17:14+0900\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Poedit 2.3\n"
+"Language: zh_CN\n"
+"Project-Id-Version: Plugins - WP-Branches-For-Post - trunk\n"
+"POT-Creation-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+
+#. Button.
+msgid "Create Branch"
+msgstr "创建分支"
+
+#. message in editor.
+msgid "The post is a branch of <a href='%s' target='__blank'>%s</a>. Branch creator is %s."
+msgstr "这是ID为<a href='%s' target='__blank' >%s</a>的文章分支，创建者：%s。"
+
+#. message in list.
+msgid "%d's branch  Creator: %s ID: %d"
+msgstr "%d的分支，创建者:%s ID:%d"
