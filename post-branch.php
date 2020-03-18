@@ -45,7 +45,7 @@ But the button is not showed for branches that have already made future
 function wbfp_add_button_in_list( $actions ) {
 	global $post;
 	$show_button_which_post_status = array( 'publish',
-                        'future',
+						'future',
 						'private'
 						);
 	if ( in_array( $post->post_status, $show_button_which_post_status ) && $post->ID != 0 ) {
@@ -78,9 +78,9 @@ function wbfp_add_button_in_adminbar() {
 		return;
 	}
 	$show_button_which_post_status = array( 'publish',
-	                        'future',
-							'private'
-							);
+						'future',
+						'private'
+						);
 	if ( in_array( $status, $show_button_which_post_status ) && $id != 0 ) {
 		if ( !get_post_meta( $id, '_original_post_id', true ) ) {
 			global $wp_admin_bar;
@@ -147,14 +147,14 @@ function wbfp_post_branch_admin_notice() {
 		if ( $original_id = get_post_meta( $branch_id, '_original_post_id', true ) ) {
 			$creator_name = get_post_meta( $branch_id, '_creator_name', true );
 			echo '<div class="notice notice-info" style="text-align:center; color:blue;">' . 
-				 '<p>' . sprintf( esc_attr__( "The post is a branch of <a href='%s' target='__blank' >%s</a>. Branch creator is %s", "wp-branches-for-post" ), get_permalink($original_id), $original_id, $creator_name ) . '</p>' .
-				 '</div>';
+			'<p>' . sprintf( __( "The post is a branch of <a href='%s' target='__blank' >%s</a>. Branch creator is %s", "wp-branches-for-post" ), get_permalink($original_id), $original_id, $creator_name ) . '</p>' .
+			'</div>';
 			echo '<div class="notice notice-success is-dismissible">' .
-				 '<p>' . esc_attr__( 'This content will automatically overwrite the original after publication', 'wp-branches-for-post' ) . '</p>' .
-				 '</div>';
+			'<p>' . esc_attr__( 'This content will automatically overwrite the original after publication', 'wp-branches-for-post' ) . '</p>' .
+			'</div>';
 			echo '<div class="notice notice-success is-dismissible">' .
-				 '<p>' . esc_attr__( 'In some cases you may need to click Save Draft first to save the data to the database', 'wp-branches-for-post' ) . '</p>' .
-				 '</div>';
+			'<p>' . esc_attr__( 'In some cases you may need to click Save Draft first to save the data to the database', 'wp-branches-for-post' ) . '</p>' .
+			'</div>';
 		}
 	}
 }
