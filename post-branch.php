@@ -13,7 +13,7 @@ License: GNU General Public License v3.0
 load textdomain
 */
 function wbfp_load_plugin_textdomain() {
-	load_plugin_textdomain( 'wp-branches-for-posts', FALSE, basename( dirname( __FILE__ ) ) . '/languages/' );
+	load_plugin_textdomain( 'wp-branches-for-post', FALSE, basename( dirname( __FILE__ ) ) . '/languages/' );
 }
 add_action( 'plugins_loaded', 'wbfp_load_plugin_textdomain' );
 
@@ -31,7 +31,7 @@ function wbfp_add_post_submitbox_button() {
 						);
 	if ( in_array( $post->post_status, $show_button_which_post_status ) && $post->ID != 0 ) {
 		if ( !get_post_meta( $post->ID, '_original_post_id', true ) ) {
-			echo '<div><input type="submit" class="button-primary" id="create_branch" name="create_branch" value="' . esc_attr__( 'Create Branch', 'wp-branches-for-posts' ) . '" /></div>';
+			echo '<div><input type="submit" class="button-primary" id="create_branch" name="create_branch" value="' . esc_attr__( 'Create Branch', 'wp-branches-for-post' ) . '" /></div>';
 		}
 	}
 }
@@ -50,7 +50,7 @@ function wbfp_add_button_in_list( $actions ) {
 						);
 	if ( in_array( $post->post_status, $show_button_which_post_status ) && $post->ID != 0 ) {
 		if ( !get_post_meta( $post->ID, '_original_post_id', true ) ) {
-			$actions['create_branch'] = '<a href="' . wp_nonce_url( admin_url( 'admin.php?action=wbfp_create_post_branch&amp;post=' . $post->ID ), 'wbfp_branch_' . $post->ID ) . '">' . esc_attr__( 'Create Branch', 'wp-branches-for-posts' ) . '</a>';
+			$actions['create_branch'] = '<a href="' . wp_nonce_url( admin_url( 'admin.php?action=wbfp_create_post_branch&amp;post=' . $post->ID ), 'wbfp_branch_' . $post->ID ) . '">' . esc_attr__( 'Create Branch', 'wp-branches-for-post' ) . '</a>';
 		}
 	}
 	return $actions;
@@ -86,7 +86,7 @@ function wbfp_add_button_in_adminbar() {
 			global $wp_admin_bar;
 			$wp_admin_bar->add_menu( array(
 				'id' => 'wbfp_create_branch',
-				'title' => esc_attr__( 'Create Branch', 'wp-branches-for-posts' ),
+				'title' => esc_attr__( 'Create Branch', 'wp-branches-for-post' ),
 				'href' => wp_nonce_url( admin_url( 'admin.php?action=wbfp_create_post_branch&amp;post=' . $id ), 'wbfp_branch_' . $id )
 			) );
 		}
@@ -116,7 +116,7 @@ function wbfp_create_post_branch( $id ) {
 		}
 		$origin = get_post( $id, ARRAY_A );
 		if ( !$origin ) {
-			wp_die( esc_attr__( 'The post does not exist', 'wp-branches-for-posts' ) );
+			wp_die( esc_attr__( 'The post does not exist', 'wp-branches-for-post' ) );
 		}
 		unset( $origin['ID'] );
 		$origin['post_status'] = 'draft';
@@ -147,13 +147,13 @@ function wbfp_post_branch_admin_notice() {
 		if ( $original_id = get_post_meta( $branch_id, '_original_post_id', true ) ) {
 			$creator_name = get_post_meta( $branch_id, '_creator_name', true );
 			echo '<div class="notice notice-info" style="text-align:center; color:blue;">' . 
-				 '<p>' . sprintf( esc_attr__( "The post is a branch of <a href='%s' target='__blank' >%s</a>. Branch creator is %s", "wp-branches-for-posts" ), get_permalink($original_id), $original_id, $creator_name ) . '</p>' .
+				 '<p>' . sprintf( esc_attr__( "The post is a branch of <a href='%s' target='__blank' >%s</a>. Branch creator is %s", "wp-branches-for-post" ), get_permalink($original_id), $original_id, $creator_name ) . '</p>' .
 				 '</div>';
 			echo '<div class="notice notice-success is-dismissible">' .
-				 '<p>' . esc_attr__( 'This content will automatically overwrite the original after publication', 'wp-branches-for-posts' ) . '</p>' .
+				 '<p>' . esc_attr__( 'This content will automatically overwrite the original after publication', 'wp-branches-for-post' ) . '</p>' .
 				 '</div>';
 			echo '<div class="notice notice-success is-dismissible">' .
-				 '<p>' . esc_attr__( 'In some cases you may need to click Save Draft first to save the data to the database', 'wp-branches-for-posts' ) . '</p>' .
+				 '<p>' . esc_attr__( 'In some cases you may need to click Save Draft first to save the data to the database', 'wp-branches-for-post' ) . '</p>' .
 				 '</div>';
 		}
 	}
@@ -184,7 +184,7 @@ function wbfp_original_post_pages_update( $id, $post ) {
 			);
 		$error_detection = wp_update_post( $post, true );
 		if( is_wp_error( $error_detection ) ) {
-			wp_die( esc_attr__( 'Some errors while updating, Please contact the author', 'wp-branches-for-posts' ) . '<br>E-mail:<br>haokexin1214@gmail.com' );
+			wp_die( esc_attr__( 'Some errors while updating, Please contact the author', 'wp-branches-for-post' ) . '<br>E-mail:<br>haokexin1214@gmail.com' );
 		}
 		wbfp_copy_post_meta( $id, $original_id );
 		wbfp_inherited_branch_attachments( $id, $original_id );
@@ -206,7 +206,7 @@ function wbfp_show_branch_info_in_list( $info ) {
 	if ( 	$original_id = get_post_meta( $post->ID, '_original_post_id', true ) ) {
 		$creator_name = get_post_meta( $post->ID, '_creator_name', true );
 		$creator_id = get_post_meta( $post->ID, '_creator_user_id', true );
-		$info[] = sprintf( esc_attr__( "%d's branch  Creator: %s ID: %d", "wp-branches-for-posts" ), $original_id, $creator_name, $creator_id );
+		$info[] = sprintf( esc_attr__( "%d's branch  Creator: %s ID: %d", "wp-branches-for-post" ), $original_id, $creator_name, $creator_id );
 	}
 	return $info;
 }
