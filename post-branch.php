@@ -147,7 +147,7 @@ function wbfp_post_branch_admin_notice() {
 		if ( $original_id = get_post_meta( $branch_id, '_original_post_id', true ) ) {
 			$creator_name = get_post_meta( $branch_id, '_creator_name', true );
 			echo '<div class="notice notice-info" style="text-align:center; color:blue;">' . 
-				 '<p>' . sprintf( esc_attr__( 'The post is a branch of <a href="%s" target="__blank" >%s</a>. Branch creator is %s', 'wp-branches-for-posts' ), get_permalink($original_id), $original_id, $creator_name ) . '</p>' .
+				 '<p>' . sprintf( esc_attr__( "The post is a branch of <a href='%s' target='__blank' >%s</a>. Branch creator is %s", "wp-branches-for-posts" ), get_permalink($original_id), $original_id, $creator_name ) . '</p>' .
 				 '</div>';
 			echo '<div class="notice notice-success is-dismissible">' .
 				 '<p>' . esc_attr__( 'This content will automatically overwrite the original after publication', 'wp-branches-for-posts' ) . '</p>' .
