@@ -1,9 +1,9 @@
 <?php
 /*
-Plugin Name: WP-Branches-For-Post
+Plugin Name: WP Branches For Post
 Plugin URI: https://github.com/hsxk/WP-Branches-For-Post/
 Description: Creating branches of publishing post to modify and publish them without affecting them in Public
-Version: 1.1.0
+Version: 1.2.0
 Author: Haokexin
 Author URI: hkx.monster
 License: GNU General Public License v3.0

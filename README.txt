@@ -1,7 +1,7 @@
 ===  WP-Branches-For-Post ===
 Contributors: haokexin
 Tags: post branch
-Requires at least: 4.6
+Requires at least: 3.7
 Tested up to: 5.3.2
 Requires PHP: 5.6.40
 Stable tag: trunk
@@ -47,6 +47,8 @@ haokexin1214@gmail.com
 block editor can also create branch in this upgrade
 
 == Changelog ==
+= 1.2.0 =
+Add translation zh_CN, zh_TW, ja
 = 1.1.0 =
 2020.03.11
 Add create branch button for adminbar and list 
