@@ -1,4 +1,4 @@
-===  WP-Branches-For-Post ===
+===  WP Branches For Post ===
 Contributors: haokexin
 Tags: post branch
 Requires at least: 3.7
@@ -25,16 +25,16 @@ Revisions from branches will be inherited to the original post after pubilc bran
 Branch will be deleted after they were made public.
 
 == Installation ==
-1. Upload the plugin files to the /wp-content/plugins/WP-Branches-For-Post directory, or install the plugin through the WordPress plugins screen directly.
+1. Upload the plugin files to the /wp-content/plugins/wp-branches-for-post directory, or install the plugin through the WordPress plugins screen directly.
 2. Activate the plugin through the 'Plugins' screen in WordPress.
 
 == Screenshots ==
-1. WP-Branches-For-Post button for classic editor
-2. WP-Branches-For-Post button for front
-3. WP-Branches-For-Post button for list
-4. WP-Branches-For-Post button for block editor
-5. WP-Branches-For-Post message in classic editor
-6. WP-Branches-For-Post message in list
+1. WP Branches For Post button for classic editor
+2. WP Branches For Post button for front
+3. WP Branches For Post button for list
+4. WP Branches For Post button for block editor
+5. WP Branches For Post message in classic editor
+6. WP Branches For Post message in list
 
 == License ==
 You can use it free of charge on your personal or commercial website.
@@ -48,6 +48,7 @@ block editor can also create branch in this upgrade
 
 == Changelog ==
 = 1.2.0 =
+2020.03.19
 Add translation zh_CN, zh_TW, ja
 = 1.1.0 =
 2020.03.11
