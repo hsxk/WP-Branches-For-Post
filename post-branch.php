@@ -31,7 +31,9 @@ function wbfp_add_post_submitbox_button() {
 						);
 	if ( in_array( $post->post_status, $show_button_which_post_status ) && $post->ID != 0 ) {
 		if ( !get_post_meta( $post->ID, '_original_post_id', true ) ) {
-			echo '<div><input type="submit" class="button-primary" id="create_branch" name="create_branch" value="' . esc_attr__( 'Create Branch', 'wp-branches-for-post' ) . '" /></div>';
+			?>
+			<div><input type="submit" class="button-primary" id="create_branch" name="create_branch" value="<?php esc_attr__( 'Create Branch', 'wp-branches-for-post' ); ?>" /></div>
+			<?php
 		}
 	}
 }
