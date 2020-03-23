@@ -1,6 +1,6 @@
 ===  WP Branches For Post ===
 Contributors: haokexin
-Tags: post branch
+Tags: post branch, modify, parallel, copy, duplicate, clone
 Requires at least: 3.7
 Tested up to: 5.3.2
 Requires PHP: 5.6.40
