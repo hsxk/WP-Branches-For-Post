@@ -24,7 +24,7 @@ add_action( 'plugins_loaded', 'wbfp_load_plugin_textdomain' );
  *	But the button is not showed for branches that have already made future
  *	filter -> wbfp_show_button_post_status_in_submitbox
  *  @param array $show_button_post_status
- *	Used to change $show_button_post_status for show button
+ *	Used to change $show_button_post_status for showing button
  */
 function wbfp_add_post_submitbox_button() {
 	global $post;
@@ -36,7 +36,7 @@ function wbfp_add_post_submitbox_button() {
 	if ( in_array( $post->post_status, $show_button_post_status ) && $post->ID != 0 ) {
 		if ( !get_post_meta( $post->ID, '_original_post_id', true ) ) {
 			?>
-			<div><input type="submit" class="button-primary" id="create_branch" name="create_branch" value="<?php esc_attr__( 'Create Branch', 'wp-branches-for-post' ); ?>" /></div>
+			<div><input type="submit" class="button-primary" id="create_branch" name="create_branch" value="<?php echo esc_attr__( 'Create Branch', 'wp-branches-for-post' ); ?>" /></div>
 			<?php
 		}
 	}
@@ -49,7 +49,7 @@ add_action( 'post_submitbox_start', 'wbfp_add_post_submitbox_button' );
  *	But the button is not showed for branches that have already made future
  *	filter -> wbfp_show_button_post_status_in_list
  *	@param array $show_button_post_status
- *  Used to change $show_button_post_status for show button
+ *  Used to change $show_button_post_status for showing button
  */
 function wbfp_add_button_in_list( $actions ) {
 	global $post;
@@ -74,7 +74,7 @@ add_filter( 'page_row_actions', 'wbfp_add_button_in_list' );
  *	But the button is not showed for branches that have already made future
  *	filter -> wbfp_show_button_post_status_in_adminbar
  *	@param array $show_button_post_status
- *	Used to change $show_button_post_status for show button
+ *	Used to change $show_button_post_status for showing button
  */
 function wbfp_add_button_in_adminbar() {
 	if( !is_admin_bar_showing() ) return;
@@ -121,6 +121,9 @@ add_action( 'admin_enqueue_scripts', 'wbfp_add_css' );
 /*
  *	Create a branch before an existing post is updated in the database
  *	When $_POST including the [create_branch]
+ *	filter -> wbfp_create_branch_origin_post
+ *	@param array $origin ->  $post->ARRAY_A
+ *	Used to change $origin for creating branch
  */
 function wbfp_create_post_branch( $id ) {
 	if ( isset( $_POST['create_branch'] ) || ( isset( $_GET['action'] ) && $_GET['action'] == 'wbfp_create_post_branch' ) ) {
@@ -135,6 +138,7 @@ function wbfp_create_post_branch( $id ) {
 		unset( $origin['ID'] );
 		$origin['post_status'] = 'draft';
 		$origin['post_name']   = $origin['post_name'] . '-branch';
+		$origin = apply_filters( 'wbfp_create_branch_origin_post', $origin );
 		$branch_id = wp_insert_post( $origin );
 		wbfp_copy_post_meta( $id, $branch_id );
 		wbfp_copy_post_taxonomies( $id, $branch_id, $origin['post_type'] );
@@ -162,13 +166,13 @@ function wbfp_post_branch_admin_notice() {
 			$creator_name = get_post_meta( $branch_id, '_creator_name', true );
 			?>
 			<div class="notice notice-info" style="text-align:center; color:blue;">
-			<p><?php sprintf( __( "The post is a branch of <a href='%s' target='__blank' >%s</a>. Branch creator is %s", "wp-branches-for-post" ), get_permalink($original_id), $original_id, $creator_name ); ?></p>
+			<p><?php echo sprintf( __( "The post is a branch of <a href='%s' target='__blank' >%s</a>. Branch creator is %s", "wp-branches-for-post" ), get_permalink($original_id), $original_id, $creator_name ); ?></p>
 			</div>
 			<div class="notice notice-success is-dismissible" style="text-align:center; color:blue;">
-			<p><?php esc_attr__( 'This content will automatically overwrite the original after publication', 'wp-branches-for-post' ); ?></p>
+			<p><?php echo esc_attr__( 'This content will automatically overwrite the original after publication', 'wp-branches-for-post' ); ?></p>
 			</div>
 			<div class="notice notice-success is-dismissible" style="text-align:center; color:blue;">
-			<p><?php esc_attr__( 'In some cases you may need to click Save Draft first to save the data to the database', 'wp-branches-for-post' ); ?></p>
+			<p><?php echo esc_attr__( 'In some cases you may need to click Save Draft first to save the data to the database', 'wp-branches-for-post' ); ?></p>
 			</div>
 			<?php
 		}
@@ -189,6 +193,9 @@ add_action( 'init', 'wbfp_add_custom_post_type_update_hooks', 9999 );
 
 /*
  *	Update post/page when branch published
+ *	filter -> wbfp_update_origin_branch_post
+ *	@param array $post -> $post->to_array();
+ *  Used to change $post for updating origin
  */
 function wbfp_original_post_pages_update( $id, $post ) {
 	if ( $original_id = get_post_meta( $id, '_original_post_id', true ) ) {
@@ -198,6 +205,7 @@ function wbfp_original_post_pages_update( $id, $post ) {
 		unset(	$post['comment_count'], 
 			$post['post_name'] 
 			);
+		$post = apply_filters( 'wbfp_update_origin_branch_post', $post );
 		$error_detection = wp_update_post( $post, true );
 		if( is_wp_error( $error_detection ) ) {
 			wp_die( esc_attr__( 'Some errors while updating, Please contact the author', 'wp-branches-for-post' ) . '<br>E-mail:<br>haokexin1214@gmail.com' );
