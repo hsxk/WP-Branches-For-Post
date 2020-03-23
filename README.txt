@@ -47,6 +47,10 @@ haokexin1214@gmail.com
 block editor can also create branch in this upgrade
 
 == Changelog ==
+= 1.3.0 =
+2020.03.23
+Add filter for developer
+Clean code
 = 1.2.0 =
 2020.03.19
 Add translation zh_CN, zh_TW, ja

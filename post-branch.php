@@ -3,15 +3,15 @@
 Plugin Name: WP Branches For Post
 Plugin URI: https://github.com/hsxk/WP-Branches-For-Post/
 Description: Creating branches of publishing post to modify and publish them without affecting them in Public
-Version: 1.2.0
+Version: 1.3.0
 Author: Haokexin
 Author URI: hkx.monster
 License: GNU General Public License v3.0
 */
 
 /*
-load textdomain
-*/
+ *	load textdomain
+ */
 function wbfp_load_plugin_textdomain() {
 	load_plugin_textdomain( 'wp-branches-for-post', FALSE, basename( dirname( __FILE__ ) ) . '/languages/' );
 }
@@ -19,17 +19,21 @@ add_action( 'plugins_loaded', 'wbfp_load_plugin_textdomain' );
 
 
 /*
-*** For Classic Editor ***
-Show button when post is public, future, privacy status
-But the button is not showed for branches that have already made future
-*/
+ *	*** For Classic Editor ***
+ *	Show button when post is public, future, privacy status and You can customize
+ *	But the button is not showed for branches that have already made future
+ *	filter -> wbfp_show_button_post_status_in_submitbox
+ *  @param array $show_button_post_status
+ *	Used to change $show_button_post_status for show button
+ */
 function wbfp_add_post_submitbox_button() {
 	global $post;
-	$show_button_which_post_status = array(	'publish', 
+	$show_button_post_status = array(	'publish', 
 						'future', 
 						'private'	
 						);
-	if ( in_array( $post->post_status, $show_button_which_post_status ) && $post->ID != 0 ) {
+	$show_button_post_status = apply_filters( 'wbfp_show_button_post_status_in_submitbox', $show_button_post_status );
+	if ( in_array( $post->post_status, $show_button_post_status ) && $post->ID != 0 ) {
 		if ( !get_post_meta( $post->ID, '_original_post_id', true ) ) {
 			?>
 			<div><input type="submit" class="button-primary" id="create_branch" name="create_branch" value="<?php esc_attr__( 'Create Branch', 'wp-branches-for-post' ); ?>" /></div>
@@ -40,17 +44,21 @@ function wbfp_add_post_submitbox_button() {
 add_action( 'post_submitbox_start', 'wbfp_add_post_submitbox_button' );
 
 /*
-*** For List ***
-Show button when post is public, future, privacy status
-But the button is not showed for branches that have already made future
-*/
+ *	*** For List ***
+ *	Show button when post is public, future, privacy status and You can customize
+ *	But the button is not showed for branches that have already made future
+ *	filter -> wbfp_show_button_post_status_in_list
+ *	@param array $show_button_post_status
+ *  Used to change $show_button_post_status for show button
+ */
 function wbfp_add_button_in_list( $actions ) {
 	global $post;
-	$show_button_which_post_status = array( 'publish',
+	$show_button_post_status = array( 'publish',
 						'future',
 						'private'
 						);
-	if ( in_array( $post->post_status, $show_button_which_post_status ) && $post->ID != 0 ) {
+	$show_button_post_status = apply_filters( 'wbfp_show_button_post_status_in_list', $show_button_post_status );
+	if ( in_array( $post->post_status, $show_button_post_status ) && $post->ID != 0 ) {
 		if ( !get_post_meta( $post->ID, '_original_post_id', true ) ) {
 			$actions['create_branch'] = '<a href="' . wp_nonce_url( admin_url( 'admin.php?action=wbfp_create_post_branch&amp;post=' . $post->ID ), 'wbfp_branch_' . $post->ID ) . '">' . esc_attr__( 'Create Branch', 'wp-branches-for-post' ) . '</a>';
 		}
@@ -61,10 +69,13 @@ add_filter( 'post_row_actions', 'wbfp_add_button_in_list' );
 add_filter( 'page_row_actions', 'wbfp_add_button_in_list' );
 
 /*
-*** For adminbar ***
-Show button when post is public, future, privacy status
-But the button is not showed for branches that have already made future
-*/
+ *	*** For adminbar ***
+ *	Show button when post is public, future, privacy status and You can customize
+ *	But the button is not showed for branches that have already made future
+ *	filter -> wbfp_show_button_post_status_in_adminbar
+ *	@param array $show_button_post_status
+ *	Used to change $show_button_post_status for show button
+ */
 function wbfp_add_button_in_adminbar() {
 	if( !is_admin_bar_showing() ) return;
 	$post_info = get_queried_object();
@@ -79,11 +90,12 @@ function wbfp_add_button_in_adminbar() {
 	if( empty( $id ) || empty( $status ) ) {
 		return;
 	}
-	$show_button_which_post_status = array( 'publish',
+	$show_button_post_status = array( 'publish',
 						'future',
 						'private'
 						);
-	if ( in_array( $status, $show_button_which_post_status ) && $id != 0 ) {
+	$show_button_post_status = apply_filters( 'wbfp_show_button_post_status_in_adminbar', $show_button_post_status );
+	if ( in_array( $status, $show_button_post_status ) && $id != 0 ) {
 		if ( !get_post_meta( $id, '_original_post_id', true ) ) {
 			global $wp_admin_bar;
 			$wp_admin_bar->add_menu( array(
@@ -97,8 +109,8 @@ function wbfp_add_button_in_adminbar() {
 add_action ( 'wp_before_admin_bar_render', 'wbfp_add_button_in_adminbar' );
 
 /*
-Add css for adminbar-icon
-*/
+ *	Add css for adminbar-icon
+ */
 function wbfp_add_css() {
 	if( !is_admin_bar_showing() ) return;
 	wp_enqueue_style( 'wbfp_css', plugins_url( '/assets/wbfp.css', __FILE__ ) );
@@ -107,9 +119,9 @@ add_action( 'wp_enqueue_scripts', 'wbfp_add_css' );
 add_action( 'admin_enqueue_scripts', 'wbfp_add_css' );
 
 /*
-Create a branch before an existing post is updated in the database
-When $_POST including the [create_branch]
-*/
+ *	Create a branch before an existing post is updated in the database
+ *	When $_POST including the [create_branch]
+ */
 function wbfp_create_post_branch( $id ) {
 	if ( isset( $_POST['create_branch'] ) || ( isset( $_GET['action'] ) && $_GET['action'] == 'wbfp_create_post_branch' ) ) {
 		if ( isset( $_GET['post'] ) && $_GET['action'] == 'wbfp_create_post_branch' ) {
@@ -140,8 +152,8 @@ add_action( 'pre_post_update', 'wbfp_create_post_branch' );
 add_action( 'admin_action_wbfp_create_post_branch', 'wbfp_create_post_branch' );
 
 /*
-Show info on branch post/pages editor
-*/
+ *	Show info on branch post/pages editor
+ */
 function wbfp_post_branch_admin_notice() {
 	global $pagenow;
 	if ( $pagenow == 'post.php' ) {
@@ -165,8 +177,8 @@ function wbfp_post_branch_admin_notice() {
 add_action( 'admin_notices', 'wbfp_post_branch_admin_notice' );
 
 /*
-Add hooks for custom post_type
-*/
+ *	Add hooks for custom post_type
+ */
 function wbfp_add_custom_post_type_update_hooks() {
 	$additional_post_types = get_post_types( array( '_builtin' => false, 'show_ui' => true ) );
 	foreach ( $additional_post_types as $post_type ) {
@@ -176,8 +188,8 @@ function wbfp_add_custom_post_type_update_hooks() {
 add_action( 'init', 'wbfp_add_custom_post_type_update_hooks', 9999 );
 
 /*
-Update post/page when branch published
-*/
+ *	Update post/page when branch published
+ */
 function wbfp_original_post_pages_update( $id, $post ) {
 	if ( $original_id = get_post_meta( $id, '_original_post_id', true ) ) {
 		$post = $post->to_array();
@@ -203,8 +215,8 @@ add_action( 'publish_page', 'wbfp_original_post_pages_update', 9999, 2 );
 add_action( 'publish_post', 'wbfp_original_post_pages_update', 9999, 2 );
 
 /*
-Show creator's info in the post list
-*/
+ *	Show creator's info in the post list
+ */
 function wbfp_show_branch_info_in_list( $info ) {
 	global $post;
 	if ( 	$original_id = get_post_meta( $post->ID, '_original_post_id', true ) ) {
@@ -217,9 +229,9 @@ function wbfp_show_branch_info_in_list( $info ) {
 add_filter( 'display_post_states', 'wbfp_show_branch_info_in_list' );
 
 /*
-Copy taxonomies
-Return taxonomies object that copied post/page
-*/
+ *	Copy taxonomies
+ *	Return taxonomies object that copied post/page
+ */
 function wbfp_copy_post_taxonomies( $original_id, $target_id, $post_type ) {
 	if ( isset( $original_id, $target_id, $post_type ) ) {
 		$taxonomies = get_object_taxonomies( $post_type );
@@ -238,8 +250,11 @@ function wbfp_copy_post_taxonomies( $original_id, $target_id, $post_type ) {
 }
 
 /*
-Copy postmeta
-*/
+ *	Copy postmeta
+ *	filter -> wbfp_save_post_meta
+ *	@param array $custom_fields
+ *	Used to change save post_meta
+ */
 function wbfp_copy_post_meta( $original_id, $target_id ) {
 	if ( isset( $original_id, $target_id ) ) {
 		$custom_fields = get_post_custom( $original_id );
@@ -251,6 +266,7 @@ function wbfp_copy_post_meta( $original_id, $target_id ) {
 			$custom_fields['_edit_lock'],
 			$custom_fields['_edit_last']
 			);
+		$custom_fields = apply_filters( 'wbfp_save_post_meta', $custom_fields );
 		foreach ( $custom_fields as $key => $values ) {
 			foreach ( $values as $value ) {
 				$value = maybe_unserialize( $value );
@@ -262,8 +278,8 @@ function wbfp_copy_post_meta( $original_id, $target_id ) {
 }
 
 /*
-Postmeta values addslashes
-*/
+ *	Postmeta values addslashes
+ */
 function wbfp_post_meta_addslashes( $value ) {
 	if ( function_exists( 'map_deep' ) ) {
 		return map_deep( $value, 'wbfp_map_deep_post_meta_addslashes' );
@@ -273,16 +289,16 @@ function wbfp_post_meta_addslashes( $value ) {
 }
 
 /*
-Map_deep hook function for addslashes to value
-*/
+ *	Map_deep hook function for addslashes to value
+ */
 function wbfp_map_deep_post_meta_addslashes( $value ) {
 	return is_string( $value ) ? addslashes( $value ) : $value;
 }
 
 /*
-Origin inherited branch's revision
-Change branch's revision postparent to origin
-*/
+ *	Origin inherited branch's revision
+ *	Change branch's revision postparent to origin
+ */
 function wbfp_inherited_branch_revision( $original_id, $target_id ) {
 	if ( isset( $original_id, $target_id ) ) {
 		if ( $revisions = wp_get_post_revisions( $original_id ) ) {
@@ -310,9 +326,9 @@ function wbfp_inherited_branch_revision( $original_id, $target_id ) {
 }
 
 /*
-Origin inherited branch's attachments
-Change branch's attachments postparent to origin
-*/
+ *	Origin inherited branch's attachments
+ *	Change branch's attachments postparent to origin
+ */
 function wbfp_inherited_branch_attachments( $original_id, $target_id ) {
 	$args = array(	'post_type' => 'attachment', 
 					'numberposts' => -1, 
