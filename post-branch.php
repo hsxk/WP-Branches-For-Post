@@ -17,6 +17,16 @@ function wbfp_load_plugin_textdomain() {
 }
 add_action( 'plugins_loaded', 'wbfp_load_plugin_textdomain' );
 
+/*
+ *      Load Javascript
+ */
+function wbfp_gutenberg_admin_notice_js() {
+        wp_enqueue_script(
+		 'wbfp_gutenberg_admin_notice',
+		 plugins_url( '/assets/js/gutenberg_admin_notice.js', __FILE__ )
+		);
+}
+add_action( 'enqueue_block_editor_assets', 'wbfp_gutenberg_admin_notice_js' );
 
 /*
  *      *** For Classic Editor ***
@@ -28,10 +38,10 @@ add_action( 'plugins_loaded', 'wbfp_load_plugin_textdomain' );
  */
 function wbfp_add_post_submitbox_button() {
         global $post;
-        $show_button_post_status = array(       'publish',
-                                                'future',
-                                                'private'
-                                                );
+        $show_button_post_status = array('publish',
+                                         'future',
+                                         'private'
+                                         );
         $show_button_post_status = apply_filters( 'wbfp_show_button_post_status_in_submitbox', $show_button_post_status );
         if ( in_array( $post->post_status, $show_button_post_status ) && $post->ID != 0 ) {
                 if ( !get_post_meta( $post->ID, '_original_post_id', true ) ) {
@@ -53,10 +63,10 @@ add_action( 'post_submitbox_start', 'wbfp_add_post_submitbox_button' );
  */
 function wbfp_add_button_in_list( $actions ) {
         global $post;
-        $show_button_post_status = array( 'publish',
-                                                'future',
-                                                'private'
-                                                );
+        $show_button_post_status = array('publish',
+                                         'future',
+                                         'private'
+                                         );
         $show_button_post_status = apply_filters( 'wbfp_show_button_post_status_in_list', $show_button_post_status );
         if ( in_array( $post->post_status, $show_button_post_status ) && $post->ID != 0 ) {
                 if ( !get_post_meta( $post->ID, '_original_post_id', true ) ) {
@@ -90,10 +100,10 @@ function wbfp_add_button_in_adminbar() {
         if( empty( $id ) || empty( $status ) ) {
                 return;
         }
-        $show_button_post_status = array( 'publish',
-                                                'future',
-                                                'private'
-                                                );
+        $show_button_post_status = array('publish',
+                                         'future',
+                                         'private'
+                                         );
         $show_button_post_status = apply_filters( 'wbfp_show_button_post_status_in_adminbar', $show_button_post_status );
         if ( in_array( $status, $show_button_post_status ) && $id != 0 ) {
                 if ( !get_post_meta( $id, '_original_post_id', true ) ) {
@@ -113,7 +123,7 @@ add_action ( 'wp_before_admin_bar_render', 'wbfp_add_button_in_adminbar' );
  */
 function wbfp_add_css() {
         if( !is_admin_bar_showing() ) return;
-        wp_enqueue_style( 'wbfp_css', plugins_url( '/assets/wbfp.css', __FILE__ ) );
+        wp_enqueue_style( 'wbfp_css', plugins_url( '/assets/css/wbfp.css', __FILE__ ) );
 }
 add_action( 'wp_enqueue_scripts', 'wbfp_add_css' );
 add_action( 'admin_enqueue_scripts', 'wbfp_add_css' );
@@ -339,9 +349,9 @@ function wbfp_inherited_branch_revision( $original_id, $target_id ) {
  */
 function wbfp_inherited_branch_attachments( $original_id, $target_id ) {
         $args = array(  'post_type' => 'attachment',
-                                        'numberposts' => -1,
-                                        'post_status' => null,
-                                        'post_parent' => $original_id );
+                                       'numberposts' => -1,
+                                       'post_status' => null,
+                                       'post_parent' => $original_id );
         $branch_attachments = get_posts( $args );
         if ( $branch_attachments ) {
                 global $wpdb;
