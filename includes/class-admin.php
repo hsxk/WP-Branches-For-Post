@@ -1,0 +1,224 @@
+<?php
+/**
+ * WordPress admin integrations and compatibility actions.
+ *
+ * @package WPBranchesForPost
+ */
+
+namespace WP_Branches_For_Post;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+final class Admin {
+	private Branch_Service $branches;
+	private Merge_Service $merges;
+
+	public function __construct( Branch_Service $branches, Merge_Service $merges ) {
+		$this->branches = $branches;
+		$this->merges   = $merges;
+	}
+
+	public function register_hooks(): void {
+		add_filter( 'post_row_actions', array( $this, 'row_actions' ), 10, 2 );
+		add_filter( 'page_row_actions', array( $this, 'row_actions' ), 10, 2 );
+		add_filter( 'display_post_states', array( $this, 'post_states' ), 10, 2 );
+		add_action( 'post_submitbox_misc_actions', array( $this, 'classic_editor_actions' ) );
+		add_action( 'admin_bar_menu', array( $this, 'admin_bar' ), 100 );
+		add_action( 'admin_notices', array( $this, 'admin_notices' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_style' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_front_admin_bar_style' ) );
+		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_editor_assets' ) );
+
+		add_action( 'admin_post_wbfp_create_branch', array( $this, 'handle_create' ) );
+		add_action( 'admin_action_wbfp_create_post_branch', array( $this, 'handle_legacy_create' ) );
+		add_action( 'admin_post_wbfp_merge_branch', array( $this, 'handle_merge' ) );
+	}
+
+	public function row_actions( array $actions, \WP_Post $post ): array {
+		if ( $this->branches->is_branch( $post->ID ) ) {
+			$original_id = $this->branches->get_original_id( $post->ID );
+			if ( current_user_can( 'edit_post', $post->ID ) && current_user_can( 'edit_post', $original_id ) ) {
+				$actions['wbfp_merge'] = sprintf(
+					'<a href="%s">%s</a>',
+					esc_url( $this->merge_url( $post->ID ) ),
+					esc_html__( 'Merge branch', 'wp-branches-for-post' )
+				);
+			}
+			return $actions;
+		}
+
+		if ( $this->branches->can_create( $post->ID ) ) {
+			$actions['wbfp_create'] = sprintf(
+				'<a href="%s">%s</a>',
+				esc_url( $this->create_url( $post->ID ) ),
+				esc_html__( 'Create branch', 'wp-branches-for-post' )
+			);
+		}
+		return $actions;
+	}
+
+	public function post_states( array $states, \WP_Post $post ): array {
+		if ( $this->branches->is_branch( $post->ID ) ) {
+			$states['wbfp_branch'] = sprintf(
+				esc_html__( 'Branch of #%d', 'wp-branches-for-post' ),
+				$this->branches->get_original_id( $post->ID )
+			);
+		}
+		return $states;
+	}
+
+	public function classic_editor_actions(): void {
+		global $post;
+		if ( ! $post instanceof \WP_Post ) {
+			return;
+		}
+
+		if ( $this->branches->is_branch( $post->ID ) ) {
+			$original_id = $this->branches->get_original_id( $post->ID );
+			if ( current_user_can( 'edit_post', $post->ID ) && current_user_can( 'edit_post', $original_id ) ) {
+				printf(
+					'<div class="misc-pub-section wbfp-classic-action"><strong>%s</strong><p><a class="button button-primary" href="%s">%s</a></p></div>',
+					esc_html__( 'Post Branch', 'wp-branches-for-post' ),
+					esc_url( $this->merge_url( $post->ID ) ),
+					esc_html__( 'Merge into original', 'wp-branches-for-post' )
+				);
+			}
+			return;
+		}
+
+		if ( $this->branches->can_create( $post->ID ) ) {
+			printf(
+				'<div class="misc-pub-section wbfp-classic-action"><strong>%s</strong><p><a class="button" href="%s">%s</a></p></div>',
+				esc_html__( 'Post Branch', 'wp-branches-for-post' ),
+				esc_url( $this->create_url( $post->ID ) ),
+				esc_html__( 'Create branch', 'wp-branches-for-post' )
+			);
+		}
+	}
+
+	public function admin_bar( \WP_Admin_Bar $admin_bar ): void {
+		$post_id = 0;
+		if ( is_admin() && isset( $_GET['post'] ) ) {
+			$post_id = absint( wp_unslash( $_GET['post'] ) );
+		} elseif ( is_singular() ) {
+			$post_id = (int) get_queried_object_id();
+		}
+
+		if ( $post_id < 1 || ! $this->branches->can_create( $post_id ) ) {
+			return;
+		}
+
+		$admin_bar->add_node(
+			array(
+				'id'    => 'wbfp_create_branch',
+				'title' => esc_html__( 'Create Branch', 'wp-branches-for-post' ),
+				'href'  => $this->create_url( $post_id ),
+			)
+		);
+	}
+
+	public function admin_notices(): void {
+		$post_id = isset( $_GET['post'] ) ? absint( wp_unslash( $_GET['post'] ) ) : 0;
+		if ( $post_id && $this->branches->is_branch( $post_id ) ) {
+			$original_id = $this->branches->get_original_id( $post_id );
+			$conflict    = $this->branches->conflict_state( $post_id );
+			$class       = 'changed' === $conflict || 'unknown' === $conflict ? 'notice-warning' : 'notice-info';
+			$message     = sprintf(
+				__( 'This is a working branch of post #%1$d. The public original stays unchanged until you explicitly merge this branch. <a href="%2$s">Open original</a>.', 'wp-branches-for-post' ),
+				$original_id,
+				esc_url( get_edit_post_link( $original_id, 'raw' ) )
+			);
+			printf( '<div class="notice %1$s"><p>%2$s</p></div>', esc_attr( $class ), wp_kses_post( $message ) );
+		}
+
+		$notice = isset( $_GET['wbfp_notice'] ) ? sanitize_key( wp_unslash( $_GET['wbfp_notice'] ) ) : '';
+		if ( 'merge_conflict' === $notice ) {
+			echo '<div class="notice notice-warning is-dismissible"><p>' . esc_html__( 'The original changed after this branch was created. Review both versions and use the block editor panel to force the merge only if appropriate.', 'wp-branches-for-post' ) . '</p></div>';
+		} elseif ( 'operation_failed' === $notice ) {
+			echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__( 'WP Branches For Post could not complete the requested operation.', 'wp-branches-for-post' ) . '</p></div>';
+		}
+	}
+
+	public function enqueue_admin_style(): void {
+		wp_enqueue_style( 'wbfp-admin', WBFP_URL . 'assets/css/wbfp.css', array(), WBFP_VERSION );
+	}
+
+	public function enqueue_front_admin_bar_style(): void {
+		if ( is_admin_bar_showing() ) {
+			wp_enqueue_style( 'wbfp-admin', WBFP_URL . 'assets/css/wbfp.css', array(), WBFP_VERSION );
+		}
+	}
+
+	public function enqueue_editor_assets(): void {
+		$screen = get_current_screen();
+		if ( ! $screen || 'post' !== $screen->base ) {
+			return;
+		}
+
+		$asset_file = WBFP_DIR . 'build/index.asset.php';
+		$asset      = file_exists( $asset_file ) ? require $asset_file : array( 'dependencies' => array(), 'version' => WBFP_VERSION );
+
+		wp_enqueue_script(
+			'wbfp-editor',
+			WBFP_URL . 'build/index.js',
+			$asset['dependencies'],
+			$asset['version'],
+			true
+		);
+		wp_enqueue_style( 'wbfp-editor', WBFP_URL . 'assets/css/editor.css', array( 'wp-components' ), WBFP_VERSION );
+		wp_set_script_translations( 'wbfp-editor', 'wp-branches-for-post', WBFP_DIR . 'languages' );
+	}
+
+	public function handle_create(): void {
+		$post_id = isset( $_GET['post'] ) ? absint( wp_unslash( $_GET['post'] ) ) : 0;
+		check_admin_referer( 'wbfp_create_branch_' . $post_id );
+		$this->create_and_redirect( $post_id );
+	}
+
+	public function handle_legacy_create(): void {
+		$post_id = isset( $_GET['post'] ) ? absint( wp_unslash( $_GET['post'] ) ) : 0;
+		check_admin_referer( 'wbfp_branch_' . $post_id );
+		$this->create_and_redirect( $post_id );
+	}
+
+	public function handle_merge(): void {
+		$branch_id = isset( $_GET['post'] ) ? absint( wp_unslash( $_GET['post'] ) ) : 0;
+		check_admin_referer( 'wbfp_merge_branch_' . $branch_id );
+		$original_id = $this->branches->get_original_id( $branch_id );
+		$result      = $this->merges->merge( $branch_id, false );
+		if ( is_wp_error( $result ) ) {
+			$notice = 'wbfp_merge_conflict' === $result->get_error_code() ? 'merge_conflict' : 'operation_failed';
+			$url    = add_query_arg( 'wbfp_notice', $notice, get_edit_post_link( $branch_id, 'raw' ) );
+			wp_safe_redirect( $url );
+			exit;
+		}
+		wp_safe_redirect( get_edit_post_link( $original_id, 'raw' ) );
+		exit;
+	}
+
+	private function create_and_redirect( int $post_id ): void {
+		$branch_id = $this->branches->create( $post_id );
+		if ( is_wp_error( $branch_id ) ) {
+			wp_safe_redirect( add_query_arg( 'wbfp_notice', 'operation_failed', get_edit_post_link( $post_id, 'raw' ) ) );
+			exit;
+		}
+		wp_safe_redirect( get_edit_post_link( $branch_id, 'raw' ) );
+		exit;
+	}
+
+	private function create_url( int $post_id ): string {
+		return wp_nonce_url(
+			admin_url( 'admin-post.php?action=wbfp_create_branch&post=' . $post_id ),
+			'wbfp_create_branch_' . $post_id
+		);
+	}
+
+	private function merge_url( int $branch_id ): string {
+		return wp_nonce_url(
+			admin_url( 'admin-post.php?action=wbfp_merge_branch&post=' . $branch_id ),
+			'wbfp_merge_branch_' . $branch_id
+		);
+	}
+}
