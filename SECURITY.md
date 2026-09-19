@@ -51,6 +51,7 @@ Conflict checks fail closed:
 - If JSON snapshot encoding fails, snapshot creation fails.
 - A normal merge checks the original again immediately before merge writes.
 - The branch and original are re-fetched after pre-merge hooks to avoid merging stale in-memory data.
+- The branch must still point to the same original after hooks run and must not have moved to Trash.
 - Taxonomy reads are preflighted before the original post is modified.
 
 Legacy 1.x branches do not have a baseline hash and therefore require an explicit force merge after review.
