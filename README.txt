@@ -115,6 +115,8 @@ Useful filters and actions include:
 
 The Block Editor source is in `src/index.js` and is built with `@wordpress/scripts`.
 
+Human-readable source code and build tooling are maintained at https://github.com/hsxk/WP-Branches-For-Post/.
+
 == Changelog ==
 
 = 2.0.0 =
