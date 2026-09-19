@@ -55,7 +55,7 @@ final class Sync_Service {
 		 * @param string[] $required Excluded keys.
 		 */
 		$filtered = apply_filters( 'wbfp_excluded_meta_keys', $required );
-		$filtered = is_array( $filtered ) ? $filtered : array();
+		$filtered = is_array( $filtered ) ? array_filter( $filtered, 'is_string' ) : array();
 
 		return array_values( array_unique( array_merge( $required, $filtered ) ) );
 	}
@@ -91,7 +91,7 @@ final class Sync_Service {
 		 * @param string[] $allowed Allowed editorial field names.
 		 */
 		$filtered = apply_filters( 'wbfp_mergeable_post_fields', $allowed );
-		$filtered = is_array( $filtered ) ? $filtered : array();
+		$filtered = is_array( $filtered ) ? array_filter( $filtered, 'is_string' ) : array();
 
 		return array_values( array_intersect( $allowed, $filtered ) );
 	}
@@ -228,6 +228,7 @@ final class Sync_Service {
 		}
 
 		$post_data = array(
+			'post_type'      => $post->post_type,
 			'post_title'     => $post->post_title,
 			'post_content'   => $post->post_content,
 			'post_excerpt'   => $post->post_excerpt,
