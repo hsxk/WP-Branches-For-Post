@@ -1,0 +1,69 @@
+{
+  "translation-revision-date": "2026-09-19 11:20+0900",
+  "generator": "WP-CLI compatible Jed JSON",
+  "source": "build/index.js",
+  "domain": "messages",
+  "locale_data": {
+    "messages": {
+      "": {
+        "domain": "wp-branches-for-post",
+        "lang": "zh_TW",
+        "plural-forms": "nplurals=1; plural=0;"
+      },
+      "WP Branches For Post could not complete the request.": [
+        "WP Branches For Post 無法完成要求。"
+      ],
+      "Move this branch to Trash? The public original will not be changed.": [
+        "要將這個分支移到回收桶嗎？公開的原始文章不會發生變更。"
+      ],
+      "Edit safely in a separate draft. The published post stays unchanged until you merge the branch.": [
+        "在獨立草稿中安全編輯。在你合併分支之前，已發佈的文章不會發生變更。"
+      ],
+      "Creating…": [
+        "正在建立…"
+      ],
+      "Create branch": [
+        "建立分支"
+      ],
+      "Existing branches": [
+        "現有分支"
+      ],
+      "Branch #%d": [
+        "分支 #%d"
+      ],
+      "Original changed": [
+        "原始文章已變更"
+      ],
+      "This draft is isolated from the public original.": [
+        "這個草稿與公開的原始文章相互獨立。"
+      ],
+      "Open original": [
+        "開啟原始文章"
+      ],
+      "Created by %s": [
+        "由 %s 建立"
+      ],
+      "This is a legacy branch with no baseline snapshot. Review the original before merging.": [
+        "這是一個沒有基準快照的舊版分支。合併前請先檢查原始文章。"
+      ],
+      "The original changed after this branch was created. A normal merge is blocked to prevent overwriting newer work.": [
+        "建立此分支後原始文章已經發生變更。為避免覆蓋較新的內容，一般合併已被阻止。"
+      ],
+      "Merging…": [
+        "正在合併…"
+      ],
+      "Merge into original": [
+        "合併到原始文章"
+      ],
+      "Force merge after review": [
+        "檢查後強制合併"
+      ],
+      "Discard branch": [
+        "捨棄分支"
+      ],
+      "Post Branch": [
+        "文章分支"
+      ]
+    }
+  }
+}
