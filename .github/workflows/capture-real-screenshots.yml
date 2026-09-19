@@ -2,11 +2,6 @@ name: Capture real WordPress screenshots
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - feat/2.0-modernization
-    paths:
-      - '.github/CAPTURE_REAL_SCREENSHOTS'
 
 permissions:
   contents: write
