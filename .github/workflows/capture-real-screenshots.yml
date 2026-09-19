@@ -67,6 +67,16 @@ jobs:
           WBFP_ORIGINAL_POST_ID: ${{ steps.seed.outputs.post_id }}
         run: node tools/capture-real-wp-screenshots.js
 
+      - name: Upload browser debug output on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: real-screenshot-debug
+          path: |
+            debug-browser.png
+            debug-body.txt
+          if-no-files-found: ignore
+
       - name: Verify screenshot files
         run: |
           file screenshot-1.png screenshot-2.png screenshot-3.png screenshot-4.png
