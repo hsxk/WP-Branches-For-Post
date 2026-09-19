@@ -29,3 +29,37 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Build block editor assets
         run: npm run build
+
+  plugin-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare release tree
+        run: |
+          mkdir -p dist/wp-branches-for-post
+          rsync -a ./ dist/wp-branches-for-post/ \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='node_modules' \
+            --exclude='vendor' \
+            --exclude='src' \
+            --exclude='dist' \
+            --exclude='package.json' \
+            --exclude='package-lock.json' \
+            --exclude='composer.json' \
+            --exclude='composer.lock' \
+            --exclude='phpcs.xml.dist' \
+            --exclude='.distignore' \
+            --exclude='banner-*' \
+            --exclude='icon-*' \
+            --exclude='screenshot-*'
+      - name: Run WordPress Plugin Check
+        uses: wordpress/plugin-check-action@v1
+        with:
+          build-dir: './dist/wp-branches-for-post'
+          categories: |
+            general
+            security
+            performance
+            accessibility
+            plugin_repo
