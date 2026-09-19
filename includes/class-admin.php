@@ -155,10 +155,17 @@ final class Admin {
 	 * @return void
 	 */
 	public function admin_bar( \WP_Admin_Bar $admin_bar ): void {
-		global $post;
+		$post_id = 0;
 
-		$post_id = $post instanceof \WP_Post ? (int) $post->ID : 0;
-		if ( ! is_admin() && is_singular() ) {
+		if ( is_admin() ) {
+			$screen = get_current_screen();
+			if ( ! $screen || 'post' !== $screen->base ) {
+				return;
+			}
+
+			global $post;
+			$post_id = $post instanceof \WP_Post ? (int) $post->ID : 0;
+		} elseif ( is_singular() ) {
 			$post_id = (int) get_queried_object_id();
 		}
 
@@ -181,9 +188,14 @@ final class Admin {
 	 * @return void
 	 */
 	public function admin_notices(): void {
-		global $post;
+		$screen  = get_current_screen();
+		$post_id = 0;
 
-		$post_id = $post instanceof \WP_Post ? (int) $post->ID : 0;
+		if ( $screen && 'post' === $screen->base ) {
+			global $post;
+			$post_id = $post instanceof \WP_Post ? (int) $post->ID : 0;
+		}
+
 		if ( $post_id && $this->branches->is_branch( $post_id ) ) {
 			$original_id = $this->branches->get_original_id( $post_id );
 			$conflict    = $this->branches->conflict_state( $post_id );
