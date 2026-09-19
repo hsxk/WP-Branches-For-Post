@@ -1,4 +1,4 @@
-# Copyright (C) 2026 Hsxk
+# Copyright (C) 2026 Hao Kexin
 # This file is distributed under the same license as the WP Branches For Post plugin.
 msgid ""
 msgstr ""
