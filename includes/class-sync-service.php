@@ -147,6 +147,32 @@ final class Sync_Service {
 	}
 
 	/**
+	 * Verify that all source taxonomy assignments can be read before a merge.
+	 *
+	 * This is a preflight check. It reduces the chance of a partial merge by
+	 * detecting taxonomy read errors before the original post is modified.
+	 *
+	 * @param int    $source_id Source post ID.
+	 * @param string $post_type Post type.
+	 * @return \WP_Error|null
+	 */
+	public static function validate_taxonomies( int $source_id, string $post_type ): ?\WP_Error {
+		foreach ( get_object_taxonomies( $post_type ) as $taxonomy ) {
+			$term_ids = wp_get_object_terms(
+				$source_id,
+				$taxonomy,
+				array( 'fields' => 'ids' )
+			);
+
+			if ( is_wp_error( $term_ids ) ) {
+				return $term_ids;
+			}
+		}
+
+		return null;
+	}
+
+	/**
 	 * Make target taxonomy terms exactly match the source, including empty sets.
 	 *
 	 * @param int    $source_id Source post ID.
