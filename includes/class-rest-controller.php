@@ -24,11 +24,20 @@ final class REST_Controller {
 	private Branch_Service $branches;
 	private Merge_Service $merges;
 
+	/**
+	 * @param Branch_Service $branches Branch lifecycle service.
+	 * @param Merge_Service  $merges   Merge/discard service.
+	 */
 	public function __construct( Branch_Service $branches, Merge_Service $merges ) {
 		$this->branches = $branches;
 		$this->merges   = $merges;
 	}
 
+	/**
+	 * Register the authenticated REST routes used by the editor UI.
+	 *
+	 * @return void
+	 */
 	public function register_routes(): void {
 		register_rest_route(
 			self::NAMESPACE,
@@ -164,10 +173,22 @@ final class REST_Controller {
 		return $this->branches->is_branch( $branch_id ) && current_user_can( 'delete_post', $branch_id );
 	}
 
+	/**
+	 * Return branch/original status for the editor panel.
+	 *
+	 * @param \WP_REST_Request $request REST request.
+	 * @return \WP_REST_Response
+	 */
 	public function status( \WP_REST_Request $request ): \WP_REST_Response {
 		return rest_ensure_response( $this->build_status( (int) $request['id'] ) );
 	}
 
+	/**
+	 * Create a branch through the service layer.
+	 *
+	 * @param \WP_REST_Request $request REST request.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
 	public function create_branch( \WP_REST_Request $request ) {
 		$branch_id = $this->branches->create( (int) $request['id'] );
 		if ( is_wp_error( $branch_id ) ) {
@@ -183,6 +204,12 @@ final class REST_Controller {
 		return new \WP_REST_Response( $response, 201 );
 	}
 
+	/**
+	 * Merge a branch into its original post.
+	 *
+	 * @param \WP_REST_Request $request REST request.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
 	public function merge_branch( \WP_REST_Request $request ) {
 		$original_id = $this->merges->merge( (int) $request['id'], (bool) $request->get_param( 'force' ) );
 		if ( is_wp_error( $original_id ) ) {
@@ -198,6 +225,12 @@ final class REST_Controller {
 		);
 	}
 
+	/**
+	 * Move a branch to Trash without changing the original.
+	 *
+	 * @param \WP_REST_Request $request REST request.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
 	public function discard_branch( \WP_REST_Request $request ) {
 		$branch_id   = (int) $request['id'];
 		$original_id = $this->branches->get_original_id( $branch_id );
@@ -215,6 +248,12 @@ final class REST_Controller {
 		);
 	}
 
+	/**
+	 * Build the permission-filtered editor status payload.
+	 *
+	 * @param int $post_id Post or branch ID.
+	 * @return array<string,mixed>
+	 */
 	private function build_status( int $post_id ): array {
 		$post = get_post( $post_id );
 		if ( ! $post ) {
