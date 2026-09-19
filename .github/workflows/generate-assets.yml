@@ -11,8 +11,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: feat/2.0-modernization
       - uses: actions/setup-python@v5
         with:
           python-version: '3.13'
@@ -30,4 +28,4 @@ jobs:
             exit 0
           fi
           git commit -m "assets: refresh WordPress.org artwork"
-          git push origin HEAD:feat/2.0-modernization
+          git push origin "HEAD:${GITHUB_REF_NAME}"
