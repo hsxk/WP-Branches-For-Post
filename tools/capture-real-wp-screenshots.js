@@ -61,12 +61,26 @@ async function ensureSettingsSidebar(page) {
 	}
 }
 
+async function ensureBranchPanelExpanded(page) {
+	const title = page.getByText('Post Branch', { exact: true }).last();
+	await title.waitFor({ state: 'visible', timeout: 20000 });
+
+	const toggle = title.locator('xpath=ancestor::button[1]');
+	if (await toggle.count()) {
+		const expanded = await toggle.getAttribute('aria-expanded');
+		if (expanded === 'false') {
+			await toggle.click();
+			await page.waitForTimeout(400);
+		}
+	}
+}
+
 async function waitForEditor(page) {
 	await page.waitForLoadState('domcontentloaded');
 	await page.waitForTimeout(1500);
 	await closeEditorWelcome(page);
 	await ensureSettingsSidebar(page);
-	await page.getByText('Post Branch', { exact: true }).first().waitFor({ state: 'visible', timeout: 20000 });
+	await ensureBranchPanelExpanded(page);
 	await page.waitForTimeout(500);
 }
 
@@ -77,6 +91,8 @@ async function screenshot(page, name) {
 		animations: 'disabled',
 	});
 }
+
+let page;
 
 (async () => {
 	const executablePath =
@@ -96,7 +112,7 @@ async function screenshot(page, name) {
 		locale: 'en-US',
 	});
 
-	const page = await context.newPage();
+	page = await context.newPage();
 
 	await page.goto(baseURL + '/wp-login.php', { waitUntil: 'domcontentloaded' });
 	await page.locator('#user_login').fill('admin');
@@ -109,14 +125,17 @@ async function screenshot(page, name) {
 	// 1. Real Block Editor view on the original post.
 	await page.goto(baseURL + '/wp-admin/post.php?post=' + postId + '&action=edit', { waitUntil: 'domcontentloaded' });
 	await waitForEditor(page);
+
+	// Wait for the authenticated REST status call to populate the panel.
+	const createButton = page.getByText('Create branch', { exact: true }).last();
+	await createButton.waitFor({ state: 'visible', timeout: 15000 });
 	await screenshot(page, 'screenshot-1.png');
 
 	// Create the branch through the real plugin UI.
-	const createButton = page.getByRole('button', { name: /Create branch/i }).first();
-	await createButton.waitFor({ state: 'visible', timeout: 10000 });
 	await createButton.click();
 	await page.waitForURL(/post\.php\?post=\d+&action=edit/, { timeout: 20000 });
 	await waitForEditor(page);
+	await page.getByText('Merge into original', { exact: true }).last().waitFor({ state: 'visible', timeout: 15000 });
 
 	const branchMatch = page.url().match(/[?&]post=(\d+)/);
 	if (!branchMatch) {
@@ -152,7 +171,15 @@ async function screenshot(page, name) {
 
 	await browser.close();
 	console.log(JSON.stringify({ postId, branchId }));
-})().catch((error) => {
+})().catch(async (error) => {
 	console.error(error);
+	try {
+		const debugPath = path.join(outputDir, 'debug-browser.png');
+		await page.screenshot({ path: debugPath, fullPage: true, animations: 'disabled' });
+		fs.writeFileSync(path.join(outputDir, 'debug-body.txt'), await page.locator('body').innerText());
+		console.error('Saved debug-browser.png and debug-body.txt');
+	} catch (debugError) {
+		console.error('Could not save browser debug output:', debugError);
+	}
 	process.exit(1);
 });
