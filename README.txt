@@ -121,6 +121,12 @@ Useful filters and actions include:
 * `wbfp_before_merge`
 * `wbfp_after_merge`
 
+Security-critical invariants remain enforced after extension filters run: a new branch stays a draft of the same post type, required runtime meta stays excluded, and mergeable core fields are limited to the plugin's editorial allowlist.
+
+See `ARCHITECTURE.md` for the create/merge data flow and `SECURITY.md` for authorization, CSRF, REST, conflict, and data-synchronization boundaries.
+
+CI is intentionally not triggered for every feature-branch commit. Full PHP/build/Plugin Check validation runs on `master`, release tags, or manual workflow dispatch.
+
 The Block Editor source is in `src/index.js` and is built with `@wordpress/scripts`.
 
 Human-readable source code and build tooling are maintained at https://github.com/hsxk/WP-Branches-For-Post/.
