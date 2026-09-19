@@ -30,7 +30,7 @@ Owns:
 
 ### Create flow
 
-1. Verify that the current user can edit the original.
+1. Verify that the current user can edit the original and can create posts of that post type.
 2. Verify that the original is a supported post/status and is not already a branch.
 3. Create a deterministic baseline snapshot.
 4. Clone post data.
@@ -66,7 +66,7 @@ Owns privileged merge/discard mutations.
 4. Verify edit capability for both posts.
 5. Verify the baseline conflict state is clean.
 6. Run the pre-merge hook.
-7. Re-fetch branch state and re-check the original conflict state.
+7. Re-fetch both branch and original state, then re-check the normal-merge conflict state.
 8. Preflight taxonomy reads.
 9. Update allowed original post fields through `wp_update_post()`.
 10. Synchronize allowed meta and taxonomy assignments.
@@ -74,7 +74,7 @@ Owns privileged merge/discard mutations.
 12. Move the branch to Trash.
 13. Fire the post-merge hook.
 
-A force merge changes step 5 only. It never disables authorization or structural validation.
+A force merge bypasses the baseline-conflict gates only. It never disables authorization, existence, relationship, or post-type validation.
 
 ## REST API
 
