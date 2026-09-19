@@ -62,6 +62,7 @@ final class Admin {
 	public function post_states( array $states, \WP_Post $post ): array {
 		if ( $this->branches->is_branch( $post->ID ) ) {
 			$states['wbfp_branch'] = sprintf(
+				/* translators: %d: original post ID. */
 				esc_html__( 'Branch of #%d', 'wp-branches-for-post' ),
 				$this->branches->get_original_id( $post->ID )
 			);
@@ -102,10 +103,10 @@ final class Admin {
 	}
 
 	public function admin_bar( \WP_Admin_Bar $admin_bar ): void {
-		$post_id = 0;
-		if ( is_admin() && isset( $_GET['post'] ) ) {
-			$post_id = absint( wp_unslash( $_GET['post'] ) );
-		} elseif ( is_singular() ) {
+		global $post;
+
+		$post_id = $post instanceof \WP_Post ? (int) $post->ID : 0;
+		if ( ! is_admin() && is_singular() ) {
 			$post_id = (int) get_queried_object_id();
 		}
 
@@ -123,12 +124,15 @@ final class Admin {
 	}
 
 	public function admin_notices(): void {
-		$post_id = isset( $_GET['post'] ) ? absint( wp_unslash( $_GET['post'] ) ) : 0;
+		global $post;
+
+		$post_id = $post instanceof \WP_Post ? (int) $post->ID : 0;
 		if ( $post_id && $this->branches->is_branch( $post_id ) ) {
 			$original_id = $this->branches->get_original_id( $post_id );
 			$conflict    = $this->branches->conflict_state( $post_id );
 			$class       = 'changed' === $conflict || 'unknown' === $conflict ? 'notice-warning' : 'notice-info';
 			$message     = sprintf(
+				/* translators: 1: original post ID, 2: edit URL for the original post. */
 				__( 'This is a working branch of post #%1$d. The public original stays unchanged until you explicitly merge this branch. <a href="%2$s">Open original</a>.', 'wp-branches-for-post' ),
 				$original_id,
 				esc_url( get_edit_post_link( $original_id, 'raw' ) )
@@ -136,7 +140,8 @@ final class Admin {
 			printf( '<div class="notice %1$s"><p>%2$s</p></div>', esc_attr( $class ), wp_kses_post( $message ) );
 		}
 
-		$notice = isset( $_GET['wbfp_notice'] ) ? sanitize_key( wp_unslash( $_GET['wbfp_notice'] ) ) : '';
+		$notice_input = filter_input( INPUT_GET, 'wbfp_notice', FILTER_UNSAFE_RAW );
+		$notice       = is_string( $notice_input ) ? sanitize_key( $notice_input ) : '';
 		if ( 'merge_conflict' === $notice ) {
 			echo '<div class="notice notice-warning is-dismissible"><p>' . esc_html__( 'The original changed after this branch was created. Review both versions and use the block editor panel to force the merge only if appropriate.', 'wp-branches-for-post' ) . '</p></div>';
 		} elseif ( 'operation_failed' === $notice ) {
