@@ -9,3 +9,9 @@
 /composer.json
 /phpcs.xml.dist
 /.distignore
+/banner-*.png
+/banner-*.jpg
+/icon-*.png
+/icon-*.jpg
+/screenshot-*.png
+/screenshot-*.jpg
