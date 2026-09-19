@@ -72,6 +72,13 @@ The old automatic "publish branch to overwrite original" behavior has intentiona
 2. Activate WP Branches For Post.
 3. Open an existing published post and use the Post Branch panel or Create Branch action.
 
+== Screenshots ==
+
+1. Block Editor panel on an original post, with a safe Create branch action.
+2. Editing an isolated branch with explicit Merge into original and Discard branch actions.
+3. Conflict protection when the original post changes after branch creation.
+4. Post list integration showing Create branch, Merge branch, and branch state.
+
 == Frequently Asked Questions ==
 
 = Does a branch get a public URL? =
