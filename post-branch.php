@@ -6,7 +6,7 @@
  * Version:           2.0.0
  * Requires at least: 6.4
  * Requires PHP:      8.2
- * Author:            Hsxk
+ * Author:            Hao Kexin
  * Author URI:        https://time2log.com/about/
  * Text Domain:       wp-branches-for-post
  * Domain Path:       /languages
