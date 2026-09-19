@@ -211,8 +211,10 @@ def icon(size, target):
     image.save(target, optimize=True, quality=92)
 
 if __name__ == "__main__":
+    # WordPress.org screenshots are captured from a real WordPress instance by
+    # tools/capture-real-wp-screenshots.js. This generator intentionally owns
+    # only the banner/icon artwork so it can never overwrite real screenshots.
     banner(772, 250, ROOT / "banner-772x250.png")
     banner(1544, 500, ROOT / "banner-1544x500.png")
     icon(128, ROOT / "icon-128x128.jpg")
     icon(256, ROOT / "icon-256x256.jpg")
-    screenshots()
