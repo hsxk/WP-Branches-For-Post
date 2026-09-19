@@ -78,11 +78,14 @@ final class Admin {
 		if ( $this->branches->is_branch( $post->ID ) ) {
 			$original_id = $this->branches->get_original_id( $post->ID );
 			if ( current_user_can( 'edit_post', $post->ID ) && current_user_can( 'edit_post', $original_id ) ) {
+				$conflict = $this->branches->conflict_state( $post->ID );
+				$force    = 'clean' !== $conflict;
 				printf(
-					'<div class="misc-pub-section wbfp-classic-action"><strong>%s</strong><p><a class="button button-primary" href="%s">%s</a></p></div>',
+					'<div class="misc-pub-section wbfp-classic-action"><strong>%1$s</strong><p><a class="button %2$s" href="%3$s">%4$s</a></p></div>',
 					esc_html__( 'Post Branch', 'wp-branches-for-post' ),
-					esc_url( $this->merge_url( $post->ID ) ),
-					esc_html__( 'Merge into original', 'wp-branches-for-post' )
+					$force ? '' : 'button-primary',
+					esc_url( $this->merge_url( $post->ID, $force ) ),
+					$force ? esc_html__( 'Force merge after review', 'wp-branches-for-post' ) : esc_html__( 'Merge into original', 'wp-branches-for-post' )
 				);
 			}
 			return;
@@ -187,7 +190,8 @@ final class Admin {
 		$branch_id = isset( $_GET['post'] ) ? absint( wp_unslash( $_GET['post'] ) ) : 0;
 		check_admin_referer( 'wbfp_merge_branch_' . $branch_id );
 		$original_id = $this->branches->get_original_id( $branch_id );
-		$result      = $this->merges->merge( $branch_id, false );
+		$force       = isset( $_GET['force'] ) && '1' === sanitize_text_field( wp_unslash( $_GET['force'] ) );
+		$result      = $this->merges->merge( $branch_id, $force );
 		if ( is_wp_error( $result ) ) {
 			$notice = 'wbfp_merge_conflict' === $result->get_error_code() ? 'merge_conflict' : 'operation_failed';
 			$url    = add_query_arg( 'wbfp_notice', $notice, get_edit_post_link( $branch_id, 'raw' ) );
@@ -215,9 +219,13 @@ final class Admin {
 		);
 	}
 
-	private function merge_url( int $branch_id ): string {
+	private function merge_url( int $branch_id, bool $force = false ): string {
+		$url = admin_url( 'admin-post.php?action=wbfp_merge_branch&post=' . $branch_id );
+		if ( $force ) {
+			$url = add_query_arg( 'force', '1', $url );
+		}
 		return wp_nonce_url(
-			admin_url( 'admin-post.php?action=wbfp_merge_branch&post=' . $branch_id ),
+			$url,
 			'wbfp_merge_branch_' . $branch_id
 		);
 	}
