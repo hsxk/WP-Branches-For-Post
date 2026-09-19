@@ -80,7 +80,17 @@ jobs:
       - name: Verify screenshot files
         run: |
           file screenshot-1.png screenshot-2.png screenshot-3.png screenshot-4.png
-          identify screenshot-1.png screenshot-2.png screenshot-3.png screenshot-4.png
+          node - <<'NODE'
+          const fs = require('fs');
+          for (const name of ['screenshot-1.png', 'screenshot-2.png', 'screenshot-3.png', 'screenshot-4.png']) {
+            const b = fs.readFileSync(name);
+            if (b.readUInt32BE(0) !== 0x89504e47) throw new Error(name + ' is not a PNG');
+            const width = b.readUInt32BE(16);
+            const height = b.readUInt32BE(20);
+            if (width !== 1440 || height !== 900) throw new Error(name + ' has unexpected size ' + width + 'x' + height);
+            console.log(name + ': ' + width + 'x' + height);
+          }
+          NODE
 
       - name: Commit real screenshots
         run: |
