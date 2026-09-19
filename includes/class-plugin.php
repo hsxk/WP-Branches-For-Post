@@ -11,10 +11,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Lightweight composition root for the plugin.
+ *
+ * Domain mutations live in Branch_Service and Merge_Service; this class only
+ * wires WordPress hooks to those services.
+ */
 final class Plugin {
 	private static ?Plugin $instance = null;
 	private bool $booted = false;
 
+	/**
+	 * Return the singleton plugin instance.
+	 *
+	 * @return Plugin
+	 */
 	public static function instance(): Plugin {
 		if ( null === self::$instance ) {
 			self::$instance = new self();
@@ -24,6 +35,11 @@ final class Plugin {
 
 	private function __construct() {}
 
+	/**
+	 * Register plugin services and WordPress hooks once.
+	 *
+	 * @return void
+	 */
 	public function boot(): void {
 		if ( $this->booted ) {
 			return;
@@ -41,6 +57,13 @@ final class Plugin {
 		$admin->register_hooks();
 	}
 
+	/**
+	 * Load bundled translations for manual/GitHub installations.
+	 *
+	 * WordPress.org language packs are still handled by WordPress core.
+	 *
+	 * @return void
+	 */
 	public function load_textdomain(): void {
 		load_plugin_textdomain( 'wp-branches-for-post', false, dirname( plugin_basename( WBFP_FILE ) ) . '/languages' );
 	}
