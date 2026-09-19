@@ -80,6 +80,11 @@ final class Branch_Service {
 			return false;
 		}
 
+		$post_type = get_post_type_object( $post->post_type );
+		if ( ! $post_type || empty( $post_type->cap->create_posts ) || ! current_user_can( $post_type->cap->create_posts ) ) {
+			return false;
+		}
+
 		/**
 		 * Filters post statuses that may be branched.
 		 *
@@ -90,6 +95,9 @@ final class Branch_Service {
 		 * @param \WP_Post $post             Original post.
 		 */
 		$allowed_statuses = apply_filters( 'wbfp_branchable_post_statuses', array( 'publish', 'future', 'private' ), $post );
+		if ( ! is_array( $allowed_statuses ) ) {
+			return false;
+		}
 
 		return in_array( $post->post_status, $allowed_statuses, true );
 	}
