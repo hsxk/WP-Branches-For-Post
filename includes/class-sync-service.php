@@ -11,6 +11,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Synchronizes the subset of WordPress post state that belongs to editorial
+ * content while deliberately preserving the original post identity.
+ *
+ * This class contains no authorization logic. Callers must perform capability
+ * and CSRF/REST permission checks before invoking mutating methods.
+ */
 final class Sync_Service {
 	/**
 	 * Plugin and WordPress runtime meta that should never be copied/merged.
@@ -34,6 +41,9 @@ final class Sync_Service {
 			'_edit_last',
 			'_wp_old_slug',
 			'_wp_old_date',
+			'_wp_trash_meta_status',
+			'_wp_trash_meta_time',
+			'_wp_desired_post_slug',
 		);
 
 		/**
@@ -47,7 +57,9 @@ final class Sync_Service {
 	/**
 	 * Core post fields managed by a branch merge.
 	 *
-	 * Identity/status/date fields intentionally stay owned by the original post.
+	 * Identity, status, slug, author, GUID, and publication dates intentionally
+	 * stay owned by the original post. This is what lets a merge update content
+	 * without changing the public resource identity.
 	 *
 	 * @return string[]
 	 */
@@ -194,7 +206,8 @@ final class Sync_Service {
 		foreach ( get_object_taxonomies( $post->post_type ) as $taxonomy ) {
 			$ids = wp_get_object_terms( $post_id, $taxonomy, array( 'fields' => 'ids' ) );
 			if ( is_wp_error( $ids ) ) {
-				$ids = array();
+				// Conflict detection must fail closed when state cannot be read.
+				return '';
 			}
 			$ids = array_map( 'intval', $ids );
 			sort( $ids, SORT_NUMERIC );
@@ -208,7 +221,12 @@ final class Sync_Service {
 			'taxonomies' => $taxonomy_data,
 		);
 
-		return hash( 'sha256', (string) wp_json_encode( $payload ) );
+		$encoded = wp_json_encode( $payload );
+		if ( false === $encoded ) {
+			return '';
+		}
+
+		return hash( 'sha256', $encoded );
 	}
 
 	/**
