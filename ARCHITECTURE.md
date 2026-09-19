@@ -66,7 +66,7 @@ Owns privileged merge/discard mutations.
 4. Verify edit capability for both posts.
 5. Verify the baseline conflict state is clean.
 6. Run the pre-merge hook.
-7. Re-fetch both branch and original state, then re-check the normal-merge conflict state.
+7. Re-fetch both branch and original state, verify the relationship is unchanged and the branch is still active, then re-check the normal-merge conflict state.
 8. Preflight taxonomy reads.
 9. Update allowed original post fields through `wp_update_post()`.
 10. Synchronize allowed meta and taxonomy assignments.
