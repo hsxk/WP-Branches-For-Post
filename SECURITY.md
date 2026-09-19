@@ -4,7 +4,7 @@ WP Branches For Post treats branch creation and merging as privileged content mu
 
 ## Authorization boundaries
 
-- Creating a branch requires `current_user_can( 'edit_post', $original_id )`.
+- Creating a branch requires `current_user_can( 'edit_post', $original_id )` and the target post type's `create_posts` capability.
 - Merging requires edit capability for both the branch and the original post.
 - Discarding requires `delete_post` capability for the branch.
 - REST routes define explicit `permission_callback` functions.
@@ -42,15 +42,15 @@ A branch must never become a public replacement for the original post.
 
 Each 2.0 branch stores a deterministic baseline hash of the original post's editorial state.
 
-The hash includes relevant post fields, synchronized metadata, and taxonomy assignments. A normal merge is blocked when the current original differs from the stored baseline.
+The hash includes relevant post fields (including post type), synchronized metadata, and taxonomy assignments. A normal merge is blocked when the current original differs from the stored baseline.
 
 Conflict checks fail closed:
 
 - If the original is missing, the merge is blocked.
 - If taxonomy state cannot be read, snapshot creation fails rather than treating it as empty data.
 - If JSON snapshot encoding fails, snapshot creation fails.
-- The original is checked again immediately before merge writes.
-- The branch is re-fetched after pre-merge hooks to avoid merging stale in-memory data.
+- A normal merge checks the original again immediately before merge writes.
+- The branch and original are re-fetched after pre-merge hooks to avoid merging stale in-memory data.
 - Taxonomy reads are preflighted before the original post is modified.
 
 Legacy 1.x branches do not have a baseline hash and therefore require an explicit force merge after review.
