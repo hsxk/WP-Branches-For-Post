@@ -54,6 +54,11 @@ final class Branch_Service {
 			return new \WP_Error( 'wbfp_missing_original', __( 'The original post does not exist.', 'wp-branches-for-post' ), array( 'status' => 404 ) );
 		}
 
+		$base_hash = Sync_Service::snapshot_hash( $original_id );
+		if ( '' === $base_hash ) {
+			return new \WP_Error( 'wbfp_snapshot_failed', __( 'The original post could not be snapshotted.', 'wp-branches-for-post' ), array( 'status' => 500 ) );
+		}
+
 		$data = $original->to_array();
 		unset( $data['ID'], $data['guid'], $data['post_name'], $data['post_modified'], $data['post_modified_gmt'], $data['comment_count'] );
 		$data['post_status'] = 'draft';
@@ -72,6 +77,15 @@ final class Branch_Service {
 			return $taxonomy_error;
 		}
 
+		if ( ! hash_equals( $base_hash, Sync_Service::snapshot_hash( $original_id ) ) ) {
+			wp_delete_post( $branch_id, true );
+			return new \WP_Error(
+				'wbfp_original_changed_during_branch_creation',
+				__( 'The original changed while the branch was being created. Please try again so the branch starts from a consistent version.', 'wp-branches-for-post' ),
+				array( 'status' => 409 )
+			);
+		}
+
 		$latest_revision = wp_get_post_revisions( $original_id, array( 'posts_per_page' => 1, 'fields' => 'ids' ) );
 		$revision_id     = $latest_revision ? (int) reset( $latest_revision ) : 0;
 
@@ -79,7 +93,7 @@ final class Branch_Service {
 		update_post_meta( $branch_id, self::META_CREATOR_USER_ID, get_current_user_id() );
 		update_post_meta( $branch_id, self::META_CREATED_GMT, current_time( 'mysql', true ) );
 		update_post_meta( $branch_id, self::META_BASE_MODIFIED_GMT, $original->post_modified_gmt );
-		update_post_meta( $branch_id, self::META_BASE_HASH, Sync_Service::snapshot_hash( $original_id ) );
+		update_post_meta( $branch_id, self::META_BASE_HASH, $base_hash );
 		update_post_meta( $branch_id, self::META_BASE_REVISION_ID, $revision_id );
 
 		do_action( 'wbfp_branch_created', $branch_id, $original_id );
