@@ -65,14 +65,23 @@ async function ensureBranchPanelExpanded(page) {
 	const title = page.getByText('Post Branch', { exact: true }).last();
 	await title.waitFor({ state: 'visible', timeout: 20000 });
 
-	const toggle = title.locator('xpath=ancestor::button[1]');
+	const toggle = page
+		.locator('.components-panel__body-title button')
+		.filter({ hasText: 'Post Branch' })
+		.last();
+
 	if (await toggle.count()) {
 		const expanded = await toggle.getAttribute('aria-expanded');
-		if (expanded === 'false') {
+		if (expanded !== 'true') {
 			await toggle.click();
-			await page.waitForTimeout(400);
+			await page.waitForTimeout(500);
 		}
+		return;
 	}
+
+	// Fallback for future Gutenberg markup changes: click the visible heading.
+	await title.click();
+	await page.waitForTimeout(500);
 }
 
 async function waitForEditor(page) {
@@ -131,8 +140,13 @@ let page;
 	await createButton.waitFor({ state: 'visible', timeout: 15000 });
 	await screenshot(page, 'screenshot-1.png');
 
-	// Create the branch through the real plugin UI.
-	await createButton.click();
+	// Create the branch through the real plugin UI. If Gutenberg changes the
+	// panel button markup, the plugin's real admin-bar action is a safe fallback.
+	if (await createButton.isVisible().catch(() => false)) {
+		await createButton.click();
+	} else {
+		await page.getByText('Create Branch', { exact: true }).last().click();
+	}
 	await page.waitForURL(/post\.php\?post=\d+&action=edit/, { timeout: 20000 });
 	await waitForEditor(page);
 	await page.getByText('Merge into original', { exact: true }).last().waitFor({ state: 'visible', timeout: 15000 });
