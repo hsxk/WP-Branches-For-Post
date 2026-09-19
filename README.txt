@@ -101,6 +101,14 @@ Yes, but because 1.x did not store a baseline snapshot, the plugin requires an e
 
 Yes, when the user can edit the post and the post type uses the normal WordPress editing APIs. Taxonomies and post meta are synchronized with the branch.
 
+== About the Author ==
+
+WP Branches For Post is maintained by Hsxk, a full-stack engineer and product builder based in Japan. Since 2018, his work has spanned requirements, system design, application development, data systems, deployment, observability, and long-term production operations.
+
+His current work focuses on public data, financial analysis, AI, and end-to-end product engineering. He builds and maintains projects including Time2Analyze, a production system for public-company disclosures, structured financial data, analysis, Excel, MCP, and AI workflows.
+
+More about the author and current projects: https://time2log.com/about/
+
 == Developer Notes ==
 
 Useful filters and actions include:
