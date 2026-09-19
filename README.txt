@@ -1,6 +1,6 @@
 === WP Branches For Post ===
 Contributors: haokexin
-Tags: post branch, editorial workflow, staging, revision, gutenberg, duplicate
+Tags: post branch, editorial workflow, staging, revision, gutenberg
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 8.2
