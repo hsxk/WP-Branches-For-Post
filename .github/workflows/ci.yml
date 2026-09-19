@@ -50,6 +50,8 @@ jobs:
             --exclude='node_modules' \
             --exclude='vendor' \
             --exclude='src' \
+            --exclude='tools' \
+            --exclude='ARCHITECTURE.md' \
             --exclude='dist' \
             --exclude='package.json' \
             --exclude='package-lock.json' \
