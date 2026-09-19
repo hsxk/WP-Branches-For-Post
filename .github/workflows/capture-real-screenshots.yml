@@ -34,7 +34,7 @@ jobs:
             "phpVersion": "8.2",
             "plugins": ["."],
             "port": 8888,
-            "testsPort": 8889,
+            "testsEnvironment": false,
             "config": {
               "WP_DEBUG": true,
               "SCRIPT_DEBUG": false
@@ -49,7 +49,8 @@ jobs:
         id: seed
         shell: bash
         run: |
-          npx wp-env run cli wp plugin activate wp-branches-for-post
+          npx wp-env run cli wp plugin list
+          npx wp-env run cli wp plugin activate --all
           npx wp-env run cli wp option update blogname 'WP Branches For Post — Real Screenshot Test'
           npx wp-env run cli wp rewrite structure '/%postname%/' --hard
           POST_OUTPUT="$(npx wp-env run cli wp post create             --post_type=post             --post_status=publish             --post_title='Quarterly product update'             --post_excerpt='A published post that will remain unchanged while its branch is edited.'             --post_content='<p>This is a real published WordPress post used to demonstrate the WP Branches For Post 2.0 workflow.</p><h2>Editorial workflow</h2><p>Create an isolated working branch, review changes safely, and merge only when ready.</p>'             --porcelain)"
