@@ -1,12 +1,6 @@
 name: Generate WordPress.org assets
 
 on:
-  push:
-    branches:
-      - feat/2.0-modernization
-    paths:
-      - 'tools/generate-wporg-assets.py'
-      - '.github/workflows/generate-assets.yml'
   workflow_dispatch:
 
 permissions:
@@ -14,7 +8,6 @@ permissions:
 
 jobs:
   generate:
-    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -36,5 +29,5 @@ jobs:
             echo "Assets are already up to date."
             exit 0
           fi
-          git commit -m "assets: refresh WordPress.org 2.0 artwork"
+          git commit -m "assets: refresh WordPress.org artwork"
           git push origin HEAD:feat/2.0-modernization
