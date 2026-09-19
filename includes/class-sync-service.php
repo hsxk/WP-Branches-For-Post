@@ -222,7 +222,7 @@ final class Sync_Service {
 			return $value;
 		}
 
-		if ( array_is_list( $value ) ) {
+		if ( self::is_list( $value ) ) {
 			return array_map( array( self::class, 'normalize_for_hash' ), $value );
 		}
 
@@ -231,5 +231,19 @@ final class Sync_Service {
 			$value[ $key ] = self::normalize_for_hash( $item );
 		}
 		return $value;
+	}
+
+	/**
+	 * Determine whether an array is a list while remaining compatible with WordPress 6.4.
+	 *
+	 * @param array<mixed> $value Array to inspect.
+	 * @return bool
+	 */
+	private static function is_list( array $value ): bool {
+		if ( array() === $value ) {
+			return true;
+		}
+
+		return array_keys( $value ) === range( 0, count( $value ) - 1 );
 	}
 }
