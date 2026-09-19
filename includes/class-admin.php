@@ -21,11 +21,20 @@ final class Admin {
 	private Branch_Service $branches;
 	private Merge_Service $merges;
 
+	/**
+	 * @param Branch_Service $branches Branch lifecycle service.
+	 * @param Merge_Service  $merges   Merge/discard service.
+	 */
 	public function __construct( Branch_Service $branches, Merge_Service $merges ) {
 		$this->branches = $branches;
 		$this->merges   = $merges;
 	}
 
+	/**
+	 * Register admin, editor, and compatibility hooks.
+	 *
+	 * @return void
+	 */
 	public function register_hooks(): void {
 		add_filter( 'post_row_actions', array( $this, 'row_actions' ), 10, 2 );
 		add_filter( 'page_row_actions', array( $this, 'row_actions' ), 10, 2 );
@@ -42,6 +51,13 @@ final class Admin {
 		add_action( 'admin_post_wbfp_merge_branch', array( $this, 'handle_merge' ) );
 	}
 
+	/**
+	 * Add branch actions to post/page list rows when permitted.
+	 *
+	 * @param array<string,string> $actions Existing row actions.
+	 * @param \WP_Post             $post    Row post.
+	 * @return array<string,string>
+	 */
 	public function row_actions( array $actions, \WP_Post $post ): array {
 		if ( $this->branches->is_branch( $post->ID ) ) {
 			$original_id = $this->branches->get_original_id( $post->ID );
@@ -65,6 +81,13 @@ final class Admin {
 		return $actions;
 	}
 
+	/**
+	 * Label branch posts in list tables.
+	 *
+	 * @param string[] $states Existing post states.
+	 * @param \WP_Post $post   Row post.
+	 * @return string[]
+	 */
 	public function post_states( array $states, \WP_Post $post ): array {
 		if ( $this->branches->is_branch( $post->ID ) ) {
 			$states['wbfp_branch'] = sprintf(
@@ -76,6 +99,13 @@ final class Admin {
 		return $states;
 	}
 
+	/**
+	 * Render branch controls in the Classic Editor publish box.
+	 *
+	 * Conflicted force merges require an additional browser confirmation.
+	 *
+	 * @return void
+	 */
 	public function classic_editor_actions(): void {
 		global $post;
 		if ( ! $post instanceof \WP_Post ) {
@@ -118,6 +148,12 @@ final class Admin {
 		}
 	}
 
+	/**
+	 * Add a Create Branch shortcut to the admin bar when applicable.
+	 *
+	 * @param \WP_Admin_Bar $admin_bar WordPress admin bar.
+	 * @return void
+	 */
 	public function admin_bar( \WP_Admin_Bar $admin_bar ): void {
 		global $post;
 
@@ -139,6 +175,11 @@ final class Admin {
 		);
 	}
 
+	/**
+	 * Show branch relationship and operation-result notices.
+	 *
+	 * @return void
+	 */
 	public function admin_notices(): void {
 		global $post;
 
@@ -165,6 +206,11 @@ final class Admin {
 		}
 	}
 
+	/**
+	 * Load admin CSS only on post edit/list screens.
+	 *
+	 * @return void
+	 */
 	public function enqueue_admin_style(): void {
 		$screen = get_current_screen();
 		if ( ! $screen || ! in_array( $screen->base, array( 'post', 'edit' ), true ) ) {
@@ -174,6 +220,11 @@ final class Admin {
 		wp_enqueue_style( 'wbfp-admin', WBFP_URL . 'assets/css/wbfp.css', array(), WBFP_VERSION );
 	}
 
+	/**
+	 * Load front-end admin-bar CSS only where Create Branch can be shown.
+	 *
+	 * @return void
+	 */
 	public function enqueue_front_admin_bar_style(): void {
 		if ( ! is_admin_bar_showing() || ! is_singular() ) {
 			return;
@@ -185,6 +236,11 @@ final class Admin {
 		}
 	}
 
+	/**
+	 * Load the Block Editor panel and its translations on post editor screens.
+	 *
+	 * @return void
+	 */
 	public function enqueue_editor_assets(): void {
 		$screen = get_current_screen();
 		if ( ! $screen || 'post' !== $screen->base ) {
@@ -253,6 +309,12 @@ final class Admin {
 		exit;
 	}
 
+	/**
+	 * Create a branch and redirect to the branch editor or back with an error.
+	 *
+	 * @param int $post_id Original post ID.
+	 * @return void
+	 */
 	private function create_and_redirect( int $post_id ): void {
 		$branch_id = $this->branches->create( $post_id );
 		if ( is_wp_error( $branch_id ) ) {
@@ -263,6 +325,12 @@ final class Admin {
 		exit;
 	}
 
+	/**
+	 * Build a nonce-protected admin URL for branch creation.
+	 *
+	 * @param int $post_id Original post ID.
+	 * @return string
+	 */
 	private function create_url( int $post_id ): string {
 		return wp_nonce_url(
 			admin_url( 'admin-post.php?action=wbfp_create_branch&post=' . $post_id ),
@@ -270,6 +338,13 @@ final class Admin {
 		);
 	}
 
+	/**
+	 * Build a nonce-protected admin URL for merge.
+	 *
+	 * @param int  $branch_id Branch post ID.
+	 * @param bool $force     Whether this is an explicit force merge.
+	 * @return string
+	 */
 	private function merge_url( int $branch_id, bool $force = false ): string {
 		$url = admin_url( 'admin-post.php?action=wbfp_merge_branch&post=' . $branch_id );
 		if ( $force ) {
