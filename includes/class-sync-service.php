@@ -25,7 +25,7 @@ final class Sync_Service {
 	 * @return string[]
 	 */
 	public static function excluded_meta_keys(): array {
-		$keys = array(
+		$required = array(
 			'_wbfp_original_post_id',
 			'_wbfp_creator_user_id',
 			'_wbfp_created_gmt',
@@ -47,11 +47,17 @@ final class Sync_Service {
 		);
 
 		/**
-		 * Filters meta keys that are intentionally excluded from branch synchronization.
+		 * Filters meta keys excluded from branch synchronization.
 		 *
-		 * @param string[] $keys Excluded keys.
+		 * Extensions may add exclusions. Required branch/runtime exclusions are
+		 * always merged back afterwards so they cannot be accidentally removed.
+		 *
+		 * @param string[] $required Excluded keys.
 		 */
-		return array_values( array_unique( apply_filters( 'wbfp_excluded_meta_keys', $keys ) ) );
+		$filtered = apply_filters( 'wbfp_excluded_meta_keys', $required );
+		$filtered = is_array( $filtered ) ? $filtered : array();
+
+		return array_values( array_unique( array_merge( $required, $filtered ) ) );
 	}
 
 	/**
@@ -64,7 +70,7 @@ final class Sync_Service {
 	 * @return string[]
 	 */
 	public static function mergeable_post_fields(): array {
-		$fields = array(
+		$allowed = array(
 			'post_title',
 			'post_content',
 			'post_excerpt',
@@ -78,9 +84,16 @@ final class Sync_Service {
 		/**
 		 * Filters the core post fields copied from a branch into its original.
 		 *
-		 * @param string[] $fields Field names.
+		 * Extensions may remove fields from the default set, but cannot add
+		 * identity/publication fields such as post_status, post_name, GUID,
+		 * author, or dates.
+		 *
+		 * @param string[] $allowed Allowed editorial field names.
 		 */
-		return apply_filters( 'wbfp_mergeable_post_fields', $fields );
+		$filtered = apply_filters( 'wbfp_mergeable_post_fields', $allowed );
+		$filtered = is_array( $filtered ) ? $filtered : array();
+
+		return array_values( array_intersect( $allowed, $filtered ) );
 	}
 
 	/**
