@@ -149,7 +149,10 @@ let page;
 	}
 	await page.waitForURL(/post\.php\?post=\d+&action=edit/, { timeout: 20000 });
 	await waitForEditor(page);
-	await page.getByText('Merge into original', { exact: true }).last().waitFor({ state: 'visible', timeout: 15000 });
+	const mergeButton = page.getByText('Merge into original', { exact: true }).last();
+	await mergeButton.waitFor({ state: 'visible', timeout: 15000 });
+	await mergeButton.scrollIntoViewIfNeeded();
+	await page.waitForTimeout(300);
 
 	const branchMatch = page.url().match(/[?&]post=(\d+)/);
 	if (!branchMatch) {
@@ -169,7 +172,17 @@ let page;
 
 	await page.reload({ waitUntil: 'domcontentloaded' });
 	await waitForEditor(page);
-	await page.getByText('Original changed', { exact: true }).first().waitFor({ state: 'visible', timeout: 10000 });
+	const conflictMessage = page.getByText(
+		'The original changed after this branch was created. A normal merge is blocked to prevent overwriting newer work.',
+		{ exact: true }
+	).last();
+	await conflictMessage.waitFor({ state: 'visible', timeout: 15000 });
+	await conflictMessage.scrollIntoViewIfNeeded();
+
+	const forceButton = page.getByText('Force merge after review', { exact: true }).last();
+	await forceButton.waitFor({ state: 'visible', timeout: 10000 });
+	await forceButton.scrollIntoViewIfNeeded();
+	await page.waitForTimeout(300);
 
 	// 3. Real conflict protection state.
 	await screenshot(page, 'screenshot-3.png');
