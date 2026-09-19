@@ -1,50 +1,120 @@
-# Copyright (C) 2020 Haokexin
+# Copyright (C) 2026 Hao Kexin
 # This file is distributed under the same license as the WP Branches For Post plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: WP Branches For Post 1.1.0\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/WP-Branches-For-Post\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"Project-Id-Version: WP Branches For Post 2.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-branches-for-post/\n"
+"POT-Creation-Date: 2026-09-19 11:20+0900\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2020-03-18T02:30:19+00:00\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: WP-CLI 2.3.0\n"
 "X-Domain: wp-branches-for-post\n"
 
-#. Button Name
-#. post-branch.php
+msgid "You cannot create a branch for this post."
+msgstr ""
+
+msgid "The original post does not exist."
+msgstr ""
+
+msgid "The original post could not be snapshotted."
+msgstr ""
+
+msgid "The original changed while the branch was being created. Please try again so the branch starts from a consistent version."
+msgstr ""
+
+msgid "This post is not a branch."
+msgstr ""
+
+msgid "The original post no longer exists."
+msgstr ""
+
+msgid "You do not have permission to merge this branch."
+msgstr ""
+
+msgid "This legacy branch has no baseline snapshot. Review the original before forcing the merge."
+msgstr ""
+
+msgid "The original post changed after this branch was created. Review the changes before forcing the merge."
+msgstr ""
+
+msgid "The original post changed before the merge could be applied. Review the latest version and try again."
+msgstr ""
+
+msgid "You do not have permission to discard this branch."
+msgstr ""
+
+msgid "The branch could not be moved to Trash."
+msgstr ""
+
+msgid "Merge branch"
+msgstr ""
+
+msgid "Create branch"
+msgstr ""
+
+msgid "Branch of #%d"
+msgstr ""
+
+msgid "Post Branch"
+msgstr ""
+
+msgid "Force merge after review"
+msgstr ""
+
+msgid "Merge into original"
+msgstr ""
+
 msgid "Create Branch"
 msgstr ""
 
-#. Error message in wbfp_create_post_branch
-#. post-branch.php
-msgid "The post does not exist"
+msgid "This is a working branch of post #%1$d. The public original stays unchanged until you explicitly merge this branch. <a href=\"%2$s\">Open original</a>."
 msgstr ""
 
-#. notice-info
-#. post-branch.php
-msgid "The post is a branch of <a href='%s' target='__blank' >%s</a>. Branch creator is %s"
+msgid "The original changed after this branch was created. Review both versions and use the block editor panel to force the merge only if appropriate."
 msgstr ""
 
-#. notice-info
-#. post-branch.php
-msgid "This content will automatically overwrite the original after publication"
+msgid "WP Branches For Post could not complete the requested operation."
 msgstr ""
 
-#. notice-info
-#. post-branch.php
-msgid "In some cases you may need to click Save Draft first to save the data to the database"
+msgid "WP Branches For Post could not complete the request."
 msgstr ""
 
-#. Error message in wbfp_original_post_pages_update
-#. post-branch.php
-msgid "Some errors while updating, Please contact the author"
+msgid "Move this branch to Trash? The public original will not be changed."
 msgstr ""
 
-#. info in list
-#. post-branch.php
-msgid "%d's branch  Creator: %s ID: %d"
+msgid "Edit safely in a separate draft. The published post stays unchanged until you merge the branch."
 msgstr ""
+
+msgid "Creating…"
+msgstr ""
+
+msgid "Existing branches"
+msgstr ""
+
+msgid "Branch #%d"
+msgstr ""
+
+msgid "Original changed"
+msgstr ""
+
+msgid "This draft is isolated from the public original."
+msgstr ""
+
+msgid "Open original"
+msgstr ""
+
+msgid "Created by %s"
+msgstr ""
+
+msgid "This is a legacy branch with no baseline snapshot. Review the original before merging."
+msgstr ""
+
+msgid "The original changed after this branch was created. A normal merge is blocked to prevent overwriting newer work."
+msgstr ""
+
+msgid "Merging…"
+msgstr ""
+
+msgid "Discard branch"
+msgstr ""
+

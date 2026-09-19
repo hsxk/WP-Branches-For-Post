@@ -1,0 +1,37 @@
+.wbfp-actions {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	margin-top: 12px;
+}
+
+.wbfp-actions .components-button {
+	justify-content: center;
+}
+
+.wbfp-existing-branches {
+	margin-top: 16px;
+}
+
+.wbfp-existing-branches ul {
+	margin: 8px 0 0 18px;
+}
+
+.wbfp-meta {
+	color: #646970;
+	font-size: 12px;
+}
+
+.wbfp-conflict-dot {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 18px;
+	height: 18px;
+	margin-left: 6px;
+	border-radius: 50%;
+	background: #dba617;
+	color: #1d2327;
+	font-size: 12px;
+	font-weight: 700;
+}

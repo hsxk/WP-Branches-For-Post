@@ -3,31 +3,31 @@
 	top: 3px;
 }
 
-@media screen and (max-width: 782px){
-	#wpadminbar li#wp-admin-bar-wbfp_create_branch{
+.wbfp-classic-action p {
+	margin-bottom: 0;
+}
+
+@media screen and (max-width: 782px) {
+	#wpadminbar li#wp-admin-bar-wbfp_create_branch {
 		display: block;
 	}
 
 	#wpadminbar li#wp-admin-bar-wbfp_create_branch > .ab-item {
-		text-indent: 100%;
-		white-space: nowrap;
-		overflow: hidden;
+		position: relative;
 		width: 52px;
 		padding: 0;
-		color: #999;
-		position: relative;
+		overflow: hidden;
+		color: #a7aaad;
+		text-indent: 100%;
+		white-space: nowrap;
 	}
 
 	#wpadminbar li#wp-admin-bar-wbfp_create_branch > .ab-item::before {
-		content: url(../image/adminbar-32x32.svg);
 		display: block;
-		text-indent: 0;
-		font: 400 32px/1 dashicons;
-		speak: none;
 		top: 7px;
 		width: 52px;
+		content: url(../image/adminbar-32x32.svg);
 		text-align: center;
-		-webkit-font-smoothing: antialiased;
-		-moz-osx-font-smoothing: grayscale;
+		text-indent: 0;
 	}
 }

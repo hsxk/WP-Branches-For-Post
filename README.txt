@@ -1,81 +1,161 @@
-===  WP Branches For Post ===
+=== WP Branches For Post ===
 Contributors: haokexin
-Tags: post branch, modify, parallel, copy, duplicate, clone
-Requires at least: 3.7
-Tested up to: 5.3.2
-Requires PHP: 5.6.40
-Stable tag: trunk
-License: GNU General Public License v3.0
+Tags: post branch, editorial workflow, staging, revision, gutenberg
+Requires at least: 6.4
+Tested up to: 7.1
+Requires PHP: 8.2
+Stable tag: 2.0.0
+License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-This plugin will create a branch with the same content as the original post/page.  
-Use it you can modify and publish post in public without affecting it that in public.
+Create an isolated working branch for a published post, edit it safely, then explicitly merge it back into the original post.
 
 == Description ==
-This is the post branch plugin that you can use it to  create a branch of a publishing post.
-You can create a branch by clicking the button above the Move to Trash.
-You can make any changes to the branch what you want.
-Just click the branch's publish/update to integrate the content of the branch into the original post/page.
 
-Created branches exist independently until they are made public.
-When creating a branch, the name and ID of the creator will be recorded, and they will be displayed in the list.
-Branch inherits all attributes of the original post.
-Including post, postmeta, attachments, taxonomies.
-Revisions from branches will be inherited to the original post after pubilc branch.
-Branch will be deleted after they were made public.
+WP Branches For Post provides a Git-like editorial workflow for WordPress content.
+
+Instead of editing a published post in place, create a draft branch. The public original remains unchanged while the branch is edited. When the work is ready, explicitly merge the branch back into the same original post ID.
+
+Version 2.0 modernizes the original 2020 plugin for the current WordPress block editor and REST API.
+
+= Core workflow =
+
+1. Open a published, private, or scheduled post/page/custom post type.
+2. Choose "Create branch".
+3. Edit the isolated draft branch.
+4. Review the branch status in the Post Branch panel.
+5. Merge into the original when ready.
+6. The original keeps its URL, ID, publication status, author, date, comments, and external identity.
+7. The merged branch is moved to Trash instead of being permanently deleted.
+
+= Safety =
+
+* Branches are kept non-public and cannot accidentally replace the original by pressing WordPress Publish.
+* Every new branch stores a snapshot of the original state.
+* If the original changes after the branch was created, a normal merge is blocked.
+* A force merge is available only as an explicit action after review.
+* REST endpoints use WordPress capability checks in permission callbacks.
+* The plugin no longer updates revisions or attachment parents with direct SQL.
+* WordPress creates the normal revision history when the original post is updated.
+
+= What is synchronized =
+
+During merge, the plugin synchronizes editable post content, post meta, and all taxonomies while preserving the original post identity and publication state.
+
+Media IDs referenced by post content and featured-image meta remain the same. Attachments are not re-parented.
+
+= Block Editor =
+
+The Post Branch document panel shows:
+
+* Create Branch on an original post.
+* Existing active branches.
+* Original post link from a branch.
+* Conflict status.
+* Merge into original.
+* Force merge after review when a conflict exists.
+* Discard branch.
+
+Classic Editor, post-list row actions, and the admin bar retain lightweight compatibility controls.
+
+= Compatibility with 1.x =
+
+Version 2.0 recognizes branches created by the 1.x metadata format.
+
+Legacy branches do not contain a baseline snapshot, so they are reported as "unknown" conflict state and require an explicit force merge after the original has been reviewed.
+
+The old automatic "publish branch to overwrite original" behavior has intentionally been removed.
 
 == Installation ==
-1. Upload the plugin files to the /wp-content/plugins/wp-branches-for-post directory, or install the plugin through the WordPress plugins screen directly.
-2. Activate the plugin through the 'Plugins' screen in WordPress.
+
+1. Upload the plugin to `/wp-content/plugins/wp-branches-for-post`, or install it through the WordPress Plugins screen.
+2. Activate WP Branches For Post.
+3. Open an existing published post and use the Post Branch panel or Create Branch action.
 
 == Screenshots ==
-1. WP Branches For Post button for classic editor
-2. WP Branches For Post button for front
-3. WP Branches For Post button for list
-4. WP Branches For Post button for block editor
-5. WP Branches For Post message in classic editor
-6. WP Branches For Post message in list
 
-== License ==
-You can use it free of charge on your personal or commercial website.
+1. Block Editor panel on an original post, with a safe Create branch action.
+2. Editing an isolated branch with explicit Merge into original and Discard branch actions.
+3. Conflict protection when the original post changes after branch creation.
+4. Post list integration showing Create branch, Merge branch, and branch state.
 
 == Frequently Asked Questions ==
-If you have any suggestions please email me
-haokexin1214@gmail.com
 
-== Upgrade Notice ==
-block editor can also create branch in this upgrade
+= Does a branch get a public URL? =
+
+No. A branch is an isolated working draft. Publishing a branch through the normal editor is prevented; use Merge into original instead.
+
+= Does merging change the original URL or post ID? =
+
+No. The merge updates the existing original post record and preserves its identity, slug, publication state, author, and original dates.
+
+= What happens if someone edits the original while I am working on a branch? =
+
+The stored baseline snapshot no longer matches. The plugin marks the branch as conflicted and blocks the normal merge so newer work is not silently overwritten.
+
+= Can I still merge an old 1.x branch? =
+
+Yes, but because 1.x did not store a baseline snapshot, the plugin requires an explicit force merge after review.
+
+= Does it support custom post types? =
+
+Yes, when the user can edit the post and the post type uses the normal WordPress editing APIs. Taxonomies and post meta are synchronized with the branch.
+
+== About the Author ==
+
+WP Branches For Post is maintained by Hao Kexin, a full-stack engineer and product builder based in Japan. Since 2018, his work has spanned requirements, system design, application development, data systems, deployment, observability, and long-term production operations.
+
+His current work focuses on public data, financial analysis, AI, and end-to-end product engineering. He builds and maintains projects including Time2Analyze, a production system for public-company disclosures, structured financial data, analysis, Excel, MCP, and AI workflows.
+
+More about the author and current projects: https://time2log.com/about/
+
+== Developer Notes ==
+
+Useful filters and actions include:
+
+* `wbfp_branchable_post_statuses`
+* `wbfp_create_branch_post_data`
+* `wbfp_excluded_meta_keys`
+* `wbfp_mergeable_post_fields`
+* `wbfp_branch_created`
+* `wbfp_before_merge`
+* `wbfp_after_merge`
+
+Security-critical invariants remain enforced after extension filters run: a new branch stays a draft of the same post type, required runtime meta stays excluded, and mergeable core fields are limited to the plugin's editorial allowlist.
+
+See `ARCHITECTURE.md` for the create/merge data flow and `SECURITY.md` for authorization, CSRF, REST, conflict, and data-synchronization boundaries.
+
+CI is intentionally not triggered for every feature-branch commit. Full PHP/build/Plugin Check validation runs on `master`, release tags, or manual workflow dispatch.
+
+The Block Editor source is in `src/index.js` and is built with `@wordpress/scripts`.
+
+Human-readable source code and build tooling are maintained at https://github.com/hsxk/WP-Branches-For-Post/.
 
 == Changelog ==
+
+= 2.0.0 =
+* Rebuilt the branch workflow for modern WordPress.
+* Added Block Editor document sidebar integration.
+* Added REST endpoints with capability-based permission callbacks.
+* Added baseline snapshot conflict detection.
+* Replaced publish-triggered merge with explicit merge actions.
+* Prevented branch posts from becoming public.
+* Reworked post meta synchronization to preserve multi-value keys and removals.
+* Reworked taxonomy synchronization so cleared taxonomies are also propagated.
+* Removed direct SQL revision and attachment-parent manipulation.
+* Preserve original post ID, URL, status, author, slug, and publication dates during merge.
+* Move merged/discarded branches to Trash instead of permanently deleting them.
+* Added compatibility handling for branches created by version 1.x.
+* Added modern development tooling and CI syntax/build checks.
+
 = 1.3.0 =
-2020.03.23
-Add filter for developer
-Clean code
+* Added developer filters and code cleanup.
+
 = 1.2.0 =
-2020.03.19
-Add translation zh_CN, zh_TW, ja
+* Added zh_CN, zh_TW, and ja translations.
+
 = 1.1.0 =
-2020.03.11
-Add create branch button for adminbar and list 
-block editor can also create branch
-Safer code
-= 1.0.1 =
-2020.03.05
-Fix bug and add error message.
+* Added admin-bar/list actions and initial block-editor support.
+
 = 1.0.0 =
-2020.02.22
-Publish this plugin.
-
-== About me ==
-I am a Chinese working in Tokyo as a software engineer.
-I am still a novice and I want to be stronger.
-In fact my English is bad  (But Google Translate is strong).  
-I can speak Chinese and Japanese.  
-If you have any better suggestions about this plugin  (Of course there will be).  
-At the same time, if you have any suggestions for me.
-Please email me in Chinese Japanese English  (This is the order of my abilities).
-I would love to receive your email.
-My E-mail :  
-haokexin1214@gmail.com  
-
-Thanks
+* Initial release.

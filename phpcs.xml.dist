@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<ruleset name="WP Branches For Post">
+	<description>WordPress coding standards for WP Branches For Post.</description>
+	<file>post-branch.php</file>
+	<file>includes</file>
+	<exclude-pattern>vendor/*</exclude-pattern>
+	<rule ref="WordPress" />
+	<config name="minimum_supported_wp_version" value="6.4" />
+	<arg name="extensions" value="php" />
+	<arg value="sp" />
+</ruleset>

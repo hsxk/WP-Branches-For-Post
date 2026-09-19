@@ -1,0 +1,104 @@
+name: Capture real WordPress screenshots
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install temporary local-test tooling
+        run: npm install --no-save --no-package-lock --no-audit --no-fund @wordpress/env@latest playwright-core
+
+      - name: Configure WordPress 7.1.1 local environment
+        run: |
+          cat > .wp-env.json <<'JSON'
+          {
+            "core": "WordPress/WordPress#7.1.1",
+            "phpVersion": "8.2",
+            "plugins": ["."],
+            "port": 8888,
+            "testsEnvironment": false,
+            "config": {
+              "WP_DEBUG": true,
+              "SCRIPT_DEBUG": false
+            }
+          }
+          JSON
+
+      - name: Start local WordPress
+        run: npx wp-env start
+
+      - name: Activate plugin and seed realistic content
+        id: seed
+        shell: bash
+        run: |
+          npx wp-env run cli wp plugin list
+          npx wp-env run cli wp plugin activate --all
+          npx wp-env run cli wp option update blogname 'WP Branches For Post — Real Screenshot Test'
+          npx wp-env run cli wp rewrite structure '/%postname%/' --hard
+          POST_OUTPUT="$(npx wp-env run cli wp post create             --post_type=post             --post_status=publish             --post_title='Quarterly product update'             --post_excerpt='A published post that will remain unchanged while its branch is edited.'             --post_content='<p>This is a real published WordPress post used to demonstrate the WP Branches For Post 2.0 workflow.</p><h2>Editorial workflow</h2><p>Create an isolated working branch, review changes safely, and merge only when ready.</p>'             --porcelain)"
+          POST_ID="$(printf '%s\n' "$POST_OUTPUT" | grep -Eo '[0-9]+' | tail -n 1)"
+          if [ -z "$POST_ID" ]; then
+            echo "Could not determine seeded post ID."
+            exit 1
+          fi
+          echo "post_id=$POST_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Capture real wp-admin screenshots
+        env:
+          WP_BASE_URL: http://localhost:8888
+          WBFP_ORIGINAL_POST_ID: ${{ steps.seed.outputs.post_id }}
+        run: node tools/capture-real-wp-screenshots.js
+
+      - name: Upload browser debug output on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: real-screenshot-debug
+          path: |
+            debug-browser.png
+            debug-body.txt
+          if-no-files-found: ignore
+
+      - name: Verify screenshot files
+        run: |
+          file screenshot-1.png screenshot-2.png screenshot-3.png screenshot-4.png
+          node - <<'NODE'
+          const fs = require('fs');
+          for (const name of ['screenshot-1.png', 'screenshot-2.png', 'screenshot-3.png', 'screenshot-4.png']) {
+            const b = fs.readFileSync(name);
+            if (b.readUInt32BE(0) !== 0x89504e47) throw new Error(name + ' is not a PNG');
+            const width = b.readUInt32BE(16);
+            const height = b.readUInt32BE(20);
+            if (width !== 1440 || height !== 900) throw new Error(name + ' has unexpected size ' + width + 'x' + height);
+            console.log(name + ': ' + width + 'x' + height);
+          }
+          NODE
+
+      - name: Commit real screenshots
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add screenshot-1.png screenshot-2.png screenshot-3.png screenshot-4.png
+          if git diff --cached --quiet; then
+            echo "Screenshots are already current."
+            exit 0
+          fi
+          git commit -m "assets: replace previews with real WordPress screenshots"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
+
+      - name: Stop local WordPress
+        if: always()
+        run: npx wp-env stop || true

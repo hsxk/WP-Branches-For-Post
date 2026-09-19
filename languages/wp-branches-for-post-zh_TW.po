@@ -1,58 +1,123 @@
-# Copyright (C) 2020 Haokexin
+# Copyright (C) 2026 Hao Kexin
 # This file is distributed under the same license as the WP Branches For Post plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: WP Branches For Post 1.1.0\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/WP-Branches-For-"
-"Post\n"
-"Language-Team: \n"
+"Project-Id-Version: WP Branches For Post 2.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-branches-for-post/\n"
+"Language: zh_TW\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2020-03-18T02:30:19+00:00\n"
-"PO-Revision-Date: 2020-03-19 14:59+0900\n"
-"X-Generator: Poedit 2.3\n"
-"X-Domain: wp-branches-for-post\n"
-"Last-Translator: \n"
+"PO-Revision-Date: 2026-09-19 11:20+0900\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"Language: zh_TW\n"
+"X-Generator: WP Branches For Post 2.0 maintenance\n"
+"X-Domain: wp-branches-for-post\n"
 
-#. Button Name
-#. post-branch.php
+msgid "You cannot create a branch for this post."
+msgstr "無法為這篇文章建立分支。"
+
+msgid "The original post does not exist."
+msgstr "原始文章不存在。"
+
+msgid "The original post could not be snapshotted."
+msgstr "無法為原始文章建立基準快照。"
+
+msgid "The original changed while the branch was being created. Please try again so the branch starts from a consistent version."
+msgstr "建立分支期間原始文章發生了變更。請重試，以確保分支從一致的版本開始。"
+
+msgid "This post is not a branch."
+msgstr "這篇文章不是分支。"
+
+msgid "The original post no longer exists."
+msgstr "原始文章已不存在。"
+
+msgid "You do not have permission to merge this branch."
+msgstr "你沒有權限合併這個分支。"
+
+msgid "This legacy branch has no baseline snapshot. Review the original before forcing the merge."
+msgstr "這個舊版分支沒有基準快照。強制合併前請先檢查原始文章。"
+
+msgid "The original post changed after this branch was created. Review the changes before forcing the merge."
+msgstr "建立此分支後，原始文章已經發生變更。強制合併前請先檢查這些變更。"
+
+msgid "The original post changed before the merge could be applied. Review the latest version and try again."
+msgstr "套用合併前原始文章發生了變更。請檢查最新版本後再試一次。"
+
+msgid "You do not have permission to discard this branch."
+msgstr "你沒有權限捨棄這個分支。"
+
+msgid "The branch could not be moved to Trash."
+msgstr "無法將該分支移到回收桶。"
+
+msgid "Merge branch"
+msgstr "合併分支"
+
+msgid "Create branch"
+msgstr "建立分支"
+
+msgid "Branch of #%d"
+msgstr "#%d 的分支"
+
+msgid "Post Branch"
+msgstr "文章分支"
+
+msgid "Force merge after review"
+msgstr "檢查後強制合併"
+
+msgid "Merge into original"
+msgstr "合併到原始文章"
+
 msgid "Create Branch"
 msgstr "建立分支"
 
-#. Error message in wbfp_create_post_branch
-#. post-branch.php
-msgid "The post does not exist"
-msgstr "文章不存在"
+msgid "This is a working branch of post #%1$d. The public original stays unchanged until you explicitly merge this branch. <a href=\"%2$s\">Open original</a>."
+msgstr "這是文章 #%1$d 的工作分支。在你明確執行合併之前，公開的原始文章不會受到影響。<a href=\"%2$s\">開啟原始文章</a>。"
 
-#. notice-info
-#. post-branch.php
-msgid ""
-"The post is a branch of <a href='%s' target='__blank' >%s</a>. Branch "
-"creator is %s"
-msgstr "這是ID為<a href='%s' target='__blank' >%s</a>的文章的分支,創建者是%s"
+msgid "The original changed after this branch was created. Review both versions and use the block editor panel to force the merge only if appropriate."
+msgstr "建立此分支後原始文章已經發生變更。請檢查兩個版本，僅在確認合適時透過區塊編輯器面板執行強制合併。"
 
-#. notice-info
-#. post-branch.php
-msgid ""
-"This content will automatically overwrite the original after publication"
-msgstr "分支內容會在發布後自動覆蓋以發佈的文章的內容"
+msgid "WP Branches For Post could not complete the requested operation."
+msgstr "WP Branches For Post 無法完成要求的操作。"
 
-#. notice-info
-#. post-branch.php
-msgid ""
-"In some cases you may need to click Save Draft first to save the data to the "
-"database"
-msgstr "在一些情況下,你可能需要先按一下保存草稿已先把數據保存進數據庫"
+msgid "WP Branches For Post could not complete the request."
+msgstr "WP Branches For Post 無法完成要求。"
 
-#. Error message in wbfp_original_post_pages_update
-#. post-branch.php
-msgid "Some errors while updating, Please contact the author"
-msgstr "更新中發生了錯誤,請聯繫作者"
+msgid "Move this branch to Trash? The public original will not be changed."
+msgstr "要將這個分支移到回收桶嗎？公開的原始文章不會發生變更。"
 
-#. info in list
-#. post-branch.php
-msgid "%d's branch  Creator: %s ID: %d"
-msgstr "%d的分支,創建者:%s ID: %d"
+msgid "Edit safely in a separate draft. The published post stays unchanged until you merge the branch."
+msgstr "在獨立草稿中安全編輯。在你合併分支之前，已發佈的文章不會發生變更。"
+
+msgid "Creating…"
+msgstr "正在建立…"
+
+msgid "Existing branches"
+msgstr "現有分支"
+
+msgid "Branch #%d"
+msgstr "分支 #%d"
+
+msgid "Original changed"
+msgstr "原始文章已變更"
+
+msgid "This draft is isolated from the public original."
+msgstr "這個草稿與公開的原始文章相互獨立。"
+
+msgid "Open original"
+msgstr "開啟原始文章"
+
+msgid "Created by %s"
+msgstr "由 %s 建立"
+
+msgid "This is a legacy branch with no baseline snapshot. Review the original before merging."
+msgstr "這是一個沒有基準快照的舊版分支。合併前請先檢查原始文章。"
+
+msgid "The original changed after this branch was created. A normal merge is blocked to prevent overwriting newer work."
+msgstr "建立此分支後原始文章已經發生變更。為避免覆蓋較新的內容，一般合併已被阻止。"
+
+msgid "Merging…"
+msgstr "正在合併…"
+
+msgid "Discard branch"
+msgstr "捨棄分支"
+

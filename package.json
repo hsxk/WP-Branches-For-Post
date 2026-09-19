@@ -1,0 +1,19 @@
+{
+  "name": "wp-branches-for-post",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Modern block-editor tooling for WP Branches For Post.",
+  "scripts": {
+    "build": "wp-scripts build",
+    "start": "wp-scripts start",
+    "lint:js": "wp-scripts lint-js src",
+    "lint:css": "wp-scripts lint-style assets/css",
+    "plugin-zip": "wp-scripts plugin-zip"
+  },
+  "devDependencies": {
+    "@wordpress/scripts": "^35.0.0"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
