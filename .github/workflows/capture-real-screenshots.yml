@@ -13,7 +13,6 @@ permissions:
 
 jobs:
   capture:
-    if: ${{ hashFiles('.github/CAPTURE_REAL_SCREENSHOTS') != '' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
