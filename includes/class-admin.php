@@ -11,6 +11,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Connects the domain services to WordPress admin/editor surfaces.
+ *
+ * Admin nonces protect browser actions from CSRF. The Branch_Service and
+ * Merge_Service repeat capability checks because nonces are not authorization.
+ */
 final class Admin {
 	private Branch_Service $branches;
 	private Merge_Service $merges;
@@ -80,13 +86,23 @@ final class Admin {
 			$original_id = $this->branches->get_original_id( $post->ID );
 			if ( current_user_can( 'edit_post', $post->ID ) && current_user_can( 'edit_post', $original_id ) ) {
 				$conflict = $this->branches->conflict_state( $post->ID );
-				$force    = 'clean' !== $conflict;
+				$force        = Branch_Service::CONFLICT_CLEAN !== $conflict;
+				$confirm_attr = '';
+				if ( $force ) {
+					$confirm_message = __( 'The original changed after this branch was created. Review both versions and use the block editor panel to force the merge only if appropriate.', 'wp-branches-for-post' );
+					$confirm_attr    = sprintf(
+						' onclick="return window.confirm(%s);"',
+						esc_attr( (string) wp_json_encode( $confirm_message ) )
+					);
+				}
+
 				printf(
-					'<div class="misc-pub-section wbfp-classic-action"><strong>%1$s</strong><p><a class="button %2$s" href="%3$s">%4$s</a></p></div>',
+					'<div class="misc-pub-section wbfp-classic-action"><strong>%1$s</strong><p><a class="button %2$s" href="%3$s"%5$s>%4$s</a></p></div>',
 					esc_html__( 'Post Branch', 'wp-branches-for-post' ),
 					$force ? '' : 'button-primary',
 					esc_url( $this->merge_url( $post->ID, $force ) ),
-					$force ? esc_html__( 'Force merge after review', 'wp-branches-for-post' ) : esc_html__( 'Merge into original', 'wp-branches-for-post' )
+					$force ? esc_html__( 'Force merge after review', 'wp-branches-for-post' ) : esc_html__( 'Merge into original', 'wp-branches-for-post' ),
+					$confirm_attr // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built from escaped JSON above.
 				);
 			}
 			return;
@@ -150,11 +166,21 @@ final class Admin {
 	}
 
 	public function enqueue_admin_style(): void {
+		$screen = get_current_screen();
+		if ( ! $screen || ! in_array( $screen->base, array( 'post', 'edit' ), true ) ) {
+			return;
+		}
+
 		wp_enqueue_style( 'wbfp-admin', WBFP_URL . 'assets/css/wbfp.css', array(), WBFP_VERSION );
 	}
 
 	public function enqueue_front_admin_bar_style(): void {
-		if ( is_admin_bar_showing() ) {
+		if ( ! is_admin_bar_showing() || ! is_singular() ) {
+			return;
+		}
+
+		$post_id = (int) get_queried_object_id();
+		if ( $post_id > 0 && $this->branches->can_create( $post_id ) ) {
 			wp_enqueue_style( 'wbfp-admin', WBFP_URL . 'assets/css/wbfp.css', array(), WBFP_VERSION );
 		}
 	}
@@ -179,18 +205,38 @@ final class Admin {
 		wp_set_script_translations( 'wbfp-editor', 'wp-branches-for-post', WBFP_DIR . 'languages' );
 	}
 
+	/**
+	 * Handle the nonce-protected classic/admin-list branch creation action.
+	 *
+	 * Authorization is repeated by Branch_Service::create().
+	 *
+	 * @return void
+	 */
 	public function handle_create(): void {
 		$post_id = isset( $_GET['post'] ) ? absint( wp_unslash( $_GET['post'] ) ) : 0;
 		check_admin_referer( 'wbfp_create_branch_' . $post_id );
 		$this->create_and_redirect( $post_id );
 	}
 
+	/**
+	 * Handle the 1.x nonce/action name for bookmarked legacy create links.
+	 *
+	 * @return void
+	 */
 	public function handle_legacy_create(): void {
 		$post_id = isset( $_GET['post'] ) ? absint( wp_unslash( $_GET['post'] ) ) : 0;
 		check_admin_referer( 'wbfp_branch_' . $post_id );
 		$this->create_and_redirect( $post_id );
 	}
 
+	/**
+	 * Handle the nonce-protected admin merge action.
+	 *
+	 * A valid nonce proves request intent only. Merge_Service::merge() performs
+	 * the authoritative capability, relationship, and conflict checks.
+	 *
+	 * @return void
+	 */
 	public function handle_merge(): void {
 		$branch_id = isset( $_GET['post'] ) ? absint( wp_unslash( $_GET['post'] ) ) : 0;
 		check_admin_referer( 'wbfp_merge_branch_' . $branch_id );
