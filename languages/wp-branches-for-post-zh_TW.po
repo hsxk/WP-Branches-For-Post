@@ -8,10 +8,18 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2026-09-19 11:20+0900\n"
+"PO-Revision-Date: 2026-09-19 16:23+0900\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: WP Branches For Post 2.0 maintenance\n"
 "X-Domain: wp-branches-for-post\n"
+
+#. Plugin Name of the plugin.
+msgid "WP Branches For Post"
+msgstr "WP Branches For Post"
+
+#. Description of the plugin.
+msgid "Create safe working branches for published WordPress content and merge them back without changing the public post while editing."
+msgstr "為已發佈的 WordPress 內容建立安全的工作分支，在編輯期間保持公開文章不變，完成後再將變更合併回原始文章。"
 
 msgid "You cannot create a branch for this post."
 msgstr "無法為這篇文章建立分支。"
@@ -47,7 +55,7 @@ msgid "You do not have permission to discard this branch."
 msgstr "你沒有權限捨棄這個分支。"
 
 msgid "The branch could not be moved to Trash."
-msgstr "無法將該分支移到回收桶。"
+msgstr "無法將該分支移至回收桶。"
 
 msgid "Merge branch"
 msgstr "合併分支"
@@ -71,10 +79,10 @@ msgid "Create Branch"
 msgstr "建立分支"
 
 msgid "This is a working branch of post #%1$d. The public original stays unchanged until you explicitly merge this branch. <a href=\"%2$s\">Open original</a>."
-msgstr "這是文章 #%1$d 的工作分支。在你明確執行合併之前，公開的原始文章不會受到影響。<a href=\"%2$s\">開啟原始文章</a>。"
+msgstr "這是文章 #%1$d 的工作分支。在你明確合併此分支之前，公開的原始文章不會發生變更。<a href=\"%2$s\">開啟原始文章</a>。"
 
 msgid "The original changed after this branch was created. Review both versions and use the block editor panel to force the merge only if appropriate."
-msgstr "建立此分支後原始文章已經發生變更。請檢查兩個版本，僅在確認合適時透過區塊編輯器面板執行強制合併。"
+msgstr "建立此分支後原始文章已經發生變更。請檢查兩個版本，僅在確認適合時透過區塊編輯器面板執行強制合併。"
 
 msgid "WP Branches For Post could not complete the requested operation."
 msgstr "WP Branches For Post 無法完成要求的操作。"
@@ -83,10 +91,10 @@ msgid "WP Branches For Post could not complete the request."
 msgstr "WP Branches For Post 無法完成要求。"
 
 msgid "Move this branch to Trash? The public original will not be changed."
-msgstr "要將這個分支移到回收桶嗎？公開的原始文章不會發生變更。"
+msgstr "要將這個分支移至回收桶嗎？公開的原始文章不會發生變更。"
 
 msgid "Edit safely in a separate draft. The published post stays unchanged until you merge the branch."
-msgstr "在獨立草稿中安全編輯。在你合併分支之前，已發佈的文章不會發生變更。"
+msgstr "可在獨立草稿中安全編輯；在合併分支之前，已發佈的文章不會發生變更。"
 
 msgid "Creating…"
 msgstr "正在建立…"
@@ -101,23 +109,22 @@ msgid "Original changed"
 msgstr "原始文章已變更"
 
 msgid "This draft is isolated from the public original."
-msgstr "這個草稿與公開的原始文章相互獨立。"
+msgstr "此草稿與公開的原始文章相互獨立。"
 
 msgid "Open original"
 msgstr "開啟原始文章"
 
 msgid "Created by %s"
-msgstr "由 %s 建立"
+msgstr "建立者：%s"
 
 msgid "This is a legacy branch with no baseline snapshot. Review the original before merging."
 msgstr "這是一個沒有基準快照的舊版分支。合併前請先檢查原始文章。"
 
 msgid "The original changed after this branch was created. A normal merge is blocked to prevent overwriting newer work."
-msgstr "建立此分支後原始文章已經發生變更。為避免覆蓋較新的內容，一般合併已被阻止。"
+msgstr "建立此分支後原始文章已經發生變更。為避免覆寫較新的內容，一般合併已被阻止。"
 
 msgid "Merging…"
 msgstr "正在合併…"
 
 msgid "Discard branch"
 msgstr "捨棄分支"
-

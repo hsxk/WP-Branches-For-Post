@@ -1,0 +1,391 @@
+# Translation of Plugins - WP Branches For Post - Stable Readme (latest release) in Japanese
+# This file is distributed under the same license as the Plugins - WP Branches For Post - Stable Readme (latest release) package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2026-09-19 16:23+0900\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: GlotPress/4.1.0\n"
+"Language: ja\n"
+"Project-Id-Version: Plugins - WP Branches For Post - Stable Readme (latest release)\n"
+
+#. Plugin name.
+#, gp-priority: high
+msgid "WP Branches For Post"
+msgstr "WP Branches For Post"
+
+#. Short description.
+#, gp-priority: high
+msgid "Create an isolated working branch for a published post, edit it safely, then explicitly merge it back into the original post."
+msgstr "公開済みの投稿から独立した作業用ブランチを作成し、公開中の内容に影響を与えず安全に編集したうえで、明示的に元の投稿へマージできます。"
+
+#. Screenshot description.
+msgid "Block Editor panel on an original post, with a safe Create branch action."
+msgstr "元の投稿のブロックエディターパネル。安全に「ブランチを作成」できます。"
+
+#. Screenshot description.
+msgid "Editing an isolated branch with explicit Merge into original and Discard branch actions."
+msgstr "独立したブランチを編集中の画面。「元の投稿へマージ」と「ブランチを破棄」を明示的に実行できます。"
+
+#. Screenshot description.
+msgid "Conflict protection when the original post changes after branch creation."
+msgstr "ブランチ作成後に元の投稿が変更された場合の競合保護。"
+
+#. Screenshot description.
+msgid "Post list integration showing Create branch, Merge branch, and branch state."
+msgstr "投稿一覧でのブランチ連携。「ブランチを作成」「ブランチをマージ」とブランチの状態を確認できます。"
+
+#. Found in description header.
+msgid "Core workflow"
+msgstr "基本的なワークフロー"
+
+#. Found in description header.
+msgid "Safety"
+msgstr "安全性"
+
+#. Found in description header.
+msgid "What is synchronized"
+msgstr "同期される内容"
+
+#. Found in description header.
+msgid "Block Editor"
+msgstr "ブロックエディター"
+
+#. Found in description header.
+msgid "Compatibility with 1.x"
+msgstr "1.x との互換性"
+
+#. Found in description header.
+msgid "About the Author"
+msgstr "作者について"
+
+#. Found in description header.
+msgid "Developer Notes"
+msgstr "開発者向け情報"
+
+#. Found in description list item.
+msgid "Open a published, private, or scheduled post/page/custom post type."
+msgstr "公開済み、非公開、または予約投稿の投稿・固定ページ・カスタム投稿タイプを開きます。"
+
+#. Found in description list item.
+msgid "Choose \"Create branch\"."
+msgstr "「ブランチを作成」を選択します。"
+
+#. Found in description list item.
+msgid "Edit the isolated draft branch."
+msgstr "独立した下書きブランチで編集します。"
+
+#. Found in description list item.
+msgid "Review the branch status in the Post Branch panel."
+msgstr "「投稿ブランチ」パネルでブランチの状態を確認します。"
+
+#. Found in description list item.
+msgid "Merge into the original when ready."
+msgstr "準備ができたら、元の投稿へマージします。"
+
+#. Found in description list item.
+msgid "The original keeps its URL, ID, publication status, author, date, comments, and external identity."
+msgstr "元の投稿の URL、ID、公開状態、投稿者、日時、コメント、および外部から参照される識別情報は維持されます。"
+
+#. Found in description list item.
+msgid "The merged branch is moved to Trash instead of being permanently deleted."
+msgstr "マージ済みのブランチは完全削除されず、ゴミ箱へ移動されます。"
+
+#. Found in description list item.
+msgid "Branches are kept non-public and cannot accidentally replace the original by pressing WordPress Publish."
+msgstr "ブランチは非公開のまま維持され、WordPress の「公開」ボタンを誤って押しても元の投稿が置き換わることはありません。"
+
+#. Found in description list item.
+msgid "Every new branch stores a snapshot of the original state."
+msgstr "新しいブランチを作成すると、元の投稿の状態を示すスナップショットが保存されます。"
+
+#. Found in description list item.
+msgid "If the original changes after the branch was created, a normal merge is blocked."
+msgstr "ブランチ作成後に元の投稿が変更された場合、通常のマージはブロックされます。"
+
+#. Found in description list item.
+msgid "A force merge is available only as an explicit action after review."
+msgstr "強制マージは、内容を確認したうえで明示的に実行する場合にのみ利用できます。"
+
+#. Found in description list item.
+msgid "REST endpoints use WordPress capability checks in permission callbacks."
+msgstr "REST エンドポイントでは、permission callback 内で WordPress の権限チェックを行います。"
+
+#. Found in description list item.
+msgid "The plugin no longer updates revisions or attachment parents with direct SQL."
+msgstr "プラグインは、リビジョンや添付ファイルの親投稿を直接 SQL で更新しません。"
+
+#. Found in description list item.
+msgid "WordPress creates the normal revision history when the original post is updated."
+msgstr "元の投稿が更新される際は、WordPress 標準のリビジョン履歴が作成されます。"
+
+#. Found in description list item.
+msgid "Create Branch on an original post."
+msgstr "元の投稿からブランチを作成。"
+
+#. Found in description list item.
+msgid "Existing active branches."
+msgstr "現在存在する有効なブランチ。"
+
+#. Found in description list item.
+msgid "Original post link from a branch."
+msgstr "ブランチから元の投稿を開くリンク。"
+
+#. Found in description list item.
+msgid "Conflict status."
+msgstr "競合状態。"
+
+#. Found in description list item.
+msgid "Merge into original."
+msgstr "元の投稿へマージ。"
+
+#. Found in description list item.
+msgid "Force merge after review when a conflict exists."
+msgstr "競合がある場合、確認後に強制マージ。"
+
+#. Found in description list item.
+msgid "Discard branch."
+msgstr "ブランチを破棄。"
+
+#. Found in description list item.
+msgid "<code>wbfp_branchable_post_statuses</code>"
+msgstr "<code>wbfp_branchable_post_statuses</code>"
+
+#. Found in description list item.
+msgid "<code>wbfp_create_branch_post_data</code>"
+msgstr "<code>wbfp_create_branch_post_data</code>"
+
+#. Found in description list item.
+msgid "<code>wbfp_excluded_meta_keys</code>"
+msgstr "<code>wbfp_excluded_meta_keys</code>"
+
+#. Found in description list item.
+msgid "<code>wbfp_mergeable_post_fields</code>"
+msgstr "<code>wbfp_mergeable_post_fields</code>"
+
+#. Found in description list item.
+msgid "<code>wbfp_branch_created</code>"
+msgstr "<code>wbfp_branch_created</code>"
+
+#. Found in description list item.
+msgid "<code>wbfp_before_merge</code>"
+msgstr "<code>wbfp_before_merge</code>"
+
+#. Found in description list item.
+msgid "<code>wbfp_after_merge</code>"
+msgstr "<code>wbfp_after_merge</code>"
+
+#. Found in description paragraph.
+msgid "WP Branches For Post provides a Git-like editorial workflow for WordPress content."
+msgstr "WP Branches For Post は、WordPress のコンテンツ編集に Git のブランチに似たワークフローを提供します。"
+
+#. Found in description paragraph.
+msgid "Instead of editing a published post in place, create a draft branch. The public original remains unchanged while the branch is edited. When the work is ready, explicitly merge the branch back into the same original post ID."
+msgstr "公開済みの投稿を直接編集する代わりに、独立した下書きブランチを作成できます。ブランチを編集中も、公開中の元の投稿は変更されません。作業が完了したら、明示的にマージすることで、同じ投稿 ID の元の投稿へ変更内容を反映できます。"
+
+#. Found in description paragraph.
+msgid "Version 2.0 modernizes the original 2020 plugin for the current WordPress block editor and REST API."
+msgstr "バージョン 2.0 では、2020 年に公開された初期バージョンを、現在の WordPress ブロックエディターおよび REST API に合わせて全面的に刷新しました。"
+
+#. Found in description paragraph.
+msgid "During merge, the plugin synchronizes editable post content, post meta, and all taxonomies while preserving the original post identity and publication state."
+msgstr "マージ時には、編集可能な投稿内容、投稿メタデータ、およびすべてのタクソノミーを同期します。一方で、元の投稿の識別情報や公開状態は維持されます。"
+
+#. Found in description paragraph.
+msgid "Media IDs referenced by post content and featured-image meta remain the same. Attachments are not re-parented."
+msgstr "投稿本文から参照されているメディア ID や、アイキャッチ画像に使用されるメタデータ ID は変更されません。添付ファイルの親投稿も変更しません。"
+
+#. Found in description paragraph.
+msgid "The Post Branch document panel shows:"
+msgstr "「投稿ブランチ」ドキュメントパネルには、以下の項目が表示されます。"
+
+#. Found in description paragraph.
+msgid "Classic Editor, post-list row actions, and the admin bar retain lightweight compatibility controls."
+msgstr "クラシックエディター、投稿一覧の行アクション、管理バーについても、軽量な互換機能を維持しています。"
+
+#. Found in description paragraph.
+msgid "Version 2.0 recognizes branches created by the 1.x metadata format."
+msgstr "バージョン 2.0 は、1.x のメタデータ形式で作成されたブランチも認識します。"
+
+#. Found in description paragraph.
+msgid "Legacy branches do not contain a baseline snapshot, so they are reported as \"unknown\" conflict state and require an explicit force merge after the original has been reviewed."
+msgstr "旧バージョンのブランチには基準スナップショットが存在しないため、競合状態は「不明」として扱われます。元の投稿を確認したうえで、明示的に強制マージを実行する必要があります。"
+
+#. Found in description paragraph.
+msgid "The old automatic \"publish branch to overwrite original\" behavior has intentionally been removed."
+msgstr "従来の「ブランチを公開すると元の投稿を自動的に上書きする」動作は、意図的に廃止しました。"
+
+#. Found in description paragraph.
+msgid "WP Branches For Post is maintained by Hao Kexin, a full-stack engineer and product builder based in Japan. Since 2018, his work has spanned requirements, system design, application development, data systems, deployment, observability, and long-term production operations."
+msgstr "WP Branches For Post は、フルスタックエンジニアおよびプロダクト開発者の Hao Kexin がメンテナンスしています。2018 年以降、日本でソフトウェア開発に携わり、要件定義、システム設計、アプリケーション開発、データ基盤、デプロイ、可観測性、長期的な本番運用まで幅広く担当しています。"
+
+#. Found in description paragraph.
+msgid "His current work focuses on public data, financial analysis, AI, and end-to-end product engineering. He builds and maintains projects including Time2Analyze, a production system for public-company disclosures, structured financial data, analysis, Excel, MCP, and AI workflows."
+msgstr "現在は、公開データ、金融分析、AI、エンドツーエンドのプロダクトエンジニアリングを中心に取り組んでいます。上場企業の開示情報、構造化財務データ、分析、Excel、MCP、AI ワークフローを扱う本番システム Time2Analyze をはじめ、複数のプロジェクトを開発・運用しています。"
+
+#. Found in description paragraph.
+msgid "More about the author and current projects: https://time2log.com/about/"
+msgstr "作者および現在のプロジェクトについて：https://time2log.com/about/"
+
+#. Found in description paragraph.
+msgid "Useful filters and actions include:"
+msgstr "利用できる filter と action は次のとおりです。"
+
+#. Found in description paragraph.
+msgid "Security-critical invariants remain enforced after extension filters run: a new branch stays a draft of the same post type, required runtime meta stays excluded, and mergeable core fields are limited to the plugin's editorial allowlist."
+msgstr "拡張用 filter を使用した場合でも、安全性に関わる重要な制約は常に維持されます。新しいブランチは同じ投稿タイプの下書きとして保持され、必須のランタイムメタデータは同期対象外のままです。また、マージ可能な WordPress コアフィールドも、プラグインが定義した編集用の許可リストに限定されます。"
+
+#. Found in description paragraph.
+msgid "See <code>ARCHITECTURE.md</code> for the create/merge data flow and <code>SECURITY.md</code> for authorization, CSRF, REST, conflict, and data-synchronization boundaries."
+msgstr "作成・マージ時のデータフローについては <code>ARCHITECTURE.md</code>、認可、CSRF、REST、競合処理、データ同期の境界については <code>SECURITY.md</code> を参照してください。"
+
+#. Found in description paragraph.
+msgid "CI is intentionally not triggered for every feature-branch commit. Full PHP/build/Plugin Check validation runs on <code>master</code>, release tags, or manual workflow dispatch."
+msgstr "CI は機能ブランチのすべてのコミットで自動実行されるわけではありません。PHP、ビルド、Plugin Check の完全な検証は、<code>master</code>、リリース tag、または手動で workflow を実行した場合に行われます。"
+
+#. Found in description paragraph.
+msgid "The Block Editor source is in <code>src/index.js</code> and is built with <code>@wordpress/scripts</code>."
+msgstr "ブロックエディターのソースコードは <code>src/index.js</code> にあり、<code>@wordpress/scripts</code> でビルドされます。"
+
+#. Found in description paragraph.
+msgid "Human-readable source code and build tooling are maintained at https://github.com/hsxk/WP-Branches-For-Post/."
+msgstr "読みやすい形式のソースコードおよびビルドツールは、https://github.com/hsxk/WP-Branches-For-Post/ で管理しています。"
+
+#. Found in installation list item.
+msgid "Upload the plugin to <code>/wp-content/plugins/wp-branches-for-post</code>, or install it through the WordPress Plugins screen."
+msgstr "プラグインを <code>/wp-content/plugins/wp-branches-for-post</code> にアップロードするか、WordPress の「プラグイン」画面からインストールします。"
+
+#. Found in installation list item.
+msgid "Activate WP Branches For Post."
+msgstr "WP Branches For Post を有効化します。"
+
+#. Found in installation list item.
+msgid "Open an existing published post and use the Post Branch panel or Create Branch action."
+msgstr "既存の公開済み投稿を開き、「投稿ブランチ」パネルまたは「ブランチを作成」アクションから利用を開始します。"
+
+#. Found in faq header.
+msgid "Does a branch get a public URL?"
+msgstr "ブランチには公開 URL が作成されますか？"
+
+#. Found in faq header.
+msgid "Does merging change the original URL or post ID?"
+msgstr "マージすると元の投稿の URL や投稿 ID は変わりますか？"
+
+#. Found in faq header.
+msgid "What happens if someone edits the original while I am working on a branch?"
+msgstr "ブランチを編集中に、別のユーザーが元の投稿を編集した場合はどうなりますか？"
+
+#. Found in faq header.
+msgid "Can I still merge an old 1.x branch?"
+msgstr "1.x で作成した古いブランチもマージできますか？"
+
+#. Found in faq header.
+msgid "Does it support custom post types?"
+msgstr "カスタム投稿タイプにも対応していますか？"
+
+#. Found in faq paragraph.
+msgid "No. A branch is an isolated working draft. Publishing a branch through the normal editor is prevented; use Merge into original instead."
+msgstr "いいえ。ブランチは独立した作業用下書きです。通常のエディターからブランチを公開することはできません。変更を反映するには「元の投稿へマージ」を使用してください。"
+
+#. Found in faq paragraph.
+msgid "No. The merge updates the existing original post record and preserves its identity, slug, publication state, author, and original dates."
+msgstr "いいえ。マージでは既存の元の投稿レコードを更新するため、投稿の識別情報、スラッグ、公開状態、投稿者、および元の日時は維持されます。"
+
+#. Found in faq paragraph.
+msgid "The stored baseline snapshot no longer matches. The plugin marks the branch as conflicted and blocks the normal merge so newer work is not silently overwritten."
+msgstr "保存されている基準スナップショットと現在の元の投稿が一致しなくなります。プラグインはブランチを競合状態として扱い、通常のマージをブロックすることで、新しい変更が気付かないうちに上書きされることを防ぎます。"
+
+#. Found in faq paragraph.
+msgid "Yes, but because 1.x did not store a baseline snapshot, the plugin requires an explicit force merge after review."
+msgstr "はい。ただし 1.x では基準スナップショットが保存されていないため、元の投稿を確認したうえで明示的に強制マージを実行する必要があります。"
+
+#. Found in faq paragraph.
+msgid "Yes, when the user can edit the post and the post type uses the normal WordPress editing APIs. Taxonomies and post meta are synchronized with the branch."
+msgstr "はい。ユーザーに対象投稿を編集する権限があり、その投稿タイプが標準の WordPress 編集 API を使用している場合に利用できます。関連するタクソノミーや投稿メタデータもブランチとともに同期されます。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Rebuilt the branch workflow for modern WordPress."
+msgstr "現在の WordPress に合わせてブランチワークフローを再構築しました。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Added Block Editor document sidebar integration."
+msgstr "ブロックエディターのドキュメントサイドバー連携を追加しました。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Added REST endpoints with capability-based permission callbacks."
+msgstr "権限ベースの permission callback を使用する REST エンドポイントを追加しました。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Added baseline snapshot conflict detection."
+msgstr "基準スナップショットを利用した競合検出を追加しました。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Replaced publish-triggered merge with explicit merge actions."
+msgstr "「ブランチを公開するとマージされる」従来の仕組みを廃止し、明示的なマージ操作に変更しました。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Prevented branch posts from becoming public."
+msgstr "ブランチ投稿が公開状態になることを防止しました。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Reworked post meta synchronization to preserve multi-value keys and removals."
+msgstr "投稿メタデータの同期を再設計し、複数値を持つメタデータや削除済みメタデータも正しく反映できるようにしました。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Reworked taxonomy synchronization so cleared taxonomies are also propagated."
+msgstr "タクソノミー同期を再設計し、すべて削除されたタクソノミーも正しく反映できるようにしました。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Removed direct SQL revision and attachment-parent manipulation."
+msgstr "リビジョンや添付ファイルの親投稿を直接 SQL で変更する処理を削除しました。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Preserve original post ID, URL, status, author, slug, and publication dates during merge."
+msgstr "マージ時も、元の投稿 ID、URL、公開状態、投稿者、スラッグ、公開日時を維持します。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Move merged/discarded branches to Trash instead of permanently deleting them."
+msgstr "マージ済みまたは破棄されたブランチは完全削除せず、ゴミ箱へ移動するようにしました。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Added compatibility handling for branches created by version 1.x."
+msgstr "1.x で作成されたブランチとの互換処理を追加しました。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Added modern development tooling and CI syntax/build checks."
+msgstr "現代的な開発ツールと、CI による構文・ビルドチェックを追加しました。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Added developer filters and code cleanup."
+msgstr "開発者向け filter を追加し、コードを整理しました。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Added zh_CN, zh_TW, and ja translations."
+msgstr "中国語（簡体字・繁体字）および日本語の翻訳を追加しました。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Added admin-bar/list actions and initial block-editor support."
+msgstr "管理バー、投稿一覧アクション、および初期のブロックエディター対応を追加しました。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Initial release."
+msgstr "初回リリース。"

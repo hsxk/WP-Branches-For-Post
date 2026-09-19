@@ -8,10 +8,18 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2026-09-19 11:20+0900\n"
+"PO-Revision-Date: 2026-09-19 16:23+0900\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: WP Branches For Post 2.0 maintenance\n"
 "X-Domain: wp-branches-for-post\n"
+
+#. Plugin Name of the plugin.
+msgid "WP Branches For Post"
+msgstr "WP Branches For Post"
+
+#. Description of the plugin.
+msgid "Create safe working branches for published WordPress content and merge them back without changing the public post while editing."
+msgstr "公開済みの WordPress コンテンツに安全な作業用ブランチを作成し、編集中は公開中の投稿を変更せず、作業完了後に変更内容を元の投稿へマージできます。"
 
 msgid "You cannot create a branch for this post."
 msgstr "この投稿のブランチを作成できません。"
@@ -23,7 +31,7 @@ msgid "The original post could not be snapshotted."
 msgstr "元の投稿の基準スナップショットを作成できませんでした。"
 
 msgid "The original changed while the branch was being created. Please try again so the branch starts from a consistent version."
-msgstr "ブランチの作成中に元の投稿が変更されました。一貫した状態から作成するため、もう一度お試しください。"
+msgstr "ブランチの作成中に元の投稿が変更されました。整合性のある状態からブランチを作成するため、もう一度お試しください。"
 
 msgid "This post is not a branch."
 msgstr "この投稿はブランチではありません。"
@@ -35,7 +43,7 @@ msgid "You do not have permission to merge this branch."
 msgstr "このブランチをマージする権限がありません。"
 
 msgid "This legacy branch has no baseline snapshot. Review the original before forcing the merge."
-msgstr "この旧バージョンのブランチには基準スナップショットがありません。強制マージする前に元の投稿を確認してください。"
+msgstr "この旧形式のブランチには基準スナップショットがありません。強制マージする前に元の投稿を確認してください。"
 
 msgid "The original post changed after this branch was created. Review the changes before forcing the merge."
 msgstr "このブランチの作成後に元の投稿が変更されています。強制マージする前に変更内容を確認してください。"
@@ -47,7 +55,7 @@ msgid "You do not have permission to discard this branch."
 msgstr "このブランチを破棄する権限がありません。"
 
 msgid "The branch could not be moved to Trash."
-msgstr "ブランチをゴミ箱に移動できませんでした。"
+msgstr "ブランチをゴミ箱へ移動できませんでした。"
 
 msgid "Merge branch"
 msgstr "ブランチをマージ"
@@ -74,7 +82,7 @@ msgid "This is a working branch of post #%1$d. The public original stays unchang
 msgstr "これは投稿 #%1$d の作業用ブランチです。このブランチを明示的にマージするまで、公開中の元の投稿は変更されません。<a href=\"%2$s\">元の投稿を開く</a>。"
 
 msgid "The original changed after this branch was created. Review both versions and use the block editor panel to force the merge only if appropriate."
-msgstr "このブランチの作成後に元の投稿が変更されています。両方の内容を確認し、問題ない場合にのみブロックエディターのパネルから強制マージしてください。"
+msgstr "このブランチの作成後に元の投稿が変更されています。両方の内容を確認し、問題がない場合にのみブロックエディターのパネルから強制マージしてください。"
 
 msgid "WP Branches For Post could not complete the requested operation."
 msgstr "WP Branches For Post は要求された操作を完了できませんでした。"
@@ -83,7 +91,7 @@ msgid "WP Branches For Post could not complete the request."
 msgstr "WP Branches For Post は要求を完了できませんでした。"
 
 msgid "Move this branch to Trash? The public original will not be changed."
-msgstr "このブランチをゴミ箱に移動しますか？公開中の元の投稿は変更されません。"
+msgstr "このブランチをゴミ箱へ移動しますか？公開中の元の投稿は変更されません。"
 
 msgid "Edit safely in a separate draft. The published post stays unchanged until you merge the branch."
 msgstr "独立した下書きで安全に編集できます。ブランチをマージするまで、公開中の投稿は変更されません。"
@@ -107,10 +115,10 @@ msgid "Open original"
 msgstr "元の投稿を開く"
 
 msgid "Created by %s"
-msgstr "作成者: %s"
+msgstr "作成者：%s"
 
 msgid "This is a legacy branch with no baseline snapshot. Review the original before merging."
-msgstr "これは基準スナップショットのない旧バージョンのブランチです。マージ前に元の投稿を確認してください。"
+msgstr "これは基準スナップショットのない旧形式のブランチです。マージ前に元の投稿を確認してください。"
 
 msgid "The original changed after this branch was created. A normal merge is blocked to prevent overwriting newer work."
 msgstr "このブランチの作成後に元の投稿が変更されています。新しい変更を上書きしないよう、通常のマージはブロックされています。"
@@ -120,4 +128,3 @@ msgstr "マージ中…"
 
 msgid "Discard branch"
 msgstr "ブランチを破棄"
-

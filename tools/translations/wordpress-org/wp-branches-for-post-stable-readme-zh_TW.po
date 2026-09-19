@@ -1,0 +1,391 @@
+# Translation of Plugins - WP Branches For Post - Stable Readme (latest release) in Chinese (Taiwan)
+# This file is distributed under the same license as the Plugins - WP Branches For Post - Stable Readme (latest release) package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2026-09-19 16:23+0900\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: GlotPress/4.1.0\n"
+"Language: zh_TW\n"
+"Project-Id-Version: Plugins - WP Branches For Post - Stable Readme (latest release)\n"
+
+#. Plugin name.
+#, gp-priority: high
+msgid "WP Branches For Post"
+msgstr "WP Branches For Post"
+
+#. Short description.
+#, gp-priority: high
+msgid "Create an isolated working branch for a published post, edit it safely, then explicitly merge it back into the original post."
+msgstr "為已發佈的文章建立獨立工作分支，在不影響公開內容的情況下安全編輯，完成後再明確合併回原始文章。"
+
+#. Screenshot description.
+msgid "Block Editor panel on an original post, with a safe Create branch action."
+msgstr "原始文章的區塊編輯器面板，提供安全的「建立分支」操作。"
+
+#. Screenshot description.
+msgid "Editing an isolated branch with explicit Merge into original and Discard branch actions."
+msgstr "編輯獨立分支，可明確執行「合併到原始文章」與「捨棄分支」。"
+
+#. Screenshot description.
+msgid "Conflict protection when the original post changes after branch creation."
+msgstr "建立分支後原始文章發生變更時的衝突保護。"
+
+#. Screenshot description.
+msgid "Post list integration showing Create branch, Merge branch, and branch state."
+msgstr "文章列表中的分支整合，可查看「建立分支」、「合併分支」及分支狀態。"
+
+#. Found in description header.
+msgid "Core workflow"
+msgstr "核心工作流程"
+
+#. Found in description header.
+msgid "Safety"
+msgstr "安全機制"
+
+#. Found in description header.
+msgid "What is synchronized"
+msgstr "同步內容"
+
+#. Found in description header.
+msgid "Block Editor"
+msgstr "區塊編輯器"
+
+#. Found in description header.
+msgid "Compatibility with 1.x"
+msgstr "與 1.x 版本的相容性"
+
+#. Found in description header.
+msgid "About the Author"
+msgstr "關於作者"
+
+#. Found in description header.
+msgid "Developer Notes"
+msgstr "開發者說明"
+
+#. Found in description list item.
+msgid "Open a published, private, or scheduled post/page/custom post type."
+msgstr "開啟一篇已發佈、私密或排程發佈的文章、頁面或自訂文章類型內容。"
+
+#. Found in description list item.
+msgid "Choose \"Create branch\"."
+msgstr "選擇「建立分支」。"
+
+#. Found in description list item.
+msgid "Edit the isolated draft branch."
+msgstr "在獨立的草稿分支中進行編輯。"
+
+#. Found in description list item.
+msgid "Review the branch status in the Post Branch panel."
+msgstr "在「文章分支」面板中查看分支狀態。"
+
+#. Found in description list item.
+msgid "Merge into the original when ready."
+msgstr "準備就緒後，將分支合併回原始文章。"
+
+#. Found in description list item.
+msgid "The original keeps its URL, ID, publication status, author, date, comments, and external identity."
+msgstr "原始文章的 URL、ID、發佈狀態、作者、日期、留言及對外識別資訊都會保持不變。"
+
+#. Found in description list item.
+msgid "The merged branch is moved to Trash instead of being permanently deleted."
+msgstr "合併完成後的分支會移至回收桶，而不是永久刪除。"
+
+#. Found in description list item.
+msgid "Branches are kept non-public and cannot accidentally replace the original by pressing WordPress Publish."
+msgstr "分支會維持非公開狀態，不會因為誤按 WordPress 的「發佈」按鈕而意外取代原始文章。"
+
+#. Found in description list item.
+msgid "Every new branch stores a snapshot of the original state."
+msgstr "每個新分支都會儲存一份原始文章狀態的快照。"
+
+#. Found in description list item.
+msgid "If the original changes after the branch was created, a normal merge is blocked."
+msgstr "如果建立分支後原始文章發生變更，一般合併會被阻止。"
+
+#. Found in description list item.
+msgid "A force merge is available only as an explicit action after review."
+msgstr "只有在檢查確認後，才能明確執行強制合併。"
+
+#. Found in description list item.
+msgid "REST endpoints use WordPress capability checks in permission callbacks."
+msgstr "REST 端點會在 permission callback 中使用 WordPress 權限檢查。"
+
+#. Found in description list item.
+msgid "The plugin no longer updates revisions or attachment parents with direct SQL."
+msgstr "外掛不再透過直接 SQL 更新修訂版本或附件所屬關係。"
+
+#. Found in description list item.
+msgid "WordPress creates the normal revision history when the original post is updated."
+msgstr "原始文章更新時，WordPress 會正常建立修訂記錄。"
+
+#. Found in description list item.
+msgid "Create Branch on an original post."
+msgstr "在原始文章中建立分支。"
+
+#. Found in description list item.
+msgid "Existing active branches."
+msgstr "現有的有效分支。"
+
+#. Found in description list item.
+msgid "Original post link from a branch."
+msgstr "從分支開啟原始文章的連結。"
+
+#. Found in description list item.
+msgid "Conflict status."
+msgstr "衝突狀態。"
+
+#. Found in description list item.
+msgid "Merge into original."
+msgstr "合併到原始文章。"
+
+#. Found in description list item.
+msgid "Force merge after review when a conflict exists."
+msgstr "發生衝突時，在檢查後執行強制合併。"
+
+#. Found in description list item.
+msgid "Discard branch."
+msgstr "捨棄分支。"
+
+#. Found in description list item.
+msgid "<code>wbfp_branchable_post_statuses</code>"
+msgstr "<code>wbfp_branchable_post_statuses</code>"
+
+#. Found in description list item.
+msgid "<code>wbfp_create_branch_post_data</code>"
+msgstr "<code>wbfp_create_branch_post_data</code>"
+
+#. Found in description list item.
+msgid "<code>wbfp_excluded_meta_keys</code>"
+msgstr "<code>wbfp_excluded_meta_keys</code>"
+
+#. Found in description list item.
+msgid "<code>wbfp_mergeable_post_fields</code>"
+msgstr "<code>wbfp_mergeable_post_fields</code>"
+
+#. Found in description list item.
+msgid "<code>wbfp_branch_created</code>"
+msgstr "<code>wbfp_branch_created</code>"
+
+#. Found in description list item.
+msgid "<code>wbfp_before_merge</code>"
+msgstr "<code>wbfp_before_merge</code>"
+
+#. Found in description list item.
+msgid "<code>wbfp_after_merge</code>"
+msgstr "<code>wbfp_after_merge</code>"
+
+#. Found in description paragraph.
+msgid "WP Branches For Post provides a Git-like editorial workflow for WordPress content."
+msgstr "WP Branches For Post 為 WordPress 內容提供類似 Git 分支的編輯工作流程。"
+
+#. Found in description paragraph.
+msgid "Instead of editing a published post in place, create a draft branch. The public original remains unchanged while the branch is edited. When the work is ready, explicitly merge the branch back into the same original post ID."
+msgstr "你不需要直接修改已經發佈的文章，而是可以建立一個獨立的草稿分支。編輯分支期間，對外公開的原始文章會保持不變。工作完成後，再明確執行合併，將分支內容寫回同一個原始文章 ID。"
+
+#. Found in description paragraph.
+msgid "Version 2.0 modernizes the original 2020 plugin for the current WordPress block editor and REST API."
+msgstr "2.0 版針對目前的 WordPress 區塊編輯器與 REST API，將最初於 2020 年推出的外掛全面現代化。"
+
+#. Found in description paragraph.
+msgid "During merge, the plugin synchronizes editable post content, post meta, and all taxonomies while preserving the original post identity and publication state."
+msgstr "合併時，外掛會同步可編輯的文章內容、文章中繼資料以及所有分類法，同時保留原始文章的識別資訊和發佈狀態。"
+
+#. Found in description paragraph.
+msgid "Media IDs referenced by post content and featured-image meta remain the same. Attachments are not re-parented."
+msgstr "文章內容中引用的媒體 ID 及精選圖片中繼資料會保持不變。外掛不會重新設定附件所屬的文章。"
+
+#. Found in description paragraph.
+msgid "The Post Branch document panel shows:"
+msgstr "「文章分支」文件面板會顯示："
+
+#. Found in description paragraph.
+msgid "Classic Editor, post-list row actions, and the admin bar retain lightweight compatibility controls."
+msgstr "傳統編輯器、文章列表快捷操作及管理工具列也保留了輕量級相容功能。"
+
+#. Found in description paragraph.
+msgid "Version 2.0 recognizes branches created by the 1.x metadata format."
+msgstr "2.0 版可以識別使用 1.x 中繼資料格式建立的分支。"
+
+#. Found in description paragraph.
+msgid "Legacy branches do not contain a baseline snapshot, so they are reported as \"unknown\" conflict state and require an explicit force merge after the original has been reviewed."
+msgstr "舊版分支沒有基準快照，因此衝突狀態會顯示為「未知」。確認原始文章後，需要明確執行強制合併。"
+
+#. Found in description paragraph.
+msgid "The old automatic \"publish branch to overwrite original\" behavior has intentionally been removed."
+msgstr "舊版「發佈分支後自動覆寫原始文章」的行為已刻意移除。"
+
+#. Found in description paragraph.
+msgid "WP Branches For Post is maintained by Hao Kexin, a full-stack engineer and product builder based in Japan. Since 2018, his work has spanned requirements, system design, application development, data systems, deployment, observability, and long-term production operations."
+msgstr "WP Branches For Post 由 Hao Kexin 維護。他是一位在日本從事軟體開發的全端工程師與產品開發者。自 2018 年起，他的工作範圍涵蓋需求分析、系統設計、應用程式開發、資料系統、部署、可觀測性以及長期正式環境維運。"
+
+#. Found in description paragraph.
+msgid "His current work focuses on public data, financial analysis, AI, and end-to-end product engineering. He builds and maintains projects including Time2Analyze, a production system for public-company disclosures, structured financial data, analysis, Excel, MCP, and AI workflows."
+msgstr "目前，他主要專注於公開資料、財務分析、人工智慧以及端到端產品工程。他開發並維護包括 Time2Analyze 在內的多個專案。Time2Analyze 是一套面向上市公司公開揭露資訊、結構化財務資料、分析、Excel、MCP 與 AI 工作流程的正式系統。"
+
+#. Found in description paragraph.
+msgid "More about the author and current projects: https://time2log.com/about/"
+msgstr "關於作者及目前專案的更多資訊：https://time2log.com/about/"
+
+#. Found in description paragraph.
+msgid "Useful filters and actions include:"
+msgstr "可用的 filter 與 action 包括："
+
+#. Found in description paragraph.
+msgid "Security-critical invariants remain enforced after extension filters run: a new branch stays a draft of the same post type, required runtime meta stays excluded, and mergeable core fields are limited to the plugin's editorial allowlist."
+msgstr "即使擴充 filter 已執行，外掛仍會強制維持與安全相關的核心條件：新分支必須保持為相同文章類型的草稿，必要的執行階段中繼資料永遠不會被同步，而可合併的 WordPress 核心欄位也始終限制在外掛定義的編輯欄位允許清單中。"
+
+#. Found in description paragraph.
+msgid "See <code>ARCHITECTURE.md</code> for the create/merge data flow and <code>SECURITY.md</code> for authorization, CSRF, REST, conflict, and data-synchronization boundaries."
+msgstr "建立與合併的資料流程請參閱 <code>ARCHITECTURE.md</code>；權限控制、CSRF、REST、衝突處理及資料同步邊界請參閱 <code>SECURITY.md</code>。"
+
+#. Found in description paragraph.
+msgid "CI is intentionally not triggered for every feature-branch commit. Full PHP/build/Plugin Check validation runs on <code>master</code>, release tags, or manual workflow dispatch."
+msgstr "CI 不會在每一次功能分支提交時自動執行。完整的 PHP、建置及 Plugin Check 驗證只會在 <code>master</code>、發佈 tag 或手動觸發 workflow 時執行。"
+
+#. Found in description paragraph.
+msgid "The Block Editor source is in <code>src/index.js</code> and is built with <code>@wordpress/scripts</code>."
+msgstr "區塊編輯器原始碼位於 <code>src/index.js</code>，並使用 <code>@wordpress/scripts</code> 建置。"
+
+#. Found in description paragraph.
+msgid "Human-readable source code and build tooling are maintained at https://github.com/hsxk/WP-Branches-For-Post/."
+msgstr "可閱讀的原始碼與建置工具維護於 https://github.com/hsxk/WP-Branches-For-Post/。"
+
+#. Found in installation list item.
+msgid "Upload the plugin to <code>/wp-content/plugins/wp-branches-for-post</code>, or install it through the WordPress Plugins screen."
+msgstr "將外掛上傳至 <code>/wp-content/plugins/wp-branches-for-post</code>，或透過 WordPress 的「外掛」頁面安裝。"
+
+#. Found in installation list item.
+msgid "Activate WP Branches For Post."
+msgstr "啟用 WP Branches For Post。"
+
+#. Found in installation list item.
+msgid "Open an existing published post and use the Post Branch panel or Create Branch action."
+msgstr "開啟一篇既有且已發佈的文章，然後透過「文章分支」面板或「建立分支」操作開始使用。"
+
+#. Found in faq header.
+msgid "Does a branch get a public URL?"
+msgstr "分支會有公開網址嗎？"
+
+#. Found in faq header.
+msgid "Does merging change the original URL or post ID?"
+msgstr "合併會改變原始文章的 URL 或文章 ID 嗎？"
+
+#. Found in faq header.
+msgid "What happens if someone edits the original while I am working on a branch?"
+msgstr "如果我正在編輯分支時，有人修改了原始文章，會發生什麼事？"
+
+#. Found in faq header.
+msgid "Can I still merge an old 1.x branch?"
+msgstr "還可以合併由 1.x 版本建立的舊分支嗎？"
+
+#. Found in faq header.
+msgid "Does it support custom post types?"
+msgstr "支援自訂文章類型嗎？"
+
+#. Found in faq paragraph.
+msgid "No. A branch is an isolated working draft. Publishing a branch through the normal editor is prevented; use Merge into original instead."
+msgstr "不會。分支是一份獨立的工作草稿。外掛會阻止透過一般編輯器直接發佈分支；若要套用修改，請使用「合併到原始文章」。"
+
+#. Found in faq paragraph.
+msgid "No. The merge updates the existing original post record and preserves its identity, slug, publication state, author, and original dates."
+msgstr "不會。合併會更新既有的原始文章記錄，並保留其識別資訊、網址代稱、發佈狀態、作者以及原始日期。"
+
+#. Found in faq paragraph.
+msgid "The stored baseline snapshot no longer matches. The plugin marks the branch as conflicted and blocks the normal merge so newer work is not silently overwritten."
+msgstr "已儲存的基準快照將不再相符。外掛會將該分支標示為發生衝突，並阻止一般合併，避免較新的修改被無聲覆寫。"
+
+#. Found in faq paragraph.
+msgid "Yes, but because 1.x did not store a baseline snapshot, the plugin requires an explicit force merge after review."
+msgstr "可以。不過由於 1.x 沒有儲存基準快照，因此在確認原始文章後，需要明確執行強制合併。"
+
+#. Found in faq paragraph.
+msgid "Yes, when the user can edit the post and the post type uses the normal WordPress editing APIs. Taxonomies and post meta are synchronized with the branch."
+msgstr "支援。只要目前使用者擁有編輯權限，而且該文章類型使用標準的 WordPress 編輯 API，就可以使用分支功能。相關分類法與文章中繼資料也會隨分支同步。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Rebuilt the branch workflow for modern WordPress."
+msgstr "針對現代 WordPress 重新打造分支工作流程。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Added Block Editor document sidebar integration."
+msgstr "新增區塊編輯器文件側邊欄整合。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Added REST endpoints with capability-based permission callbacks."
+msgstr "新增透過使用者權限進行 permission callback 檢查的 REST 端點。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Added baseline snapshot conflict detection."
+msgstr "新增基於基準快照的衝突偵測。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Replaced publish-triggered merge with explicit merge actions."
+msgstr "將舊版「發佈分支後觸發合併」改為明確的合併操作。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Prevented branch posts from becoming public."
+msgstr "防止分支文章被公開發佈。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Reworked post meta synchronization to preserve multi-value keys and removals."
+msgstr "重構文章中繼資料同步，正確處理多值中繼資料以及已移除的中繼資料。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Reworked taxonomy synchronization so cleared taxonomies are also propagated."
+msgstr "重構分類法同步，使已清空的分類法也能正確同步。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Removed direct SQL revision and attachment-parent manipulation."
+msgstr "移除透過直接 SQL 修改修訂版本與附件所屬關係的邏輯。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Preserve original post ID, URL, status, author, slug, and publication dates during merge."
+msgstr "合併時保留原始文章 ID、URL、狀態、作者、網址代稱以及發佈日期。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Move merged/discarded branches to Trash instead of permanently deleting them."
+msgstr "已合併或已捨棄的分支會移至回收桶，而不是永久刪除。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Added compatibility handling for branches created by version 1.x."
+msgstr "新增對 1.x 版本建立之舊分支的相容處理。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Added modern development tooling and CI syntax/build checks."
+msgstr "新增現代開發工具，以及 CI 語法與建置檢查。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Added developer filters and code cleanup."
+msgstr "新增開發者 filter，並進行程式碼整理。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Added zh_CN, zh_TW, and ja translations."
+msgstr "新增簡體中文、繁體中文與日文翻譯。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Added admin-bar/list actions and initial block-editor support."
+msgstr "新增管理工具列、文章列表快捷操作以及初步的區塊編輯器支援。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Initial release."
+msgstr "首次發佈。"

@@ -1,5 +1,5 @@
 {
-  "translation-revision-date": "2026-09-19 11:20+0900",
+  "translation-revision-date": "2026-09-19 16:23+0900",
   "generator": "WP-CLI compatible Jed JSON",
   "source": "build/index.js",
   "domain": "messages",
@@ -14,56 +14,26 @@
         "WP Branches For Post は要求を完了できませんでした。"
       ],
       "Move this branch to Trash? The public original will not be changed.": [
-        "このブランチをゴミ箱に移動しますか？公開中の元の投稿は変更されません。"
+        "このブランチをゴミ箱へ移動しますか？公開中の元の投稿は変更されません。"
       ],
       "Edit safely in a separate draft. The published post stays unchanged until you merge the branch.": [
         "独立した下書きで安全に編集できます。ブランチをマージするまで、公開中の投稿は変更されません。"
       ],
-      "Creating…": [
-        "作成中…"
-      ],
-      "Create branch": [
-        "ブランチを作成"
-      ],
-      "Existing branches": [
-        "既存のブランチ"
-      ],
-      "Branch #%d": [
-        "ブランチ #%d"
-      ],
-      "Original changed": [
-        "元の投稿に変更あり"
-      ],
-      "This draft is isolated from the public original.": [
-        "この下書きは公開中の元の投稿から独立しています。"
-      ],
-      "Open original": [
-        "元の投稿を開く"
-      ],
-      "Created by %s": [
-        "作成者: %s"
-      ],
-      "This is a legacy branch with no baseline snapshot. Review the original before merging.": [
-        "これは基準スナップショットのない旧バージョンのブランチです。マージ前に元の投稿を確認してください。"
-      ],
-      "The original changed after this branch was created. A normal merge is blocked to prevent overwriting newer work.": [
-        "このブランチの作成後に元の投稿が変更されています。新しい変更を上書きしないよう、通常のマージはブロックされています。"
-      ],
-      "Merging…": [
-        "マージ中…"
-      ],
-      "Merge into original": [
-        "元の投稿へマージ"
-      ],
-      "Force merge after review": [
-        "確認後に強制マージ"
-      ],
-      "Discard branch": [
-        "ブランチを破棄"
-      ],
-      "Post Branch": [
-        "投稿ブランチ"
-      ]
+      "Creating…": ["作成中…"],
+      "Create branch": ["ブランチを作成"],
+      "Existing branches": ["既存のブランチ"],
+      "Branch #%d": ["ブランチ #%d"],
+      "Original changed": ["元の投稿に変更あり"],
+      "This draft is isolated from the public original.": ["この下書きは公開中の元の投稿から独立しています。"],
+      "Open original": ["元の投稿を開く"],
+      "Created by %s": ["作成者：%s"],
+      "This is a legacy branch with no baseline snapshot. Review the original before merging.": ["これは基準スナップショットのない旧形式のブランチです。マージ前に元の投稿を確認してください。"],
+      "The original changed after this branch was created. A normal merge is blocked to prevent overwriting newer work.": ["このブランチの作成後に元の投稿が変更されています。新しい変更を上書きしないよう、通常のマージはブロックされています。"],
+      "Merging…": ["マージ中…"],
+      "Merge into original": ["元の投稿へマージ"],
+      "Force merge after review": ["確認後に強制マージ"],
+      "Discard branch": ["ブランチを破棄"],
+      "Post Branch": ["投稿ブランチ"]
     }
   }
 }

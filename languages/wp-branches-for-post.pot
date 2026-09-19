@@ -4,11 +4,19 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WP Branches For Post 2.0.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-branches-for-post/\n"
-"POT-Creation-Date: 2026-09-19 11:20+0900\n"
+"POT-Creation-Date: 2026-09-19 16:23+0900\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Domain: wp-branches-for-post\n"
+
+#. Plugin Name of the plugin.
+msgid "WP Branches For Post"
+msgstr ""
+
+#. Description of the plugin.
+msgid "Create safe working branches for published WordPress content and merge them back without changing the public post while editing."
+msgstr ""
 
 msgid "You cannot create a branch for this post."
 msgstr ""
@@ -117,4 +125,3 @@ msgstr ""
 
 msgid "Discard branch"
 msgstr ""
-
