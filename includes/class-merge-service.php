@@ -47,6 +47,15 @@ final class Merge_Service {
 
 		do_action( 'wbfp_before_merge', $branch_id, $original_id, $force );
 
+		// Re-check immediately before the write so hooks or another editor cannot silently stale the initial check.
+		if ( ! $force && 'clean' !== $this->branches->conflict_state( $branch_id ) ) {
+			return new \WP_Error(
+				'wbfp_merge_conflict',
+				__( 'The original post changed before the merge could be applied. Review the latest version and try again.', 'wp-branches-for-post' ),
+				array( 'status' => 409, 'conflict' => 'changed' )
+			);
+		}
+
 		$updated = Sync_Service::copy_core_fields( $branch, $original_id );
 		if ( is_wp_error( $updated ) ) {
 			return $updated;
