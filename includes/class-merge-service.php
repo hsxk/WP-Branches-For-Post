@@ -107,9 +107,10 @@ final class Merge_Service {
 		 */
 		do_action( 'wbfp_before_merge', $branch_id, $original_id, $force );
 
-		// Re-fetch after hooks so stale in-memory post data is not merged.
-		$branch = get_post( $branch_id );
-		if ( ! $branch || ! $this->branches->is_branch( $branch_id ) || $branch->post_type !== $original->post_type ) {
+		// Re-fetch after hooks so stale in-memory post/original data is not merged.
+		$branch   = get_post( $branch_id );
+		$original = get_post( $original_id );
+		if ( ! $branch || ! $original || ! $this->branches->is_branch( $branch_id ) || $branch->post_type !== $original->post_type ) {
 			return new \WP_Error(
 				'wbfp_not_branch',
 				__( 'This post is not a branch.', 'wp-branches-for-post' ),
