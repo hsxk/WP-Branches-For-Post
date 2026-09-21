@@ -2,6 +2,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parents[1]
+ASSETS_DIR = ROOT / ".wordpress-org"
 FONT_REG = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
 FONT_BOLD = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
 
@@ -115,7 +116,7 @@ def panel_header(draw, y=165):
     return y + 50
 
 def screenshots():
-    for old in ROOT.glob("screenshot-*"):
+    for old in ASSETS_DIR.glob("screenshot-*"):
         old.unlink()
 
     image, draw = editor_base("Quarterly update")
@@ -128,7 +129,7 @@ def screenshots():
     y += 70
     label(draw, (1065, y), "Existing branches", 13, bold=True)
     label(draw, (1065, y+30), "No active branches", 13, fill=MUTED)
-    image.save(ROOT / "screenshot-1.png", optimize=True)
+    image.save(ASSETS_DIR / "screenshot-1.png", optimize=True)
 
     image, draw = editor_base("Quarterly update — branch")
     y = panel_header(draw)
@@ -141,7 +142,7 @@ def screenshots():
     rounded(draw, (1065, y, 1234, y+38), 5, fill=BLUE)
     label(draw, (1149, y+19), "Merge into original", 13, fill=WHITE, anchor="mm", bold=True)
     label(draw, (1065, y+52), "Discard branch", 13, fill=RED, bold=True)
-    image.save(ROOT / "screenshot-2.png", optimize=True)
+    image.save(ASSETS_DIR / "screenshot-2.png", optimize=True)
 
     image, draw = editor_base("Quarterly update — branch")
     y = panel_header(draw)
@@ -158,7 +159,7 @@ def screenshots():
     rounded(draw, (1065, y, 1287, y+38), 5, fill=WHITE, outline=RED)
     label(draw, (1176, y+19), "Force merge after review", 12, fill=RED, anchor="mm", bold=True)
     label(draw, (1065, y+52), "Discard branch", 13, fill=RED, bold=True)
-    image.save(ROOT / "screenshot-3.png", optimize=True)
+    image.save(ASSETS_DIR / "screenshot-3.png", optimize=True)
 
     width, height = 1440, 900
     image = Image.new("RGB", (width, height), BG)
@@ -200,7 +201,7 @@ def screenshots():
         else:
             label(draw, (1259, yy), row[4], 12, fill=BLUE, bold=True)
             label(draw, (278, yy+28), "Edit  |  Quick Edit  |  Trash  |  View", 12, fill=MUTED)
-    image.save(ROOT / "screenshot-4.png", optimize=True)
+    image.save(ASSETS_DIR / "screenshot-4.png", optimize=True)
 
 def icon(size, target):
     image = Image.new("RGB", (size, size), "#eef1ff")
@@ -214,7 +215,8 @@ if __name__ == "__main__":
     # WordPress.org screenshots are captured from a real WordPress instance by
     # tools/capture-real-wp-screenshots.js. This generator intentionally owns
     # only the banner/icon artwork so it can never overwrite real screenshots.
-    banner(772, 250, ROOT / "banner-772x250.png")
-    banner(1544, 500, ROOT / "banner-1544x500.png")
-    icon(128, ROOT / "icon-128x128.jpg")
-    icon(256, ROOT / "icon-256x256.jpg")
+    ASSETS_DIR.mkdir(parents=True, exist_ok=True)
+    banner(772, 250, ASSETS_DIR / "banner-772x250.png")
+    banner(1544, 500, ASSETS_DIR / "banner-1544x500.png")
+    icon(128, ASSETS_DIR / "icon-128x128.png")
+    icon(256, ASSETS_DIR / "icon-256x256.png")
