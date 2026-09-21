@@ -292,7 +292,7 @@ final class Sync_Service {
 	}
 
 	/**
-	 * Determine whether an array is a list while remaining compatible with WordPress 6.4.
+	 * Determine whether an array is a list while remaining compatible with the supported WordPress versions.
 	 *
 	 * @param array<mixed> $value Array to inspect.
 	 * @return bool

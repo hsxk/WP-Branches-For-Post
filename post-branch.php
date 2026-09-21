@@ -4,7 +4,7 @@
  * Plugin URI:        https://github.com/hsxk/WP-Branches-For-Post/
  * Description:       Create safe working branches for published WordPress content and merge them back without changing the public post while editing.
  * Version:           2.0.0
- * Requires at least: 6.4
+ * Requires at least: 6.6
  * Requires PHP:      8.2
  * Author:            Hao Kexin
  * Author URI:        https://time2log.com/about/
