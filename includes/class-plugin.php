@@ -18,7 +18,18 @@ if ( ! defined( 'ABSPATH' ) ) {
  * wires WordPress hooks to those services.
  */
 final class Plugin {
+	/**
+	 * Singleton plugin instance.
+	 *
+	 * @var Plugin|null
+	 */
 	private static ?Plugin $instance = null;
+
+	/**
+	 * Whether boot() has already run.
+	 *
+	 * @var bool
+	 */
 	private bool $booted = false;
 
 	/**
@@ -33,6 +44,9 @@ final class Plugin {
 		return self::$instance;
 	}
 
+	/**
+	 * Force instantiation through instance().
+	 */
 	private function __construct() {}
 
 	/**

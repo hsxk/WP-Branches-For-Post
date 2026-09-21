@@ -1,5 +1,6 @@
 /.git
 /.github
+/.gitignore
 /node_modules
 /vendor
 /src

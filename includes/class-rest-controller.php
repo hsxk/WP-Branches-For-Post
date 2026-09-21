@@ -21,10 +21,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class REST_Controller {
 	private const NAMESPACE = 'wbfp/v1';
 
+	/**
+	 * Branch lifecycle service.
+	 *
+	 * @var Branch_Service
+	 */
 	private Branch_Service $branches;
+
+	/**
+	 * Merge/discard service.
+	 *
+	 * @var Merge_Service
+	 */
 	private Merge_Service $merges;
 
 	/**
+	 * Wire the branch/merge services used by REST callbacks.
+	 *
 	 * @param Branch_Service $branches Branch lifecycle service.
 	 * @param Merge_Service  $merges   Merge/discard service.
 	 */
