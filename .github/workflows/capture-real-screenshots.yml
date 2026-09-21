@@ -74,6 +74,7 @@ jobs:
 
       - name: Verify screenshot files
         run: |
+          cd .wordpress-org
           file screenshot-1.png screenshot-2.png screenshot-3.png screenshot-4.png
           node - <<'NODE'
           const fs = require('fs');
@@ -91,7 +92,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add screenshot-1.png screenshot-2.png screenshot-3.png screenshot-4.png
+          git add .wordpress-org/screenshot-1.png .wordpress-org/screenshot-2.png .wordpress-org/screenshot-3.png .wordpress-org/screenshot-4.png
           if git diff --cached --quiet; then
             echo "Screenshots are already current."
             exit 0

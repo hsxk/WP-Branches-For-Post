@@ -6,6 +6,11 @@ const path = require('node:path');
 const baseURL = process.env.WP_BASE_URL || 'http://localhost:8888';
 const postId = Number(process.env.WBFP_ORIGINAL_POST_ID || 0);
 const outputDir = process.cwd();
+const wporgAssetsDir = path.join(outputDir, '.wordpress-org');
+
+if (!fs.existsSync(wporgAssetsDir)) {
+	fs.mkdirSync(wporgAssetsDir, { recursive: true });
+}
 
 if (!postId) {
 	throw new Error('WBFP_ORIGINAL_POST_ID is required.');
@@ -95,7 +100,7 @@ async function waitForEditor(page) {
 
 async function screenshot(page, name) {
 	await page.screenshot({
-		path: path.join(outputDir, name),
+		path: path.join(wporgAssetsDir, name),
 		fullPage: false,
 		animations: 'disabled',
 	});

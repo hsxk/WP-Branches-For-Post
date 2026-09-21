@@ -1,5 +1,6 @@
 /.git
 /.github
+/.wordpress-org
 /node_modules
 /vendor
 /src
@@ -9,12 +10,6 @@
 /composer.json
 /phpcs.xml.dist
 /.distignore
-/banner-*.png
-/banner-*.jpg
-/icon-*.png
-/icon-*.jpg
-/screenshot-*.png
-/screenshot-*.jpg
 /tools
 /ARCHITECTURE.md
 /tests
