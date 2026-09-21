@@ -4,7 +4,7 @@ Tags: post branch, editorial workflow, staging, revision, gutenberg
 Requires at least: 6.6
 Tested up to: 7.1
 Requires PHP: 8.2
-Stable tag: 2.0.0
+Stable tag: 2.0.1
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -132,6 +132,13 @@ The Block Editor source is in `src/index.js` and is built with `@wordpress/scrip
 Human-readable source code and build tooling are maintained at https://github.com/hsxk/WP-Branches-For-Post/.
 
 == Changelog ==
+
+= 2.0.1 =
+* Raised the minimum supported WordPress version to 6.6 for the current block-editor JSX runtime.
+* Added missing translator comments and refreshed the shipped block-editor build.
+* Improved Plugin Check and PHPCS coverage and aligned the release build tree.
+* Moved WordPress.org artwork into the standard .wordpress-org directory and added tag-driven SVN deployment.
+* Added additional real-WordPress security verification coverage.
 
 = 2.0.0 =
 * Rebuilt the branch workflow for modern WordPress.
