@@ -26,8 +26,8 @@ jobs:
         uses: 10up/action-wordpress-plugin-deploy@stable
         with:
           generate-zip: true
-          slug: wp-branches-for-post
         env:
+          SLUG: wp-branches-for-post
           SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
           SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
 
@@ -36,4 +36,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: ${{ github.workspace }}/wp-branches-for-post.zip
+          files: ${{ steps.deploy.outputs.zip-path }}
