@@ -51,20 +51,8 @@ final class Plugin {
 		$rest     = new REST_Controller( $branches, $merges );
 		$admin    = new Admin( $branches, $merges );
 
-		add_action( 'init', array( $this, 'load_textdomain' ) );
 		add_filter( 'wp_insert_post_data', array( $branches, 'keep_branch_non_public' ), 20, 2 );
 		add_action( 'rest_api_init', array( $rest, 'register_routes' ) );
 		$admin->register_hooks();
-	}
-
-	/**
-	 * Load bundled translations for manual/GitHub installations.
-	 *
-	 * WordPress.org language packs are still handled by WordPress core.
-	 *
-	 * @return void
-	 */
-	public function load_textdomain(): void {
-		load_plugin_textdomain( 'wp-branches-for-post', false, dirname( plugin_basename( WBFP_FILE ) ) . '/languages' );
 	}
 }
