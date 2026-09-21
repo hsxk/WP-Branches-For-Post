@@ -94,7 +94,11 @@ function BranchPanel() {
 						<ul>
 							{ status.branches.map( ( branch ) => (
 								<li key={ branch.id }>
-									<a href={ branch.edit_url }>{ sprintf( __( 'Branch #%d', 'wp-branches-for-post' ), branch.id ) }</a>
+									<a href={ branch.edit_url }>{ sprintf(
+										/* translators: %d: branch post ID. */
+										__( 'Branch #%d', 'wp-branches-for-post' ),
+										branch.id
+									) }</a>
 									{ branch.conflict !== 'clean' && <span className="wbfp-conflict-dot" title={ __( 'Original changed', 'wp-branches-for-post' ) }>!</span> }
 								</li>
 							) ) }
@@ -111,7 +115,11 @@ function BranchPanel() {
 					{ __( 'This draft is isolated from the public original.', 'wp-branches-for-post' ) }
 					{ status.original_edit_url && <> <a href={ status.original_edit_url }>{ __( 'Open original', 'wp-branches-for-post' ) }</a></> }
 				</p>
-				{ status.creator && <p className="wbfp-meta">{ sprintf( __( 'Created by %s', 'wp-branches-for-post' ), status.creator ) }</p> }
+				{ status.creator && <p className="wbfp-meta">{ sprintf(
+					/* translators: %s: branch creator display name. */
+					__( 'Created by %s', 'wp-branches-for-post' ),
+					status.creator
+				) }</p> }
 				{ hasConflict && (
 					<Notice status="warning" isDismissible={ false }>
 						{ status.conflict === 'unknown'
