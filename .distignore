@@ -1,5 +1,6 @@
 /.git
 /.github
+/.gitignore
 /.wordpress-org
 /node_modules
 /vendor

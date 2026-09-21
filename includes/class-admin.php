@@ -18,10 +18,23 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Merge_Service repeat capability checks because nonces are not authorization.
  */
 final class Admin {
+	/**
+	 * Branch lifecycle service.
+	 *
+	 * @var Branch_Service
+	 */
 	private Branch_Service $branches;
+
+	/**
+	 * Merge/discard service.
+	 *
+	 * @var Merge_Service
+	 */
 	private Merge_Service $merges;
 
 	/**
+	 * Wire the branch/merge services used by admin/editor hooks.
+	 *
 	 * @param Branch_Service $branches Branch lifecycle service.
 	 * @param Merge_Service  $merges   Merge/discard service.
 	 */
@@ -115,7 +128,7 @@ final class Admin {
 		if ( $this->branches->is_branch( $post->ID ) ) {
 			$original_id = $this->branches->get_original_id( $post->ID );
 			if ( current_user_can( 'edit_post', $post->ID ) && current_user_can( 'edit_post', $original_id ) ) {
-				$conflict = $this->branches->conflict_state( $post->ID );
+				$conflict     = $this->branches->conflict_state( $post->ID );
 				$force        = Branch_Service::CONFLICT_CLEAN !== $conflict;
 				$confirm_attr = '';
 				if ( $force ) {
@@ -260,7 +273,10 @@ final class Admin {
 		}
 
 		$asset_file = WBFP_DIR . 'build/index.asset.php';
-		$asset      = file_exists( $asset_file ) ? require $asset_file : array( 'dependencies' => array(), 'version' => WBFP_VERSION );
+		$asset      = file_exists( $asset_file ) ? require $asset_file : array(
+			'dependencies' => array(),
+			'version'      => WBFP_VERSION,
+		);
 
 		wp_enqueue_script(
 			'wbfp-editor',

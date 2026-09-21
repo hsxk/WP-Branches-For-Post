@@ -22,9 +22,16 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Applies reviewed branch content back to the original post.
  */
 final class Merge_Service {
+	/**
+	 * Branch relationship service.
+	 *
+	 * @var Branch_Service
+	 */
 	private Branch_Service $branches;
 
 	/**
+	 * Wire the branch relationship service used to validate merges.
+	 *
 	 * @param Branch_Service $branches Branch relationship service.
 	 */
 	public function __construct( Branch_Service $branches ) {

@@ -194,7 +194,7 @@ final class Branch_Service {
 				'fields'         => 'ids',
 			)
 		);
-		$revision_id = $latest_revision ? (int) reset( $latest_revision ) : 0;
+		$revision_id     = $latest_revision ? (int) reset( $latest_revision ) : 0;
 
 		update_post_meta( $branch_id, self::META_ORIGINAL_ID, $original_id );
 		update_post_meta( $branch_id, self::META_CREATOR_USER_ID, get_current_user_id() );
@@ -292,6 +292,7 @@ final class Branch_Service {
 				'orderby'        => 'modified',
 				'order'          => 'DESC',
 				'no_found_rows'  => true,
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- OR across current and legacy 1.x relationship keys is required for branch lookup; no non-meta index is available.
 				'meta_query'     => array(
 					'relation' => 'OR',
 					array(
