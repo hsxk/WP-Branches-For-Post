@@ -1,5 +1,5 @@
 === WP Branches For Post ===
-Contributors: haokexin
+Contributors: haokexin, alkesh7
 Tags: post branch, editorial workflow, staging, revision, gutenberg
 Requires at least: 6.6
 Tested up to: 7.1
