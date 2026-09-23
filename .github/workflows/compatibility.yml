@@ -11,12 +11,12 @@ permissions:
   contents: read
 
 concurrency:
-  group: compatibility-\${{ github.ref }}
+  group: compatibility-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   wordpress:
-    name: WordPress \${{ matrix.wordpress }} / PHP \${{ matrix.php }}
+    name: WordPress ${{ matrix.wordpress }} / PHP ${{ matrix.php }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     strategy:
@@ -48,7 +48,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
         with:
-          php-version: \${{ matrix.php }}
+          php-version: ${{ matrix.php }}
           extensions: mysqli
           coverage: none
       - name: Install WP-CLI
@@ -61,7 +61,7 @@ jobs:
         run: |
           set -euo pipefail
           rm -rf /tmp/wordpress
-          wp core download --path=/tmp/wordpress --version="\${{ matrix.wordpress }}" --force
+          wp core download --path=/tmp/wordpress --version="${{ matrix.wordpress }}" --force
           wp config create --path=/tmp/wordpress \
             --dbname=wordpress --dbuser=wordpress --dbpass=wordpress --dbhost=127.0.0.1:3306 \
             --skip-check
@@ -110,7 +110,7 @@ jobs:
             '/languages/wp-branches-for-post-zh_CN\.mo$'
             '/languages/wp-branches-for-post-zh_TW\.mo$'
           )
-          for pattern in "\${required[@]}"; do
+          for pattern in "${required[@]}"; do
             grep -Eq "$pattern" /tmp/release-files.txt
           done
           forbidden=(
@@ -132,7 +132,7 @@ jobs:
             '/phpcs\.xml\.dist$'
             '/\.distignore$'
           )
-          for pattern in "\${forbidden[@]}"; do
+          for pattern in "${forbidden[@]}"; do
             if grep -Eq "$pattern" /tmp/release-files.txt; then
               echo "Forbidden development path in release ZIP: $pattern"
               exit 1

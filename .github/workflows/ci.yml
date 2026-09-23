@@ -11,12 +11,12 @@ permissions:
   contents: read
 
 concurrency:
-  group: ci-\${{ github.workflow }}-\${{ github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   php-quality:
-    name: PHP \${{ matrix.php }} quality
+    name: PHP ${{ matrix.php }} quality
     runs-on: ubuntu-latest
     timeout-minutes: 15
     strategy:
@@ -27,7 +27,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
         with:
-          php-version: \${{ matrix.php }}
+          php-version: ${{ matrix.php }}
           coverage: none
       - name: PHP syntax
         run: find . -name '*.php' -not -path './vendor/*' -print0 | xargs -0 -n1 php -l
@@ -53,9 +53,9 @@ jobs:
         run: |
           set -euo pipefail
           version="$(node -p "require('./package.json').version")"
-          grep -Eq "^[[:space:]]*\* Version:[[:space:]]+\${version}$" post-branch.php
-          grep -Fq "define( 'WBFP_VERSION', '\${version}' );" post-branch.php
-          grep -Eq "^Stable tag:[[:space:]]+\${version}$" README.txt
+          grep -Eq "^[[:space:]]*\* Version:[[:space:]]+${version}$" post-branch.php
+          grep -Fq "define( 'WBFP_VERSION', '${version}' );" post-branch.php
+          grep -Eq "^Stable tag:[[:space:]]+${version}$" README.txt
       - name: JavaScript lint
         run: npm run lint:js
       - name: CSS lint
@@ -96,8 +96,8 @@ jobs:
             --domain=wp-branches-for-post \
             --exclude=.git,node_modules,vendor,.github,.wordpress-org,tests,tools,dist,docs
           for locale in ja zh_CN zh_TW; do
-            po="languages/wp-branches-for-post-\${locale}.po"
-            mo="languages/wp-branches-for-post-\${locale}.mo"
+            po="languages/wp-branches-for-post-${locale}.po"
+            mo="languages/wp-branches-for-post-${locale}.mo"
             msgmerge --update --backup=none "$po" languages/wp-branches-for-post.pot
             msgattrib --no-obsolete "$po" -o "$po"
             msgfmt --check --check-format "$po" -o "$mo"

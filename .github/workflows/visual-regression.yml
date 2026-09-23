@@ -11,7 +11,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: visual-\${{ github.ref }}
+  group: visual-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -121,7 +121,7 @@ jobs:
       - name: Real Gutenberg browser E2E
         env:
           WBFP_BASE_URL: http://127.0.0.1:8080
-          WBFP_BROWSER_POST_ID: \${{ steps.browser_fixture.outputs.post_id }}
+          WBFP_BROWSER_POST_ID: ${{ steps.browser_fixture.outputs.post_id }}
           WBFP_BROWSER_USER: admin
           WBFP_BROWSER_PASSWORD: test-password
         run: node tests/browser-2.1.js
@@ -139,7 +139,7 @@ jobs:
       - name: Generate 12 WordPress.org screenshots
         env:
           WBFP_BASE_URL: http://127.0.0.1:8080
-          WBFP_SCREENSHOT_POST_ID: \${{ steps.docs_fixture.outputs.post_id }}
+          WBFP_SCREENSHOT_POST_ID: ${{ steps.docs_fixture.outputs.post_id }}
           WBFP_BROWSER_USER: admin
           WBFP_BROWSER_PASSWORD: test-password
           WBFP_WP_PATH: /tmp/wordpress

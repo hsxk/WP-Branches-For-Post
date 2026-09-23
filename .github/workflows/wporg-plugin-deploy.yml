@@ -30,11 +30,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          version="\${GITHUB_REF_NAME#v}"
-          test "$GITHUB_REF_NAME" = "v\${version}"
-          grep -Eq "^[[:space:]]*\* Version:[[:space:]]+\${version}$" post-branch.php
-          grep -Fq "define( 'WBFP_VERSION', '\${version}' );" post-branch.php
-          grep -Eq "^Stable tag:[[:space:]]+\${version}$" README.txt
+          version="${GITHUB_REF_NAME#v}"
+          test "$GITHUB_REF_NAME" = "v${version}"
+          grep -Eq "^[[:space:]]*\* Version:[[:space:]]+${version}$" post-branch.php
+          grep -Fq "define( 'WBFP_VERSION', '${version}' );" post-branch.php
+          grep -Eq "^Stable tag:[[:space:]]+${version}$" README.txt
           test "$(node -p "require('./package.json').version")" = "$version"
           git fetch origin master
           git merge-base --is-ancestor "$GITHUB_SHA" origin/master
@@ -100,11 +100,11 @@ jobs:
           generate-zip: true
         env:
           SLUG: wp-branches-for-post
-          SVN_USERNAME: \${{ secrets.SVN_USERNAME }}
-          SVN_PASSWORD: \${{ secrets.SVN_PASSWORD }}
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
       - name: Upload GitHub release asset
         uses: softprops/action-gh-release@v3
         env:
-          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: \${{ steps.deploy.outputs.zip-path }}
+          files: ${{ steps.deploy.outputs.zip-path }}
