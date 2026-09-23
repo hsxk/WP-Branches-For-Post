@@ -6,6 +6,7 @@
  * wp eval-file wp-content/plugins/wp-branches-for-post/tests/wp-real-2.1.php
  */
 
+use WP_Branches_For_Post\Admin;
 use WP_Branches_For_Post\Branch_Service;
 use WP_Branches_For_Post\Merge_Service;
 use WP_Branches_For_Post\REST_Controller;
@@ -14,6 +15,7 @@ use WP_Branches_For_Post\Sync_Service;
 $GLOBALS['wbfp_checks'] = 0;
 $created_posts = array();
 $created_users = array();
+$created_terms = array();
 
 function wbfp_check( $condition, string $message ): void {
 	++$GLOBALS['wbfp_checks'];
@@ -240,6 +242,61 @@ try {
 	wbfp_check( is_wp_error( $rebase_rollback_result ) && 'wbfp_rebase_rolled_back' === $rebase_rollback_result->get_error_code(), 'Injected rebase failure reports rollback' );
 	wbfp_check( $branch_before_hash === wbfp_snapshot_hash( $rebase_rollback_branch ), 'Branch mergeable state is restored after failed rebase' );
 
+
+
+	// Rebase freshness: original changes after analysis must be detected before branch writes.
+	$rebase_race_original = wbfp_make_post();
+	$rebase_race_branch   = $branches->create( $rebase_race_original );
+	wbfp_check( ! is_wp_error( $rebase_race_branch ), 'Create branch for rebase freshness race test' );
+	$rebase_race_branch = (int) $rebase_race_branch;
+	$created_posts[] = $rebase_race_branch;
+	wp_update_post( array( 'ID' => $rebase_race_branch, 'post_content' => 'Branch content before rebase race' ) );
+	wp_update_post( array( 'ID' => $rebase_race_original, 'post_excerpt' => 'Original change that makes rebase available' ) );
+	$rebase_race_before = wbfp_snapshot_hash( $rebase_race_branch );
+	$rebase_field_calls = 0;
+	$inject_rebase_race = static function ( $fields ) use ( &$rebase_field_calls, $rebase_race_original ) {
+		++$rebase_field_calls;
+		if ( 3 === $rebase_field_calls ) {
+			wp_update_post( array( 'ID' => $rebase_race_original, 'post_title' => 'Concurrent original change during rebase' ) );
+		}
+		return $fields;
+	};
+	add_filter( 'wbfp_mergeable_post_fields', $inject_rebase_race, 999 );
+	$rebase_race_result = $branches->rebase( $rebase_race_branch );
+	remove_filter( 'wbfp_mergeable_post_fields', $inject_rebase_race, 999 );
+	wbfp_check( is_wp_error( $rebase_race_result ) && 'wbfp_rebase_state_changed' === $rebase_race_result->get_error_code(), 'Rebase rejects original changes that arrive after analysis' );
+	wbfp_check( $rebase_race_before === wbfp_snapshot_hash( $rebase_race_branch ), 'Stale rebase rejection leaves branch state unchanged' );
+	wbfp_check( 'Concurrent original change during rebase' === get_post( $rebase_race_original )->post_title, 'Concurrent original change remains untouched after rebase rejection' );
+	wbfp_check( Branch_Service::CONFLICT_REBASE === $branches->conflict_state( $rebase_race_branch ), 'Rejected rebase remains available for a fresh review' );
+
+	// Baseline metadata failure after a successful rebase write must roll everything back.
+	$baseline_original = wbfp_make_post();
+	$baseline_branch   = $branches->create( $baseline_original );
+	wbfp_check( ! is_wp_error( $baseline_branch ), 'Create branch for baseline metadata rollback test' );
+	$baseline_branch = (int) $baseline_branch;
+	$created_posts[] = $baseline_branch;
+	wp_update_post( array( 'ID' => $baseline_branch, 'post_content' => 'Branch content before baseline failure' ) );
+	wp_update_post( array( 'ID' => $baseline_original, 'post_excerpt' => 'Original excerpt before baseline failure' ) );
+	$baseline_branch_before = wbfp_snapshot_hash( $baseline_branch );
+	$baseline_snapshot_before = $branches->get_base_snapshot( $baseline_branch );
+	$baseline_hash_before = (string) get_post_meta( $baseline_branch, Branch_Service::META_BASE_HASH, true );
+	$blocked_baseline_write = false;
+	$fail_baseline_update = static function ( $check, $object_id, $meta_key ) use ( $baseline_branch, &$blocked_baseline_write ) {
+		if ( ! $blocked_baseline_write && $baseline_branch === (int) $object_id && Branch_Service::META_BASE_SNAPSHOT === $meta_key ) {
+			$blocked_baseline_write = true;
+			return false;
+		}
+		return $check;
+	};
+	add_filter( 'update_post_metadata', $fail_baseline_update, 10, 3 );
+	$baseline_rebase_result = $branches->rebase( $baseline_branch );
+	remove_filter( 'update_post_metadata', $fail_baseline_update, 10 );
+	wbfp_check( is_wp_error( $baseline_rebase_result ) && 'wbfp_rebase_baseline_rolled_back' === $baseline_rebase_result->get_error_code(), 'Failed baseline metadata write reports a fully rolled-back rebase' );
+	wbfp_check( $baseline_branch_before === wbfp_snapshot_hash( $baseline_branch ), 'Branch content/meta/taxonomy state is restored after baseline write failure' );
+	wbfp_check( $baseline_hash_before === (string) get_post_meta( $baseline_branch, Branch_Service::META_BASE_HASH, true ), 'Previous baseline hash is restored after failed rebase' );
+	wbfp_check( Sync_Service::state_hash_from_payload( $baseline_snapshot_before ) === Sync_Service::state_hash_from_payload( $branches->get_base_snapshot( $baseline_branch ) ), 'Previous full baseline snapshot is restored after failed rebase' );
+	wbfp_check( Branch_Service::CONFLICT_REBASE === $branches->conflict_state( $baseline_branch ), 'Rolled-back branch still reports the original non-conflicting update as available' );
+
 	// 41-44: synced pattern detection.
 	$pattern_id = wbfp_make_post(
 		array(
@@ -310,12 +367,238 @@ try {
 	wbfp_check( true === $discarded, 'Discard succeeds for authorized user' );
 	wbfp_check( 'trash' === get_post_status( $discard_branch ), 'Discard moves branch to Trash' );
 
+
+	// Review-token freshness: a user cannot merge a state different from the one reviewed.
+	$token_original = wbfp_make_post();
+	$token_branch   = $branches->create( $token_original );
+	wbfp_check( ! is_wp_error( $token_branch ), 'Create branch for reviewed-state token test' );
+	$token_branch = (int) $token_branch;
+	$created_posts[] = $token_branch;
+	wp_update_post( array( 'ID' => $token_branch, 'post_content' => 'Reviewed token branch content' ) );
+
+	$token_request = new WP_REST_Request( 'GET', '/wbfp/v1/posts/' . $token_branch . '/status' );
+	$token_request->set_param( 'id', $token_branch );
+	$token_status = $rest->status( $token_request )->get_data();
+	wbfp_check( ! empty( $token_status['review_token'] ), 'REST status exposes a non-empty review token' );
+	$stale_token = (string) $token_status['review_token'];
+
+	wp_update_post( array( 'ID' => $token_branch, 'post_excerpt' => 'Changed after the prior review' ) );
+	$fresh_status = $rest->status( $token_request )->get_data();
+	wbfp_check( $stale_token !== (string) $fresh_status['review_token'], 'Review token changes when branch state changes' );
+
+	$stale_merge_request = new WP_REST_Request( 'POST', '/wbfp/v1/branches/' . $token_branch . '/merge' );
+	$stale_merge_request->set_param( 'id', $token_branch );
+	$stale_merge_request->set_param( 'force', false );
+	$stale_merge_request->set_param( 'review_token', $stale_token );
+	$stale_merge = $rest->merge_branch( $stale_merge_request );
+	wbfp_check( is_wp_error( $stale_merge ) && 'wbfp_review_state_changed' === $stale_merge->get_error_code(), 'REST merge rejects a stale reviewed-state token' );
+	wbfp_check( 'draft' === get_post_status( $token_branch ), 'Stale-token rejection leaves the branch active' );
+
+	// Stale-write race: change the original after the second analysis but before apply.
+	$race_original = wbfp_make_post();
+	$race_branch   = $branches->create( $race_original );
+	wbfp_check( ! is_wp_error( $race_branch ), 'Create branch for merge race test' );
+	$race_branch = (int) $race_branch;
+	$created_posts[] = $race_branch;
+	wp_update_post( array( 'ID' => $race_branch, 'post_content' => 'Race-test branch content' ) );
+	$mergeable_calls = 0;
+	$inject_race = static function ( $fields ) use ( &$mergeable_calls, $race_original ) {
+		++$mergeable_calls;
+		if ( 4 === $mergeable_calls ) {
+			wp_update_post( array( 'ID' => $race_original, 'post_excerpt' => 'Concurrent original save during merge' ) );
+		}
+		return $fields;
+	};
+	add_filter( 'wbfp_mergeable_post_fields', $inject_race, 999 );
+	$race_result = $merges->merge( $race_branch, false );
+	remove_filter( 'wbfp_mergeable_post_fields', $inject_race, 999 );
+	wbfp_check( is_wp_error( $race_result ) && 'wbfp_review_state_changed' === $race_result->get_error_code(), 'Service layer rejects an original that changes after review analysis' );
+	wbfp_check( 'Concurrent original save during merge' === get_post( $race_original )->post_excerpt, 'Concurrent original change is preserved when stale merge is rejected' );
+	wbfp_check( 'draft' === get_post_status( $race_branch ), 'Race rejection keeps the branch active for a fresh review' );
+
+	// Branch cleanup failure: original must roll back instead of returning a partial success.
+	$cleanup_original = wbfp_make_post();
+	$cleanup_branch   = $branches->create( $cleanup_original );
+	wbfp_check( ! is_wp_error( $cleanup_branch ), 'Create branch for post-merge cleanup rollback test' );
+	$cleanup_branch = (int) $cleanup_branch;
+	$created_posts[] = $cleanup_branch;
+	wp_update_post( array( 'ID' => $cleanup_branch, 'post_content' => 'Content that must not remain after cleanup failure' ) );
+	$cleanup_before = wbfp_snapshot_hash( $cleanup_original );
+	$prevent_trash = static function ( $trash, $post ) use ( $cleanup_branch ) {
+		if ( $post instanceof WP_Post && $cleanup_branch === (int) $post->ID ) {
+			return false;
+		}
+		return $trash;
+	};
+	add_filter( 'pre_trash_post', $prevent_trash, 10, 2 );
+	$cleanup_result = $merges->merge( $cleanup_branch, false );
+	remove_filter( 'pre_trash_post', $prevent_trash, 10 );
+	wbfp_check( is_wp_error( $cleanup_result ) && 'wbfp_merge_cleanup_rolled_back' === $cleanup_result->get_error_code(), 'Trash failure rolls the original back instead of returning success' );
+	wbfp_check( $cleanup_before === wbfp_snapshot_hash( $cleanup_original ), 'Original state exactly matches its pre-merge snapshot after cleanup rollback' );
+	wbfp_check( 'draft' === get_post_status( $cleanup_branch ), 'Cleanup rollback leaves the branch active' );
+
+	// Classic Editor and list actions follow the same 2.1 state semantics.
+	$admin_ui = new Admin( $branches, $merges );
+	$ui_safe_original = wbfp_make_post();
+	$ui_safe_branch   = $branches->create( $ui_safe_original );
+	wbfp_check( ! is_wp_error( $ui_safe_branch ), 'Create branch for safe Classic Editor action test' );
+	$ui_safe_branch = (int) $ui_safe_branch;
+	$created_posts[] = $ui_safe_branch;
+	wp_update_post( array( 'ID' => $ui_safe_original, 'post_excerpt' => 'Newer non-conflicting original work' ) );
+	$safe_actions = $admin_ui->row_actions( array(), get_post( $ui_safe_branch ) );
+	wbfp_check( isset( $safe_actions['wbfp_merge'] ) && ! isset( $safe_actions['wbfp_review'] ), 'List row keeps normal merge for rebase-available non-conflicting state' );
+
+	$previous_post = $GLOBALS['post'] ?? null;
+	$GLOBALS['post'] = get_post( $ui_safe_branch );
+	ob_start();
+	$admin_ui->classic_editor_actions();
+	$safe_classic = (string) ob_get_clean();
+	$GLOBALS['post'] = $previous_post;
+	wbfp_check( false === strpos( $safe_classic, 'force=1' ) && false !== strpos( $safe_classic, 'Merge into original' ), 'Classic Editor does not force-merge a safe rebase-available state' );
+
+	$ui_conflict_original = wbfp_make_post();
+	$ui_conflict_branch   = $branches->create( $ui_conflict_original );
+	wbfp_check( ! is_wp_error( $ui_conflict_branch ), 'Create branch for conflicting Classic Editor action test' );
+	$ui_conflict_branch = (int) $ui_conflict_branch;
+	$created_posts[] = $ui_conflict_branch;
+	wp_update_post( array( 'ID' => $ui_conflict_original, 'post_title' => 'Original UI conflict' ) );
+	wp_update_post( array( 'ID' => $ui_conflict_branch, 'post_title' => 'Branch UI conflict' ) );
+	$conflict_actions = $admin_ui->row_actions( array(), get_post( $ui_conflict_branch ) );
+	wbfp_check( isset( $conflict_actions['wbfp_review'] ) && ! isset( $conflict_actions['wbfp_merge'] ), 'List row routes true conflicts back to review instead of direct merge' );
+
+	$previous_post = $GLOBALS['post'] ?? null;
+	$GLOBALS['post'] = get_post( $ui_conflict_branch );
+	ob_start();
+	$admin_ui->classic_editor_actions();
+	$conflict_classic = (string) ob_get_clean();
+	$GLOBALS['post'] = $previous_post;
+	wbfp_check( false !== strpos( $conflict_classic, 'force=1' ) && false !== strpos( $conflict_classic, 'Force merge after review' ), 'Classic Editor exposes force merge only for a hard reviewed conflict' );
+
+
+	// Promised source statuses: private and scheduled originals are branchable.
+	$private_original = wbfp_make_post( array( 'post_status' => 'private', 'post_title' => 'Private branch source' ) );
+	$private_branch   = $branches->create( $private_original );
+	wbfp_check( ! is_wp_error( $private_branch ), 'Private original can create a working branch' );
+	$private_branch = (int) $private_branch;
+	$created_posts[] = $private_branch;
+	wbfp_check( 'draft' === get_post_status( $private_branch ), 'Branch created from a private original is still isolated as draft' );
+
+	$future_original = wbfp_make_post(
+		array(
+			'post_status'   => 'future',
+			'post_title'    => 'Scheduled branch source',
+			'post_date'     => gmdate( 'Y-m-d H:i:s', time() + DAY_IN_SECONDS ),
+			'post_date_gmt' => gmdate( 'Y-m-d H:i:s', time() + DAY_IN_SECONDS ),
+		)
+	);
+	$future_branch = $branches->create( $future_original );
+	wbfp_check( ! is_wp_error( $future_branch ), 'Scheduled original can create a working branch' );
+	$future_branch = (int) $future_branch;
+	$created_posts[] = $future_branch;
+	wbfp_check( 'draft' === get_post_status( $future_branch ), 'Branch created from a scheduled original is draft' );
+
+	// Custom post type, custom taxonomy, custom meta and featured-image metadata.
+	register_post_type(
+		'wbfp_story',
+		array(
+			'public'       => true,
+			'show_in_rest' => true,
+			'supports'     => array( 'title', 'editor', 'excerpt', 'thumbnail' ),
+			'capability_type' => 'post',
+			'map_meta_cap' => true,
+		)
+	);
+	register_taxonomy(
+		'wbfp_topic',
+		array( 'wbfp_story' ),
+		array(
+			'public'       => true,
+			'show_in_rest' => true,
+			'hierarchical' => false,
+		)
+	);
+	$topic = wp_insert_term( 'Branch taxonomy topic', 'wbfp_topic' );
+	if ( is_wp_error( $topic ) ) {
+		throw new RuntimeException( $topic->get_error_message() );
+	}
+	$created_terms[] = array( 'taxonomy' => 'wbfp_topic', 'term_id' => (int) $topic['term_id'] );
+
+	$thumb_a = wp_insert_attachment(
+		array(
+			'post_title'     => 'Featured image A',
+			'post_status'    => 'inherit',
+			'post_mime_type' => 'image/jpeg',
+		)
+	);
+	$thumb_b = wp_insert_attachment(
+		array(
+			'post_title'     => 'Featured image B',
+			'post_status'    => 'inherit',
+			'post_mime_type' => 'image/jpeg',
+		)
+	);
+	if ( is_wp_error( $thumb_a ) || is_wp_error( $thumb_b ) ) {
+		throw new RuntimeException( 'Could not create attachment fixtures.' );
+	}
+	$thumb_a = wbfp_track_post( (int) $thumb_a );
+	$thumb_b = wbfp_track_post( (int) $thumb_b );
+
+	$cpt_original = wbfp_make_post(
+		array(
+			'post_type'    => 'wbfp_story',
+			'post_title'   => 'Custom story',
+			'post_content' => 'Custom story original content',
+		)
+	);
+	update_post_meta( $cpt_original, 'wbfp_custom_meta', 'custom-meta-base' );
+	update_post_meta( $cpt_original, 'wbfp_remove_meta', 'remove-me-on-branch' );
+	add_post_meta( $cpt_original, 'wbfp_multi_meta', 'multi-one' );
+	add_post_meta( $cpt_original, 'wbfp_multi_meta', 'multi-two' );
+	update_post_meta( $cpt_original, '_thumbnail_id', $thumb_a );
+	wp_set_object_terms( $cpt_original, array( (int) $topic['term_id'] ), 'wbfp_topic', false );
+
+	$cpt_branch = $branches->create( $cpt_original );
+	wbfp_check( ! is_wp_error( $cpt_branch ), 'Supported custom post type creates a branch through the normal service' );
+	$cpt_branch = (int) $cpt_branch;
+	$created_posts[] = $cpt_branch;
+	wbfp_check( 'wbfp_story' === get_post_type( $cpt_branch ), 'Custom post type identity is retained on the branch' );
+	wbfp_check( 'custom-meta-base' === get_post_meta( $cpt_branch, 'wbfp_custom_meta', true ), 'Custom post metadata is copied to the branch' );
+	wbfp_check( 'remove-me-on-branch' === get_post_meta( $cpt_branch, 'wbfp_remove_meta', true ), 'Removable custom metadata is copied to the branch' );
+	wbfp_check( array( 'multi-one', 'multi-two' ) === array_values( get_post_meta( $cpt_branch, 'wbfp_multi_meta', false ) ), 'Multi-value metadata is copied without collapsing values' );
+	wbfp_check( $thumb_a === (int) get_post_meta( $cpt_branch, '_thumbnail_id', true ), 'Featured-image attachment ID is copied to the branch' );
+	$cpt_branch_terms = wp_get_object_terms( $cpt_branch, 'wbfp_topic', array( 'fields' => 'ids' ) );
+	wbfp_check( array( (int) $topic['term_id'] ) === array_map( 'intval', $cpt_branch_terms ), 'Custom taxonomy assignment is copied to the branch' );
+
+	wp_update_post( array( 'ID' => $cpt_branch, 'post_content' => 'Custom story branch content' ) );
+	update_post_meta( $cpt_branch, 'wbfp_custom_meta', 'custom-meta-branch' );
+	delete_post_meta( $cpt_branch, 'wbfp_remove_meta' );
+	delete_post_meta( $cpt_branch, 'wbfp_multi_meta' );
+	add_post_meta( $cpt_branch, 'wbfp_multi_meta', 'multi-three' );
+	add_post_meta( $cpt_branch, 'wbfp_multi_meta', 'multi-four' );
+	update_post_meta( $cpt_branch, '_thumbnail_id', $thumb_b );
+	wp_set_object_terms( $cpt_branch, array(), 'wbfp_topic', false );
+	$cpt_merge = $merges->merge( $cpt_branch, false );
+	wbfp_check( $cpt_original === $cpt_merge, 'Custom post type branch merges normally' );
+	wbfp_check( 'Custom story branch content' === get_post( $cpt_original )->post_content, 'Custom post type editorial content merges' );
+	wbfp_check( 'custom-meta-branch' === get_post_meta( $cpt_original, 'wbfp_custom_meta', true ), 'Custom metadata changes merge back to the original' );
+	wbfp_check( ! metadata_exists( 'post', $cpt_original, 'wbfp_remove_meta' ), 'Removing custom metadata on the branch removes it from the original on merge' );
+	wbfp_check( array( 'multi-three', 'multi-four' ) === array_values( get_post_meta( $cpt_original, 'wbfp_multi_meta', false ) ), 'Multi-value metadata is replaced exactly during merge' );
+	wbfp_check( ! metadata_exists( 'post', $cpt_original, Branch_Service::META_ORIGINAL_ID ), 'Branch relationship metadata never leaks onto the original' );
+	wbfp_check( $thumb_b === (int) get_post_meta( $cpt_original, '_thumbnail_id', true ), 'Featured-image metadata merges without changing attachment identity' );
+	$cpt_original_terms = wp_get_object_terms( $cpt_original, 'wbfp_topic', array( 'fields' => 'ids' ) );
+	wbfp_check( empty( $cpt_original_terms ), 'Clearing a custom taxonomy on the branch clears it on merge' );
+
 	echo "\nREAL WORDPRESS RESULT: {$GLOBALS['wbfp_checks']} / {$GLOBALS['wbfp_checks']} checks passed.\n";
 } finally {
 	wp_set_current_user( $admin_id );
 	foreach ( array_unique( array_map( 'intval', $created_posts ) ) as $post_id ) {
 		if ( $post_id > 0 && get_post( $post_id ) ) {
 			wp_delete_post( $post_id, true );
+		}
+	}
+	foreach ( $created_terms as $term ) {
+		if ( ! empty( $term['term_id'] ) && ! empty( $term['taxonomy'] ) ) {
+			wp_delete_term( (int) $term['term_id'], (string) $term['taxonomy'] );
 		}
 	}
 	foreach ( array_unique( array_map( 'intval', $created_users ) ) as $user_id ) {
