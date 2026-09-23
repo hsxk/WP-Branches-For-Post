@@ -42,7 +42,7 @@ jobs:
           php-version: '8.2'
           extensions: mysqli
           coverage: none
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
           cache: npm
