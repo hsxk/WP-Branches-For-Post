@@ -8,6 +8,24 @@ on:
 permissions: {}
 
 jobs:
+  quality-gate:
+    name: Quality gate
+    permissions:
+      contents: read
+    uses: ./.github/workflows/ci.yml
+
+  compatibility-gate:
+    name: Compatibility gate
+    permissions:
+      contents: read
+    uses: ./.github/workflows/compatibility.yml
+
+  visual-gate:
+    name: Browser and visual gate
+    permissions:
+      contents: read
+    uses: ./.github/workflows/visual-regression.yml
+
   validate-release:
     name: Validate release tag
     runs-on: ubuntu-latest
@@ -86,7 +104,7 @@ jobs:
 
   deploy:
     name: Publish release
-    needs: validate-release
+    needs: [validate-release, quality-gate, compatibility-gate, visual-gate]
     runs-on: ubuntu-latest
     permissions:
       contents: write
