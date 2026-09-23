@@ -1,0 +1,146 @@
+name: Compatibility and Release Package
+
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: compatibility-\${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  wordpress:
+    name: WordPress \${{ matrix.wordpress }} / PHP \${{ matrix.php }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - wordpress: '6.6'
+            php: '8.2'
+          - wordpress: '7.1.1'
+            php: '8.2'
+          - wordpress: '7.1.1'
+            php: '8.4'
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_DATABASE: wordpress
+          MYSQL_USER: wordpress
+          MYSQL_PASSWORD: wordpress
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: \${{ matrix.php }}
+          extensions: mysqli
+          coverage: none
+      - name: Install WP-CLI
+        run: |
+          curl -fsSL -o /tmp/wp-cli.phar https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+          chmod +x /tmp/wp-cli.phar
+          sudo mv /tmp/wp-cli.phar /usr/local/bin/wp
+      - name: Install target WordPress
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wordpress
+          wp core download --path=/tmp/wordpress --version="\${{ matrix.wordpress }}" --force
+          wp config create --path=/tmp/wordpress \
+            --dbname=wordpress --dbuser=wordpress --dbpass=wordpress --dbhost=127.0.0.1:3306 \
+            --skip-check
+          wp core install --path=/tmp/wordpress \
+            --url=http://127.0.0.1:8080 \
+            --title="WP Branch compatibility" \
+            --admin_user=admin \
+            --admin_password=test-password \
+            --admin_email=admin@example.test
+          ln -s "$GITHUB_WORKSPACE" /tmp/wordpress/wp-content/plugins/wp-branches-for-post
+          wp plugin activate wp-branches-for-post --path=/tmp/wordpress
+      - name: Run 104-check real WordPress integration suite
+        run: wp eval-file "$GITHUB_WORKSPACE/tests/wp-real-2.1.php" --path=/tmp/wordpress
+
+  release-zip:
+    name: Audit actual release ZIP
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install deterministic dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Build plugin ZIP
+        run: npm run plugin-zip
+      - name: Audit ZIP contents
+        shell: bash
+        run: |
+          set -euo pipefail
+          zip="$(find . -maxdepth 1 -type f -name '*.zip' | head -n1)"
+          test -n "$zip"
+          unzip -Z1 "$zip" > /tmp/release-files.txt
+          required=(
+            '/post-branch\.php$'
+            '/README\.txt$'
+            '/LICENSE$'
+            '/SECURITY\.md$'
+            '/build/index\.js$'
+            '/build/index\.asset\.php$'
+            '/includes/class-branch-service\.php$'
+            '/includes/class-merge-service\.php$'
+            '/languages/wp-branches-for-post-ja\.mo$'
+            '/languages/wp-branches-for-post-zh_CN\.mo$'
+            '/languages/wp-branches-for-post-zh_TW\.mo$'
+          )
+          for pattern in "\${required[@]}"; do
+            grep -Eq "$pattern" /tmp/release-files.txt
+          done
+          forbidden=(
+            '/\.git/'
+            '/\.github/'
+            '/\.wordpress-org/'
+            '/node_modules/'
+            '/vendor/'
+            '/src/'
+            '/tests/'
+            '/tools/'
+            '/docs/'
+            '/TESTING\.md$'
+            '/ARCHITECTURE\.md$'
+            '/package\.json$'
+            '/package-lock\.json$'
+            '/composer\.json$'
+            '/composer\.lock$'
+            '/phpcs\.xml\.dist$'
+            '/\.distignore$'
+          )
+          for pattern in "\${forbidden[@]}"; do
+            if grep -Eq "$pattern" /tmp/release-files.txt; then
+              echo "Forbidden development path in release ZIP: $pattern"
+              exit 1
+            fi
+          done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wp-branches-for-post-release-candidate
+          path: '*.zip'
+          if-no-files-found: error
+          retention-days: 14

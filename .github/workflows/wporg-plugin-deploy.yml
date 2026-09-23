@@ -5,22 +5,94 @@ on:
     tags:
       - 'v*.*.*'
 
-# Disable permissions for all available scopes by default.
-# Any needed permissions should be configured at the job level.
 permissions: {}
 
 jobs:
-  tag:
-    name: New release
+  validate-release:
+    name: Validate release tag
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Verify tag, version, and master ancestry
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="\${GITHUB_REF_NAME#v}"
+          test "$GITHUB_REF_NAME" = "v\${version}"
+          grep -Eq "^[[:space:]]*\* Version:[[:space:]]+\${version}$" post-branch.php
+          grep -Fq "define( 'WBFP_VERSION', '\${version}' );" post-branch.php
+          grep -Eq "^Stable tag:[[:space:]]+\${version}$" README.txt
+          test "$(node -p "require('./package.json').version")" = "$version"
+          git fetch origin master
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/master
+      - name: PHP syntax
+        run: find . -name '*.php' -not -path './vendor/*' -print0 | xargs -0 -n1 php -l
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --no-progress
+      - name: WordPress Coding Standards
+        run: composer run lint
+      - name: Install deterministic JS dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Lint and verify committed build
+        run: |
+          npm run lint:js
+          npm run lint:css
+          npm run build
+          git diff --exit-code -- build
+      - name: Build release ZIP
+        run: npm run plugin-zip
+      - name: Prepare release ZIP for Plugin Check
+        shell: bash
+        run: |
+          set -euo pipefail
+          zip="$(find . -maxdepth 1 -type f -name '*.zip' | head -n1)"
+          test -n "$zip"
+          rm -rf dist
+          mkdir -p dist
+          unzip -q "$zip" -d dist
+          test -f dist/wp-branches-for-post/post-branch.php
+          test -f dist/wp-branches-for-post/README.txt
+          test -f dist/wp-branches-for-post/LICENSE
+          test -f dist/wp-branches-for-post/SECURITY.md
+          test -f dist/wp-branches-for-post/build/index.js
+          test -f dist/wp-branches-for-post/includes/class-branch-service.php
+          test -f dist/wp-branches-for-post/languages/wp-branches-for-post-ja.mo
+          test ! -e dist/wp-branches-for-post/package.json
+          test ! -e dist/wp-branches-for-post/src
+          test ! -e dist/wp-branches-for-post/tests
+          test ! -e dist/wp-branches-for-post/docs
+      - uses: wordpress/plugin-check-action@v1
+        with:
+          build-dir: './dist/wp-branches-for-post'
+          categories: |
+            general
+            security
+            performance
+            accessibility
+            plugin_repo
+
+  deploy:
+    name: Publish release
+    needs: validate-release
     runs-on: ubuntu-latest
     permissions:
       contents: write
       packages: read
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
+      - uses: actions/checkout@v4
       - name: WordPress Plugin Deploy
         id: deploy
         uses: 10up/action-wordpress-plugin-deploy@stable
@@ -28,12 +100,11 @@ jobs:
           generate-zip: true
         env:
           SLUG: wp-branches-for-post
-          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
-          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
-
-      - name: Upload release asset
+          SVN_USERNAME: \${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: \${{ secrets.SVN_PASSWORD }}
+      - name: Upload GitHub release asset
         uses: softprops/action-gh-release@v3
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
         with:
-          files: ${{ steps.deploy.outputs.zip-path }}
+          files: \${{ steps.deploy.outputs.zip-path }}

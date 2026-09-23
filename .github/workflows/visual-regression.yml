@@ -1,0 +1,229 @@
+name: Browser and Visual Regression
+
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: visual-\${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  browser:
+    name: Gutenberg E2E and 35-case tutorial contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_DATABASE: wordpress
+          MYSQL_USER: wordpress
+          MYSQL_PASSWORD: wordpress
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mysqli
+          coverage: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install browser dependencies
+        run: |
+          npm ci --no-audit --no-fund
+          npm install --no-save --package-lock=false playwright-core@1.55.0
+      - name: Install WP-CLI
+        run: |
+          curl -fsSL -o /tmp/wp-cli.phar https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+          chmod +x /tmp/wp-cli.phar
+          sudo mv /tmp/wp-cli.phar /usr/local/bin/wp
+      - name: Install WordPress 7.1.1
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wordpress
+          wp core download --path=/tmp/wordpress --version=7.1.1 --force
+          wp config create --path=/tmp/wordpress \
+            --dbname=wordpress --dbuser=wordpress --dbpass=wordpress --dbhost=127.0.0.1:3306 \
+            --skip-check
+          wp core install --path=/tmp/wordpress \
+            --url=http://127.0.0.1:8080 \
+            --title="WP Branch browser validation" \
+            --admin_user=admin \
+            --admin_password=test-password \
+            --admin_email=admin@example.test
+          ln -s "$GITHUB_WORKSPACE" /tmp/wordpress/wp-content/plugins/wp-branches-for-post
+          mkdir -p /tmp/wordpress/wp-content/mu-plugins
+          cat > /tmp/wordpress/wp-content/mu-plugins/wbfp-ci-fixtures.php <<'PHP'
+          <?php
+          add_action(
+              'init',
+              static function () {
+                  register_post_type(
+                      'wbfp_demo',
+                      array(
+                          'label'           => 'WBFP CI Demo',
+                          'public'          => true,
+                          'show_ui'         => true,
+                          'show_in_rest'    => true,
+                          'supports'        => array( 'title', 'editor', 'excerpt', 'thumbnail' ),
+                          'taxonomies'      => array( 'category', 'post_tag' ),
+                          'capability_type' => 'post',
+                          'map_meta_cap'    => true,
+                      )
+                  );
+              }
+          );
+          add_filter(
+              'use_block_editor_for_post',
+              static function ( $use ) {
+                  return get_option( 'wbfp_tutorial_force_classic' ) ? false : $use;
+              }
+          );
+          PHP
+          wp plugin activate wp-branches-for-post --path=/tmp/wordpress
+      - name: Start WordPress
+        run: |
+          nohup php -S 127.0.0.1:8080 -t /tmp/wordpress >/tmp/wp-browser.log 2>&1 &
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:8080/wp-login.php >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/wp-browser.log
+          exit 1
+      - name: Create Gutenberg fixture
+        id: browser_fixture
+        shell: bash
+        run: |
+          post_id="$(wp post create --path=/tmp/wordpress \
+            --post_type=post --post_status=publish \
+            --post_title='WP Branch browser fixture' \
+            --post_content='Original browser content' \
+            --porcelain)"
+          echo "post_id=$post_id" >> "$GITHUB_OUTPUT"
+      - name: Real Gutenberg browser E2E
+        env:
+          WBFP_BASE_URL: http://127.0.0.1:8080
+          WBFP_BROWSER_POST_ID: \${{ steps.browser_fixture.outputs.post_id }}
+          WBFP_BROWSER_USER: admin
+          WBFP_BROWSER_PASSWORD: test-password
+        run: node tests/browser-2.1.js
+      - name: Create documentation fixture
+        id: docs_fixture
+        shell: bash
+        run: |
+          post_id="$(wp post create --path=/tmp/wordpress \
+            --post_type=post --post_status=publish \
+            --post_title='WP Branch 2.1 documentation example' \
+            --post_content='Original content used to demonstrate the 2.1 branch workflow.' \
+            --post_excerpt='Original excerpt before branching.' \
+            --porcelain)"
+          echo "post_id=$post_id" >> "$GITHUB_OUTPUT"
+      - name: Generate 12 WordPress.org screenshots
+        env:
+          WBFP_BASE_URL: http://127.0.0.1:8080
+          WBFP_SCREENSHOT_POST_ID: \${{ steps.docs_fixture.outputs.post_id }}
+          WBFP_BROWSER_USER: admin
+          WBFP_BROWSER_PASSWORD: test-password
+          WBFP_WP_PATH: /tmp/wordpress
+        run: node tests/capture-docs-2.1.js
+      - name: Seed 35-case tutorial library
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p docs/tutorial-2.1/screenshots
+          rm -f docs/tutorial-2.1/screenshots/*.png
+          cp .wordpress-org/screenshot-1.png  docs/tutorial-2.1/screenshots/01-original-create-branch.png
+          cp .wordpress-org/screenshot-2.png  docs/tutorial-2.1/screenshots/04-branch-editor-overview.png
+          cp .wordpress-org/screenshot-3.png  docs/tutorial-2.1/screenshots/08-three-way-comparison.png
+          cp .wordpress-org/screenshot-4.png  docs/tutorial-2.1/screenshots/12-update-available.png
+          cp .wordpress-org/screenshot-5.png  docs/tutorial-2.1/screenshots/13-after-rebase.png
+          cp .wordpress-org/screenshot-6.png  docs/tutorial-2.1/screenshots/15-conflict-summary.png
+          cp .wordpress-org/screenshot-7.png  docs/tutorial-2.1/screenshots/17-force-merge-confirmation.png
+          cp .wordpress-org/screenshot-8.png  docs/tutorial-2.1/screenshots/18-stale-review-blocked.png
+          cp .wordpress-org/screenshot-9.png  docs/tutorial-2.1/screenshots/19-discard-confirmation.png
+          cp .wordpress-org/screenshot-10.png docs/tutorial-2.1/screenshots/20-existing-branches.png
+          cp .wordpress-org/screenshot-11.png docs/tutorial-2.1/screenshots/21-post-list-branch-actions.png
+          cp .wordpress-org/screenshot-12.png docs/tutorial-2.1/screenshots/22-synced-pattern-warning.png
+      - name: Generate block-editor tutorial cases
+        env:
+          WBFP_BASE_URL: http://127.0.0.1:8080
+          WBFP_BROWSER_USER: admin
+          WBFP_BROWSER_PASSWORD: test-password
+          WBFP_WP_PATH: /tmp/wordpress
+        run: node tests/capture-tutorial-block-extra.js
+      - name: Generate compatibility and edge cases
+        env:
+          WBFP_BASE_URL: http://127.0.0.1:8080
+          WBFP_BROWSER_USER: admin
+          WBFP_BROWSER_PASSWORD: test-password
+          WBFP_WP_PATH: /tmp/wordpress
+        run: node tests/capture-tutorial-edge-extra.js
+      - name: Validate exact 35-case manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib, struct
+          expected = [
+              '01-original-create-branch.png','02-admin-bar-create-branch.png','03-post-list-create-branch.png',
+              '04-branch-editor-overview.png','05-branch-relationship-notice.png','06-preview-links.png',
+              '07-review-overview.png','08-three-way-comparison.png','09-branch-only-change.png',
+              '10-original-only-change.png','11-identity-change-preserved.png','12-update-available.png',
+              '13-after-rebase.png','14-normal-merge-ready.png','15-conflict-summary.png',
+              '16-conflict-three-way-detail.png','17-force-merge-confirmation.png','18-stale-review-blocked.png',
+              '19-discard-confirmation.png','20-existing-branches.png','21-post-list-branch-actions.png',
+              '22-synced-pattern-warning.png','23-classic-original-create.png','24-classic-safe-merge.png',
+              '25-classic-conflict-force.png','26-legacy-unknown-state.png','27-missing-original-state.png',
+              '28-private-post-create.png','29-scheduled-post-create.png','30-unsupported-draft-no-create.png',
+              '31-merge-success-original.png','32-merged-branch-trash.png','33-discarded-branch-trash.png',
+              '34-custom-post-type.png','35-taxonomy-meta-featured-image.png',
+          ]
+          files = sorted(pathlib.Path('docs/tutorial-2.1/screenshots').glob('*.png'))
+          actual = [p.name for p in files]
+          assert actual == expected, (actual, expected)
+          for path in files:
+              data = path.read_bytes()
+              assert data[:8] == b"\x89PNG\r\n\x1a\n", path
+              width, height = struct.unpack(">II", data[16:24])
+              assert width >= 1200 and height >= 700, (path, width, height)
+          print('35 / 35 tutorial cases validated.')
+          PY
+      - name: Verify committed screenshots are current
+        run: git diff --exit-code -- .wordpress-org docs/tutorial-2.1/screenshots
+      - name: Upload regenerated screenshot evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wp-branches-for-post-visual-evidence
+          path: |
+            .wordpress-org/screenshot-*.png
+            docs/tutorial-2.1/screenshots/*.png
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
+      - name: Upload server log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wp-browser-log
+          path: /tmp/wp-browser.log
+          if-no-files-found: ignore
+          retention-days: 7
