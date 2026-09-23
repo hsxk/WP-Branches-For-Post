@@ -23,6 +23,8 @@ final class Merge_Service {
 	private Branch_Service $branches;
 
 	/**
+	 * Initialize the merge service.
+	 *
 	 * @param Branch_Service $branches Branch lifecycle service.
 	 */
 	public function __construct( Branch_Service $branches ) {
@@ -85,6 +87,19 @@ final class Merge_Service {
 			return $this->conflict_error( $analysis );
 		}
 
+		$three_way = empty( $analysis['legacy'] )
+			&& ! empty( $analysis['base'] )
+			&& ! empty( $analysis['original'] )
+			&& ! empty( $analysis['branch'] );
+
+		if ( $three_way ) {
+			$target = Sync_Service::merged_snapshot( $analysis['base'], $analysis['original'], $analysis['branch'], $force );
+			if ( is_wp_error( $target ) ) {
+				$target->add_data( array( 'status' => 409 ) );
+				return $target;
+			}
+		}
+
 		$rollback        = Sync_Service::snapshot( $original_id );
 		$branch_snapshot = Sync_Service::snapshot( $branch_id );
 		if ( ! $rollback || ! $branch_snapshot ) {
@@ -95,11 +110,28 @@ final class Merge_Service {
 			);
 		}
 
-		if ( empty( $analysis['legacy'] ) && ! empty( $analysis['base'] ) && ! empty( $analysis['original'] ) && ! empty( $analysis['branch'] ) ) {
-			$target = Sync_Service::merged_snapshot( $analysis['base'], $analysis['original'], $analysis['branch'], $force );
-			if ( is_wp_error( $target ) ) {
-				$target->add_data( array( 'status' => 409 ) );
-				return $target;
+		if ( $three_way ) {
+			$reviewed_original   = Sync_Service::state_hash_from_payload( $analysis['original'] );
+			$reviewed_branch     = Sync_Service::state_hash_from_payload( $analysis['branch'] );
+			$current_original    = Sync_Service::state_hash_from_payload( $rollback );
+			$current_branch      = Sync_Service::state_hash_from_payload( $branch_snapshot );
+			$current_branch_post = get_post( $branch_id );
+			if (
+				'' === $reviewed_original
+				|| '' === $reviewed_branch
+				|| '' === $current_original
+				|| '' === $current_branch
+				|| $original_id !== $this->branches->get_original_id( $branch_id )
+				|| ! $current_branch_post
+				|| in_array( $current_branch_post->post_status, array( 'trash', 'auto-draft' ), true )
+				|| ! hash_equals( $reviewed_original, $current_original )
+				|| ! hash_equals( $reviewed_branch, $current_branch )
+			) {
+				return new \WP_Error(
+					'wbfp_review_state_changed',
+					__( 'The review state changed. Review the latest changes before merging.', 'wp-branches-for-post' ),
+					array( 'status' => 409 )
+				);
 			}
 		} else {
 			$target          = $rollback;
@@ -131,9 +163,29 @@ final class Merge_Service {
 			);
 		}
 
+		$trashed = wp_trash_post( $branch_id );
+		if ( ! $trashed ) {
+			$rollback_error = Sync_Service::apply_merge_snapshot( $rollback, $original_id, $original->post_type );
+			if ( $rollback_error ) {
+				return new \WP_Error(
+					'wbfp_merge_cleanup_rollback_failed',
+					__( 'The merge was applied, the branch could not be moved to Trash, and the original could not be fully restored automatically.', 'wp-branches-for-post' ),
+					array(
+						'status'         => 500,
+						'rollback_error' => $rollback_error->get_error_code(),
+					)
+				);
+			}
+
+			return new \WP_Error(
+				'wbfp_merge_cleanup_rolled_back',
+				__( 'The branch could not be moved to Trash, so the original post was restored and the branch remains active.', 'wp-branches-for-post' ),
+				array( 'status' => 500 )
+			);
+		}
+
 		update_post_meta( $branch_id, '_wbfp_merged_at_gmt', current_time( 'mysql', true ) );
 		update_post_meta( $branch_id, '_wbfp_merged_by_user_id', get_current_user_id() );
-		wp_trash_post( $branch_id );
 
 		/**
 		 * Fires after a branch has been merged successfully.

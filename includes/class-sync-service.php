@@ -57,7 +57,7 @@ final class Sync_Service {
 	/**
 	 * Core post fields managed by a branch merge.
 	 *
-	 * post_parent is intentionally excluded because changing the parent of a
+	 * Post parent is intentionally excluded because changing the parent of a
 	 * hierarchical post can change its public URL.
 	 *
 	 * @return string[]
@@ -160,7 +160,7 @@ final class Sync_Service {
 					return new \WP_Error(
 						'wbfp_meta_sync_failed',
 						__( 'A post metadata value could not be synchronized.', 'wp-branches-for-post' ),
-						array( 'meta_key' => $key )
+						array( 'key' => $key )
 					);
 				}
 			}
@@ -325,6 +325,36 @@ final class Sync_Service {
 		}
 
 		$encoded = wp_json_encode( self::normalize_for_hash( $snapshot['merge'] ) );
+		return false === $encoded ? '' : hash( 'sha256', $encoded );
+	}
+
+
+	/**
+	 * Build a deterministic hash of the complete review state.
+	 *
+	 * Unlike snapshot_hash(), this includes identity fields as well as mergeable
+	 * fields so an editor review token changes when the original identity changes.
+	 *
+	 * @param int $post_id Post ID.
+	 * @return string
+	 */
+	public static function state_hash( int $post_id ): string {
+		$snapshot = self::snapshot( $post_id );
+		return $snapshot ? self::state_hash_from_payload( $snapshot ) : '';
+	}
+
+	/**
+	 * Hash a complete captured snapshot, including identity fields.
+	 *
+	 * @param array<string,mixed> $snapshot Snapshot payload.
+	 * @return string
+	 */
+	public static function state_hash_from_payload( array $snapshot ): string {
+		if ( ! isset( $snapshot['merge'] ) || ! is_array( $snapshot['merge'] ) ) {
+			return '';
+		}
+
+		$encoded = wp_json_encode( self::normalize_for_hash( $snapshot ) );
 		return false === $encoded ? '' : hash( 'sha256', $encoded );
 	}
 
@@ -547,8 +577,15 @@ final class Sync_Service {
 		}
 
 		clean_post_cache( $target_id );
-		$actual = self::snapshot( $target_id );
-		if ( ! $actual || self::snapshot_hash_from_payload( $actual ) !== self::snapshot_hash_from_payload( $snapshot ) ) {
+		$actual        = self::snapshot( $target_id );
+		$expected_hash = self::snapshot_hash_from_payload( $snapshot );
+		$actual_hash   = $actual ? self::snapshot_hash_from_payload( $actual ) : '';
+		if (
+			! $actual
+			|| '' === $expected_hash
+			|| '' === $actual_hash
+			|| ! hash_equals( $expected_hash, $actual_hash )
+		) {
 			return new \WP_Error(
 				'wbfp_snapshot_apply_verification_failed',
 				__( 'The merged post state could not be verified.', 'wp-branches-for-post' )

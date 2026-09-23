@@ -2,129 +2,611 @@
 # This file is distributed under the same license as the WP Branches For Post plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: WP Branches For Post 2.0.0\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-branches-for-post/\n"
+"Project-Id-Version: WP Branches For Post 2.1.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-branch\n"
+"POT-Creation-Date: 2026-09-22T19:03:16+00:00\n"
+"PO-Revision-Date: 2026-09-23 03:00+0900\n"
+"Last-Translator: WP Branches For Post maintainers\n"
+"Language-Team: Japanese\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2026-09-19 16:23+0900\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: WP Branches For Post 2.0 maintenance\n"
+"X-Generator: WP Branches For Post 2.1 maintenance\n"
 "X-Domain: wp-branches-for-post\n"
 
-#. Plugin Name of the plugin.
+#. Plugin Name of the plugin
+#: post-branch.php
 msgid "WP Branches For Post"
 msgstr "WP Branches For Post"
 
-#. Description of the plugin.
-msgid "Create safe working branches for published WordPress content and merge them back without changing the public post while editing."
-msgstr "公開済みの WordPress コンテンツに安全な作業用ブランチを作成し、編集中は公開中の投稿を変更せず、作業完了後に変更内容を元の投稿へマージできます。"
+#. Plugin URI of the plugin
+#: post-branch.php
+msgid "https://github.com/hsxk/WP-Branches-For-Post/"
+msgstr "https://github.com/hsxk/WP-Branches-For-Post/"
 
-msgid "You cannot create a branch for this post."
-msgstr "この投稿のブランチを作成できません。"
+#. Description of the plugin
+#: post-branch.php
+msgid ""
+"Create safe working branches for published WordPress content and merge them "
+"back without changing the public post while editing."
+msgstr ""
+"公開済みの WordPress コンテンツに安全な作業用ブランチを作成し、編集中は公開中"
+"の投稿を変更せず、作業完了後に変更内容を元の投稿へマージできます。"
 
-msgid "The original post does not exist."
-msgstr "元の投稿が存在しません。"
+#. Author of the plugin
+#: post-branch.php
+msgid "Hao Kexin"
+msgstr "Hao Kexin"
 
-msgid "The original post could not be snapshotted."
-msgstr "元の投稿の基準スナップショットを作成できませんでした。"
+#. Author URI of the plugin
+#: post-branch.php
+msgid "https://time2log.com/about/"
+msgstr "https://time2log.com/about/"
 
-msgid "The original changed while the branch was being created. Please try again so the branch starts from a consistent version."
-msgstr "ブランチの作成中に元の投稿が変更されました。整合性のある状態からブランチを作成するため、もう一度お試しください。"
+#: includes/class-admin.php:92 build/index.js:8 src/index.js:684
+msgid "Review changes"
+msgstr "変更を確認"
 
-msgid "This post is not a branch."
-msgstr "この投稿はブランチではありません。"
-
-msgid "The original post no longer exists."
-msgstr "元の投稿は存在しません。"
-
-msgid "You do not have permission to merge this branch."
-msgstr "このブランチをマージする権限がありません。"
-
-msgid "This legacy branch has no baseline snapshot. Review the original before forcing the merge."
-msgstr "この旧形式のブランチには基準スナップショットがありません。強制マージする前に元の投稿を確認してください。"
-
-msgid "The original post changed after this branch was created. Review the changes before forcing the merge."
-msgstr "このブランチの作成後に元の投稿が変更されています。強制マージする前に変更内容を確認してください。"
-
-msgid "The original post changed before the merge could be applied. Review the latest version and try again."
-msgstr "マージを適用する前に元の投稿が変更されました。最新版を確認してからもう一度お試しください。"
-
-msgid "You do not have permission to discard this branch."
-msgstr "このブランチを破棄する権限がありません。"
-
-msgid "The branch could not be moved to Trash."
-msgstr "ブランチをゴミ箱へ移動できませんでした。"
-
+#: includes/class-admin.php:98
 msgid "Merge branch"
 msgstr "ブランチをマージ"
 
+#: includes/class-admin.php:109 includes/class-admin.php:190 build/index.js:6
+#: src/index.js:408
 msgid "Create branch"
 msgstr "ブランチを作成"
 
+#. translators: %d: original post ID.
+#: includes/class-admin.php:126
+#, php-format
 msgid "Branch of #%d"
 msgstr "#%d のブランチ"
 
+#: includes/class-admin.php:153 includes/class-admin.php:175
+#: includes/class-admin.php:188 build/index.js:8 src/index.js:763
 msgid "Post Branch"
 msgstr "投稿ブランチ"
 
+#: includes/class-admin.php:154 build/index.js:6 src/index.js:575
+msgid "The original post is unavailable. This branch cannot be merged."
+msgstr "元の投稿を利用できないため、このブランチはマージできません。"
+
+#: includes/class-admin.php:166 includes/class-admin.php:265
+msgid ""
+"The original changed after this branch was created. This action will force "
+"the merge and prefer branch values where changes overlap. Continue only "
+"after reviewing both versions."
+msgstr ""
+"このブランチの作成後に元の投稿が変更されています。この操作は強制マージを行"
+"い、重複する変更ではブランチ側の値を優先します。両方の内容を確認してから続行"
+"してください。"
+
+#: includes/class-admin.php:178
 msgid "Force merge after review"
 msgstr "確認後に強制マージ"
 
+#: includes/class-admin.php:178
 msgid "Merge into original"
 msgstr "元の投稿へマージ"
 
+#: includes/class-admin.php:223
 msgid "Create Branch"
 msgstr "ブランチを作成"
 
-msgid "This is a working branch of post #%1$d. The public original stays unchanged until you explicitly merge this branch. <a href=\"%2$s\">Open original</a>."
-msgstr "これは投稿 #%1$d の作業用ブランチです。このブランチを明示的にマージするまで、公開中の元の投稿は変更されません。<a href=\"%2$s\">元の投稿を開く</a>。"
+#. translators: 1: original post ID, 2: edit URL for the original post.
+#: includes/class-admin.php:255
+#, php-format
+msgid ""
+"This is a working branch of post #%1$d. The public original stays unchanged "
+"until you explicitly merge this branch. <a href=\"%2$s\">Open original</a>."
+msgstr ""
+"これは投稿 #%1$d の作業用ブランチです。このブランチを明示的にマージするまで、"
+"公開中の元の投稿は変更されません。<a href=\"%2$s\">元の投稿を開く</a>。"
 
-msgid "The original changed after this branch was created. Review both versions and use the block editor panel to force the merge only if appropriate."
-msgstr "このブランチの作成後に元の投稿が変更されています。両方の内容を確認し、問題がない場合にのみブロックエディターのパネルから強制マージしてください。"
-
+#: includes/class-admin.php:267
 msgid "WP Branches For Post could not complete the requested operation."
 msgstr "WP Branches For Post は要求された操作を完了できませんでした。"
 
+#: includes/class-branch-service.php:104
+msgid "You cannot create a branch for this post."
+msgstr "この投稿のブランチを作成できません。"
+
+#: includes/class-branch-service.php:113
+msgid "The original post does not exist."
+msgstr "元の投稿が存在しません。"
+
+#: includes/class-branch-service.php:123
+msgid "The original post could not be snapshotted."
+msgstr "元の投稿の基準スナップショットを作成できませんでした。"
+
+#: includes/class-branch-service.php:169
+msgid ""
+"The original changed while the branch was being created. Please try again so "
+"the branch starts from a consistent version."
+msgstr ""
+"ブランチの作成中に元の投稿が変更されました。整合性のある状態からブランチを作"
+"成するため、もう一度お試しください。"
+
+#: includes/class-branch-service.php:181
+msgid "The branch relationship metadata could not be stored."
+msgstr "ブランチの関連付けメタデータを保存できませんでした。"
+
+#: includes/class-branch-service.php:326 includes/class-merge-service.php:235
+msgid "This post is not an active branch."
+msgstr "この投稿は有効なブランチではありません。"
+
+#: includes/class-branch-service.php:332
+msgid "The original post is unavailable."
+msgstr "元の投稿を利用できません。"
+
+#: includes/class-branch-service.php:336
+msgid "You do not have permission to update this branch."
+msgstr "このブランチを更新する権限がありません。"
+
+#: includes/class-branch-service.php:341
+msgid "This older branch cannot be automatically updated from the original."
+msgstr "この旧形式のブランチは元の投稿から自動更新できません。"
+
+#: includes/class-branch-service.php:356
+msgid ""
+"The branch could not be snapshotted before updating it from the original."
+msgstr ""
+"元の投稿からブランチを更新する前に、ブランチのスナップショットを作成できませ"
+"んでした。"
+
+#: includes/class-branch-service.php:376 includes/class-branch-service.php:431
+msgid ""
+"The branch or original changed while the branch was being updated. Review "
+"the latest changes and try again."
+msgstr ""
+"ブランチの更新中にブランチまたは元の投稿が変更されました。最新の変更内容を確"
+"認して、もう一度お試しください。"
+
+#: includes/class-branch-service.php:387 includes/class-branch-service.php:420
+#: includes/class-branch-service.php:443
+msgid ""
+"Updating the branch failed and its previous state could not be fully "
+"restored automatically."
+msgstr ""
+"ブランチの更新に失敗し、以前の状態を自動で完全には復元できませんでした。"
+
+#: includes/class-branch-service.php:398
+msgid "The branch could not be updated. Its previous state was restored."
+msgstr "ブランチを更新できなかったため、更新前の状態に復元しました。"
+
+#: includes/class-branch-service.php:455
+msgid ""
+"The branch baseline could not be updated. Its previous state was restored."
+msgstr "ブランチの基準情報を更新できなかったため、以前の状態に復元しました。"
+
+#: includes/class-branch-service.php:542 includes/class-branch-service.php:576
+msgid "The branch baseline snapshot could not be stored."
+msgstr "ブランチの基準スナップショットを保存できませんでした。"
+
+#: includes/class-merge-service.php:59
+msgid "You do not have permission to force this merge."
+msgstr "このマージを強制実行する権限がありません。"
+
+#: includes/class-merge-service.php:108
+msgid "The branch or original could not be snapshotted before merging."
+msgstr ""
+"マージ前にブランチまたは元の投稿のスナップショットを作成できませんでした。"
+
+#: includes/class-merge-service.php:132 includes/class-rest-controller.php:224
+msgid "The review state changed. Review the latest changes before merging."
+msgstr ""
+"確認した状態が変更されました。マージする前に最新の変更内容をもう一度確認して"
+"ください。"
+
+#: includes/class-merge-service.php:147
+msgid ""
+"The merge failed and the original could not be fully restored automatically."
+msgstr "マージに失敗し、元の投稿を自動で完全には復元できませんでした。"
+
+#: includes/class-merge-service.php:157
+msgid ""
+"The merge could not be completed. The original post was restored to its pre-"
+"merge state."
+msgstr "マージを完了できなかったため、元の投稿をマージ前の状態に復元しました。"
+
+#: includes/class-merge-service.php:172
+msgid ""
+"The merge was applied, the branch could not be moved to Trash, and the "
+"original could not be fully restored automatically."
+msgstr ""
+"マージは適用されましたが、ブランチをゴミ箱へ移動できず、元の投稿も自動で完全"
+"には復元できませんでした。"
+
+#: includes/class-merge-service.php:182
+msgid ""
+"The branch could not be moved to Trash, so the original post was restored "
+"and the branch remains active."
+msgstr ""
+"ブランチをゴミ箱へ移動できなかったため、元の投稿を復元しました。ブランチは引"
+"き続き有効です。"
+
+#: includes/class-merge-service.php:210
+msgid "This post is not a branch."
+msgstr "この投稿はブランチではありません。"
+
+#: includes/class-merge-service.php:214
+msgid "You do not have permission to discard this branch."
+msgstr "このブランチを破棄する権限がありません。"
+
+#: includes/class-merge-service.php:219
+msgid "The branch could not be moved to Trash."
+msgstr "ブランチをゴミ箱へ移動できませんでした。"
+
+#: includes/class-merge-service.php:240
+msgid "The branch relationship changed before the merge could be applied."
+msgstr "マージを適用する前にブランチの関連付けが変更されました。"
+
+#: includes/class-merge-service.php:245
+msgid "The original post no longer exists."
+msgstr "元の投稿は存在しません。"
+
+#: includes/class-merge-service.php:248
+msgid "The branch and original no longer use the same post type."
+msgstr "ブランチと元の投稿の投稿タイプが一致しなくなっています。"
+
+#: includes/class-merge-service.php:251
+msgid "You do not have permission to merge this branch."
+msgstr "このブランチをマージする権限がありません。"
+
+#: includes/class-merge-service.php:270
+msgid ""
+"This older branch has no three-way baseline. Review the original before "
+"forcing the merge."
+msgstr ""
+"この旧形式のブランチには三方向比較の基準がありません。強制マージ前に元の投稿"
+"を確認してください。"
+
+#: includes/class-merge-service.php:272
+msgid "The original post is unavailable, so this branch cannot be merged."
+msgstr "元の投稿を利用できないため、このブランチはマージできません。"
+
+#: includes/class-merge-service.php:274
+msgid ""
+"The branch and original contain overlapping changes. Review the detected "
+"conflicts before forcing the merge."
+msgstr ""
+"ブランチと元の投稿に重複する変更があります。強制マージする前に検出された競合"
+"を確認してください。"
+
+#: includes/class-sync-service.php:162
+msgid "A post metadata value could not be synchronized."
+msgstr "投稿メタデータの値を同期できませんでした。"
+
+#: includes/class-sync-service.php:172
+msgid "Post metadata synchronization could not be verified."
+msgstr "投稿メタデータの同期結果を確認できませんでした。"
+
+#: includes/class-sync-service.php:258
+msgid "Taxonomy synchronization could not be verified."
+msgstr "タクソノミーの同期結果を確認できませんでした。"
+
+#: includes/class-sync-service.php:493 includes/class-sync-service.php:520
+msgid ""
+"The branch and original contain overlapping changes that require review."
+msgstr "ブランチと元の投稿に重複する変更があります。確認が必要です。"
+
+#: includes/class-sync-service.php:546
+msgid "The saved branch snapshot is invalid."
+msgstr "保存されたブランチのスナップショットが無効です。"
+
+#: includes/class-sync-service.php:591
+msgid "The merged post state could not be verified."
+msgstr "マージ後の投稿状態を確認できませんでした。"
+
+#: build/index.js:1 src/index.js:17
 msgid "WP Branches For Post could not complete the request."
 msgstr "WP Branches For Post は要求を完了できませんでした。"
 
-msgid "Move this branch to Trash? The public original will not be changed."
-msgstr "このブランチをゴミ箱へ移動しますか？公開中の元の投稿は変更されません。"
+#: build/index.js:1 src/index.js:62
+msgid "Ready"
+msgstr "マージ可能"
 
-msgid "Edit safely in a separate draft. The published post stays unchanged until you merge the branch."
-msgstr "独立した下書きで安全に編集できます。ブランチをマージするまで、公開中の投稿は変更されません。"
+#: build/index.js:1 src/index.js:63
+msgid "Ready · original identity changed"
+msgstr "マージ可能 · 元の投稿の識別情報に変更あり"
 
-msgid "Creating…"
-msgstr "作成中…"
+#: build/index.js:1 src/index.js:67
+msgid "Original updated · safe to refresh branch"
+msgstr "元の投稿が更新済み · 安全にブランチを更新できます"
 
-msgid "Existing branches"
-msgstr "既存のブランチ"
+#: build/index.js:1 src/index.js:71
+msgid "Needs conflict review"
+msgstr "競合の確認が必要"
 
-msgid "Branch #%d"
-msgstr "ブランチ #%d"
-
+#: build/index.js:1 src/index.js:72
 msgid "Original changed"
 msgstr "元の投稿に変更あり"
 
-msgid "This draft is isolated from the public original."
-msgstr "この下書きは公開中の元の投稿から独立しています。"
+#: build/index.js:1 src/index.js:73
+msgid "Legacy branch"
+msgstr "旧形式のブランチ"
 
-msgid "Open original"
-msgstr "元の投稿を開く"
+#: build/index.js:1 src/index.js:74
+msgid "Original unavailable"
+msgstr "元の投稿を利用できません"
 
+#: build/index.js:1 build/index.js:3 src/index.js:24 src/index.js:107
+msgid "Title"
+msgstr "タイトル"
+
+#: build/index.js:1 build/index.js:3 src/index.js:25 src/index.js:109
+msgid "Content"
+msgstr "本文"
+
+#: build/index.js:1 build/index.js:3 src/index.js:26 src/index.js:108
+msgid "Excerpt"
+msgstr "抜粋"
+
+#: build/index.js:1 src/index.js:27
+msgid "Menu order"
+msgstr "メニュー順"
+
+#: build/index.js:1 src/index.js:28
+msgid "Comment status"
+msgstr "コメント状態"
+
+#: build/index.js:1 src/index.js:29
+msgid "Ping status"
+msgstr "Ping 状態"
+
+#: build/index.js:1 src/index.js:30
+msgid "Password"
+msgstr "パスワード"
+
+#: build/index.js:1 src/index.js:31
+msgid "Publication status"
+msgstr "公開状態"
+
+#: build/index.js:1 src/index.js:35
+msgid "Slug"
+msgstr "スラッグ"
+
+#: build/index.js:1 src/index.js:36
+msgid "Author"
+msgstr "投稿者"
+
+#: build/index.js:1 src/index.js:37
+msgid "Parent"
+msgstr "親"
+
+#: build/index.js:1 src/index.js:38
+msgid "Post type"
+msgstr "投稿タイプ"
+
+#. translators: %s: post meta key.
+#: build/index.js:2 src/index.js:46
+msgid "Metadata: %s"
+msgstr "メタデータ: %s"
+
+#. translators: %s: taxonomy slug.
+#: build/index.js:3 src/index.js:53
+msgid "Taxonomy: %s"
+msgstr "タクソノミー: %s"
+
+#: build/index.js:3 src/index.js:118
+msgid "Three-way comparison"
+msgstr "三方向比較"
+
+#: build/index.js:3 src/index.js:128
+msgid "Base"
+msgstr "基準"
+
+#: build/index.js:3 src/index.js:137
+msgid "Original now"
+msgstr "現在の元の投稿"
+
+#: build/index.js:3 src/index.js:147
+msgid "Branch now"
+msgstr "現在のブランチ"
+
+#: build/index.js:3 src/index.js:209
+msgid ""
+"Save or discard the current edits to the original before creating a branch. "
+"This prevents unpublished editor changes from being mistaken for the branch "
+"baseline."
+msgstr ""
+"ブランチを作成する前に、元の投稿で現在編集中の内容を保存するか破棄してくださ"
+"い。未公開の編集内容がブランチの基準として扱われるのを防ぎます。"
+
+#: build/index.js:3 src/index.js:287
+msgid ""
+"The review state changed after saving. Review the latest conflicts before "
+"merging."
+msgstr ""
+"保存後に確認状態が変わりました。マージ前に最新の競合を確認してください。"
+
+#. translators: %d: branch post ID.
+#: build/index.js:4 src/index.js:341
+msgid "Branch #%d"
+msgstr "ブランチ #%d"
+
+#. translators: %s: branch creator display name.
+#: build/index.js:5 build/index.js:7 src/index.js:359 src/index.js:610
 msgid "Created by %s"
 msgstr "作成者：%s"
 
-msgid "This is a legacy branch with no baseline snapshot. Review the original before merging."
-msgstr "これは基準スナップショットのない旧形式のブランチです。マージ前に元の投稿を確認してください。"
+#. translators: 1: number of branch changes, 2: number of conflicts.
+#: build/index.js:6 src/index.js:368
+msgid "%1$d branch changes · %2$d conflicts"
+msgstr "ブランチの変更 %1$d 件 · 競合 %2$d 件"
 
-msgid "The original changed after this branch was created. A normal merge is blocked to prevent overwriting newer work."
-msgstr "このブランチの作成後に元の投稿が変更されています。新しい変更を上書きしないよう、通常のマージはブロックされています。"
+#: build/index.js:6 src/index.js:384
+msgid ""
+"Edit safely in a separate draft. The published post stays unchanged until "
+"you merge the branch."
+msgstr ""
+"独立した下書きで安全に編集できます。ブランチをマージするまで、公開中の投稿は"
+"変更されません。"
 
-msgid "Merging…"
-msgstr "マージ中…"
+#: build/index.js:6 src/index.js:393
+msgid ""
+"This original has unsaved editor changes. Save or discard them before "
+"creating a branch so the baseline matches the saved public post."
+msgstr ""
+"元の投稿に未保存の編集があります。基準を保存済みの公開投稿と一致させるため、"
+"ブランチ作成前に保存または破棄してください。"
 
+#: build/index.js:6 src/index.js:407
+msgid "Creating…"
+msgstr "作成中…"
+
+#: build/index.js:6 src/index.js:417
+msgid "Existing branches"
+msgstr "既存のブランチ"
+
+#: build/index.js:6 src/index.js:441
+msgid "Merge review"
+msgstr "マージ確認"
+
+#: build/index.js:6 src/index.js:447
+msgid ""
+"This branch predates three-way snapshots, so detailed change comparison is "
+"unavailable. Force merge only after manually reviewing the original."
+msgstr ""
+"このブランチは三方向スナップショット導入前に作成されたため、詳細な変更比較を"
+"利用できません。元の投稿を手動で確認した後にのみ強制マージしてください。"
+
+#: build/index.js:6 src/index.js:453
+msgid "Branch changes"
+msgstr "ブランチの変更"
+
+#: build/index.js:6 src/index.js:457
+msgid "Original changes since branch creation"
+msgstr "ブランチ作成後の元の投稿の変更"
+
+#: build/index.js:6 src/index.js:464
+msgid "Conflicts"
+msgstr "競合"
+
+#: build/index.js:6 src/index.js:469
+msgid "Original identity changes preserved by merge"
+msgstr "マージで保持される元の投稿の識別情報の変更"
+
+#: build/index.js:6 src/index.js:481
+msgid "No mergeable branch changes are currently detected."
+msgstr "現在、マージ可能なブランチ変更は検出されていません。"
+
+#: build/index.js:6 src/index.js:500 src/index.js:522
+msgid "Saving and merging…"
+msgstr "保存してマージ中…"
+
+#: build/index.js:6 src/index.js:504
+msgid "Save & merge into original"
+msgstr "保存して元の投稿へマージ"
+
+#: build/index.js:6 src/index.js:526
+msgid "Force merge reviewed conflicts"
+msgstr "確認済みの競合を強制マージ"
+
+#: build/index.js:6 src/index.js:539
+msgid ""
+"The original has newer, non-conflicting changes. You can update this branch "
+"first, or review and merge while preserving those original changes."
+msgstr ""
+"元の投稿に新しい非競合の変更があります。先に元の投稿からブランチを更新する"
+"か、その変更を保持したまま確認してマージできます。"
+
+#: build/index.js:6 src/index.js:548
+msgid ""
+"The original identity changed (for example status, slug, author, or parent). "
+"Those changes are preserved and are not overwritten by this branch."
+msgstr ""
+"元の投稿の識別情報（ステータス、スラッグ、投稿者、親など）が変更されていま"
+"す。これらは保持され、このブランチでは上書きされません。"
+
+#: build/index.js:6 src/index.js:557
+msgid ""
+"The branch and original changed the same data differently. Review the "
+"conflicts before deciding whether to force merge."
+msgstr ""
+"ブランチと元の投稿で同じデータが別々に変更されています。強制マージするか判断"
+"する前に競合を確認してください。"
+
+#: build/index.js:6 src/index.js:566
+msgid ""
+"This older branch cannot provide a precise three-way comparison. Review the "
+"original manually before forcing a merge."
+msgstr ""
+"この旧形式のブランチでは正確な三方向比較を行えません。強制マージ前に元の投稿"
+"を手動で確認してください。"
+
+#: build/index.js:6 src/index.js:588
+msgid "This draft is isolated from the public original."
+msgstr "この下書きは公開中の元の投稿から独立しています。"
+
+#: build/index.js:6 src/index.js:600
+msgid "Open original"
+msgstr "元の投稿を開く"
+
+#. translators: %d: number of synced patterns referenced by the branch.
+#: build/index.js:8 src/index.js:625
+msgid ""
+"This branch references %d synced pattern(s). Editing a synced pattern is "
+"global in WordPress and is not isolated by the branch."
+msgstr ""
+"このブランチは同期パターンを %d 件参照しています。同期パターンの編集は "
+"WordPress 全体に反映され、ブランチでは分離されません。"
+
+#: build/index.js:8 src/index.js:644
+msgid "Preview branch"
+msgstr "ブランチをプレビュー"
+
+#: build/index.js:8 src/index.js:654
+msgid "View original"
+msgstr "元の投稿を表示"
+
+#: build/index.js:8 src/index.js:666
+msgid "Updating…"
+msgstr "更新中…"
+
+#: build/index.js:8 src/index.js:667
+msgid "Update branch from original"
+msgstr "元の投稿からブランチを更新"
+
+#: build/index.js:8 src/index.js:683
+msgid "Hide merge review"
+msgstr "マージ確認を閉じる"
+
+#: build/index.js:8 src/index.js:695
 msgid "Discard branch"
 msgstr "ブランチを破棄"
+
+#: build/index.js:8 src/index.js:709
+msgid "Force merge conflicts?"
+msgstr "競合を強制マージしますか？"
+
+#: build/index.js:8 src/index.js:710
+msgid "Discard this branch?"
+msgstr "このブランチを破棄しますか？"
+
+#: build/index.js:8 src/index.js:717
+msgid ""
+"Force merge will prefer branch values for the listed conflicts. Non-"
+"conflicting newer work on the original is still preserved."
+msgstr ""
+"強制マージでは、一覧の競合に対してブランチ側の値を優先します。競合しない元の"
+"投稿の新しい変更は引き続き保持されます。"
+
+#: build/index.js:8 src/index.js:721
+msgid ""
+"The branch will be moved to Trash. The public original will not be changed."
+msgstr "ブランチはゴミ箱へ移動されます。公開中の元の投稿は変更されません。"
+
+#: build/index.js:8 src/index.js:735
+msgid "Cancel"
+msgstr "キャンセル"
+
+#: build/index.js:8 src/index.js:753
+msgid "Force merge"
+msgstr "強制マージ"
+
+#: build/index.js:8 src/index.js:754
+msgid "Move to Trash"
+msgstr "ゴミ箱へ移動"

@@ -75,11 +75,29 @@ final class Admin {
 		if ( $this->branches->is_branch( $post->ID ) ) {
 			$original_id = $this->branches->get_original_id( $post->ID );
 			if ( current_user_can( 'edit_post', $post->ID ) && current_user_can( 'edit_post', $original_id ) ) {
-				$actions['wbfp_merge'] = sprintf(
-					'<a href="%s">%s</a>',
-					esc_url( $this->merge_url( $post->ID ) ),
-					esc_html__( 'Merge branch', 'wp-branches-for-post' )
+				$state = $this->branches->conflict_state( $post->ID );
+				if ( Branch_Service::CONFLICT_MISSING === $state ) {
+					return $actions;
+				}
+
+				$needs_review = in_array(
+					$state,
+					array( Branch_Service::CONFLICT_CONFLICT, Branch_Service::CONFLICT_CHANGED, Branch_Service::CONFLICT_UNKNOWN ),
+					true
 				);
+				if ( $needs_review ) {
+					$actions['wbfp_review'] = sprintf(
+						'<a href="%s">%s</a>',
+						esc_url( get_edit_post_link( $post->ID, 'raw' ) ),
+						esc_html__( 'Review changes', 'wp-branches-for-post' )
+					);
+				} else {
+					$actions['wbfp_merge'] = sprintf(
+						'<a href="%s">%s</a>',
+						esc_url( $this->merge_url( $post->ID ) ),
+						esc_html__( 'Merge branch', 'wp-branches-for-post' )
+					);
+				}
 			}
 			return $actions;
 		}
@@ -128,8 +146,21 @@ final class Admin {
 		if ( $this->branches->is_branch( $post->ID ) ) {
 			$original_id = $this->branches->get_original_id( $post->ID );
 			if ( current_user_can( 'edit_post', $post->ID ) && current_user_can( 'edit_post', $original_id ) ) {
-				$conflict     = $this->branches->conflict_state( $post->ID );
-				$force        = Branch_Service::CONFLICT_CLEAN !== $conflict;
+				$conflict = $this->branches->conflict_state( $post->ID );
+				if ( Branch_Service::CONFLICT_MISSING === $conflict ) {
+					printf(
+						'<div class="misc-pub-section wbfp-classic-action"><strong>%1$s</strong><p>%2$s</p></div>',
+						esc_html__( 'Post Branch', 'wp-branches-for-post' ),
+						esc_html__( 'The original post is unavailable. This branch cannot be merged.', 'wp-branches-for-post' )
+					);
+					return;
+				}
+
+				$force        = in_array(
+					$conflict,
+					array( Branch_Service::CONFLICT_CONFLICT, Branch_Service::CONFLICT_CHANGED, Branch_Service::CONFLICT_UNKNOWN ),
+					true
+				);
 				$confirm_attr = '';
 				if ( $force ) {
 					$confirm_message = __( 'The original changed after this branch was created. This action will force the merge and prefer branch values where changes overlap. Continue only after reviewing both versions.', 'wp-branches-for-post' );
@@ -212,8 +243,14 @@ final class Admin {
 		if ( $post_id && $this->branches->is_branch( $post_id ) ) {
 			$original_id = $this->branches->get_original_id( $post_id );
 			$conflict    = $this->branches->conflict_state( $post_id );
-			$class       = 'changed' === $conflict || 'unknown' === $conflict ? 'notice-warning' : 'notice-info';
-			$message     = sprintf(
+			if ( Branch_Service::CONFLICT_MISSING === $conflict ) {
+				$class = 'notice-error';
+			} elseif ( in_array( $conflict, array( Branch_Service::CONFLICT_CONFLICT, Branch_Service::CONFLICT_CHANGED, Branch_Service::CONFLICT_UNKNOWN ), true ) ) {
+				$class = 'notice-warning';
+			} else {
+				$class = 'notice-info';
+			}
+			$message = sprintf(
 				/* translators: 1: original post ID, 2: edit URL for the original post. */
 				__( 'This is a working branch of post #%1$d. The public original stays unchanged until you explicitly merge this branch. <a href="%2$s">Open original</a>.', 'wp-branches-for-post' ),
 				$original_id,

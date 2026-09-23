@@ -32,6 +32,8 @@ final class REST_Controller {
 	private Merge_Service $merges;
 
 	/**
+	 * Initialize the REST controller.
+	 *
 	 * @param Branch_Service $branches Branch lifecycle service.
 	 * @param Merge_Service  $merges   Merge service.
 	 */
@@ -76,10 +78,14 @@ final class REST_Controller {
 				'callback'            => array( $this, 'merge_branch' ),
 				'permission_callback' => array( $this, 'can_merge_branch' ),
 				'args'                => array(
-					'id'    => $this->id_arg(),
-					'force' => array(
+					'id'           => $this->id_arg(),
+					'force'        => array(
 						'type'    => 'boolean',
 						'default' => false,
+					),
+					'review_token' => array(
+						'type'    => 'string',
+						'default' => '',
 					),
 				),
 			)
@@ -208,7 +214,20 @@ final class REST_Controller {
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function merge_branch( \WP_REST_Request $request ) {
-		$original_id = $this->merges->merge( (int) $request['id'], (bool) $request->get_param( 'force' ) );
+		$branch_id    = (int) $request['id'];
+		$review_token = (string) $request->get_param( 'review_token' );
+		if ( '' !== $review_token ) {
+			$current_token = $this->review_token( $branch_id );
+			if ( '' === $current_token || ! hash_equals( $review_token, $current_token ) ) {
+				return new \WP_Error(
+					'wbfp_review_state_changed',
+					__( 'The review state changed. Review the latest changes before merging.', 'wp-branches-for-post' ),
+					array( 'status' => 409 )
+				);
+			}
+		}
+
+		$original_id = $this->merges->merge( $branch_id, (bool) $request->get_param( 'force' ) );
 		if ( is_wp_error( $original_id ) ) {
 			return $original_id;
 		}
@@ -296,7 +315,7 @@ final class REST_Controller {
 					'can_rebase'            => false,
 				);
 
-			$pattern_refs = Sync_Service::synced_pattern_refs( $post_id );
+			$pattern_refs  = Sync_Service::synced_pattern_refs( $post_id );
 			$review_values = $this->review_values( $analysis );
 
 			return array(
@@ -312,6 +331,7 @@ final class REST_Controller {
 				'legacy'               => ! empty( $analysis['legacy'] ),
 				'creator'              => $creator ? $creator->display_name : '',
 				'created_gmt'          => (string) get_post_meta( $post_id, Branch_Service::META_CREATED_GMT, true ),
+				'review_token'         => $this->review_token( $post_id ),
 				'can_merge'            => $original && current_user_can( 'edit_post', $post_id ) && current_user_can( 'edit_post', $original_id ),
 				'can_force_merge'      => $original ? $this->branches->can_force_merge( $post_id, $original_id ) : false,
 				'can_rebase'           => $original && Branch_Service::CONFLICT_REBASE === ( $analysis['state'] ?? '' ) && empty( $analysis['legacy'] ),
@@ -353,6 +373,36 @@ final class REST_Controller {
 			'can_create' => $this->branches->can_create( $post_id ),
 			'branches'   => $branches,
 		);
+	}
+
+
+	/**
+	 * Build a stable token for the branch state the user is reviewing.
+	 *
+	 * The token changes for mergeable data, identity data, baseline changes, or
+	 * relationship changes. It contains no post content itself.
+	 *
+	 * @param int $branch_id Branch post ID.
+	 * @return string
+	 */
+	private function review_token( int $branch_id ): string {
+		if ( ! $this->branches->is_branch( $branch_id ) ) {
+			return '';
+		}
+
+		$original_id = $this->branches->get_original_id( $branch_id );
+		$base        = $this->branches->get_base_snapshot( $branch_id );
+		$payload     = array(
+			'original_id' => $original_id,
+			'base'        => $base
+				? Sync_Service::state_hash_from_payload( $base )
+				: (string) get_post_meta( $branch_id, Branch_Service::META_BASE_HASH, true ),
+			'original'    => $original_id > 0 ? Sync_Service::state_hash( $original_id ) : '',
+			'branch'      => Sync_Service::state_hash( $branch_id ),
+		);
+		$encoded     = wp_json_encode( $payload );
+
+		return false === $encoded ? '' : hash( 'sha256', $encoded );
 	}
 
 	/**

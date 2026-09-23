@@ -174,7 +174,20 @@ final class Branch_Service {
 		update_post_meta( $branch_id, self::META_ORIGINAL_ID, $original_id );
 		update_post_meta( $branch_id, self::META_CREATOR_USER_ID, get_current_user_id() );
 		update_post_meta( $branch_id, self::META_CREATED_GMT, current_time( 'mysql', true ) );
-		$this->store_base_snapshot( $branch_id, $original_id, $base_snapshot );
+		if ( $original_id !== $this->get_original_id( $branch_id ) ) {
+			wp_delete_post( $branch_id, true );
+			return new \WP_Error(
+				'wbfp_relationship_store_failed',
+				__( 'The branch relationship metadata could not be stored.', 'wp-branches-for-post' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		$base_error = $this->store_base_snapshot( $branch_id, $original_id, $base_snapshot );
+		if ( $base_error ) {
+			wp_delete_post( $branch_id, true );
+			return $base_error;
+		}
 
 		/**
 		 * Fires after a branch has been created successfully.
@@ -229,20 +242,29 @@ final class Branch_Service {
 	public function analyze_branch( int $branch_id, ?array $original_snapshot = null ): array {
 		$branch = get_post( $branch_id );
 		if ( ! $branch || ! $this->is_branch( $branch_id ) || in_array( $branch->post_status, array( 'trash', 'auto-draft' ), true ) ) {
-			return array( 'state' => self::CONFLICT_MISSING, 'legacy' => false );
+			return array(
+				'state'  => self::CONFLICT_MISSING,
+				'legacy' => false,
+			);
 		}
 
 		$original_id = $this->get_original_id( $branch_id );
 		$original    = get_post( $original_id );
 		if ( ! $original || $branch->post_type !== $original->post_type ) {
-			return array( 'state' => self::CONFLICT_MISSING, 'legacy' => false );
+			return array(
+				'state'  => self::CONFLICT_MISSING,
+				'legacy' => false,
+			);
 		}
 
 		$base = $this->get_base_snapshot( $branch_id );
 		if ( ! $base ) {
 			$base_hash = (string) get_post_meta( $branch_id, self::META_BASE_HASH, true );
 			if ( '' === $base_hash ) {
-				return array( 'state' => self::CONFLICT_UNKNOWN, 'legacy' => true );
+				return array(
+					'state'  => self::CONFLICT_UNKNOWN,
+					'legacy' => true,
+				);
 			}
 			$current_hash = Sync_Service::legacy_snapshot_hash( $original_id );
 			return array(
@@ -254,7 +276,10 @@ final class Branch_Service {
 		$original_snapshot = $original_snapshot ?? Sync_Service::snapshot( $original_id );
 		$branch_snapshot   = Sync_Service::snapshot( $branch_id );
 		if ( ! $original_snapshot || ! $branch_snapshot ) {
-			return array( 'state' => self::CONFLICT_CHANGED, 'legacy' => false );
+			return array(
+				'state'  => self::CONFLICT_CHANGED,
+				'legacy' => false,
+			);
 		}
 
 		$analysis = Sync_Service::three_way_analysis( $base, $original_snapshot, $branch_snapshot );
@@ -322,12 +347,34 @@ final class Branch_Service {
 			return $rebased;
 		}
 
-		$rollback = Sync_Service::snapshot( $branch_id );
-		if ( ! $rollback ) {
+		$rollback          = Sync_Service::snapshot( $branch_id );
+		$baseline_rollback = $this->baseline_metadata_state( $branch_id );
+		$current_original  = Sync_Service::snapshot( $original_id );
+		if ( ! $rollback || ! $current_original ) {
 			return new \WP_Error(
 				'wbfp_rebase_snapshot_failed',
 				__( 'The branch could not be snapshotted before updating it from the original.', 'wp-branches-for-post' ),
 				array( 'status' => 500 )
+			);
+		}
+
+		$reviewed_original_hash = Sync_Service::state_hash_from_payload( $analysis['original'] );
+		$reviewed_branch_hash   = Sync_Service::state_hash_from_payload( $analysis['branch'] );
+		$current_original_hash  = Sync_Service::state_hash_from_payload( $current_original );
+		$current_branch_hash    = Sync_Service::state_hash_from_payload( $rollback );
+		if (
+			'' === $reviewed_original_hash
+			|| '' === $reviewed_branch_hash
+			|| '' === $current_original_hash
+			|| '' === $current_branch_hash
+			|| $original_id !== $this->get_original_id( $branch_id )
+			|| ! hash_equals( $reviewed_original_hash, $current_original_hash )
+			|| ! hash_equals( $reviewed_branch_hash, $current_branch_hash )
+		) {
+			return new \WP_Error(
+				'wbfp_rebase_state_changed',
+				__( 'The branch or original changed while the branch was being updated. Review the latest changes and try again.', 'wp-branches-for-post' ),
+				array( 'status' => 409 )
 			);
 		}
 
@@ -356,7 +403,63 @@ final class Branch_Service {
 			);
 		}
 
-		$this->store_base_snapshot( $branch_id, $original_id, $analysis['original'] );
+		$post_apply_original      = Sync_Service::snapshot( $original_id );
+		$post_apply_original_hash = $post_apply_original ? Sync_Service::state_hash_from_payload( $post_apply_original ) : '';
+		$post_apply_branch        = get_post( $branch_id );
+		if (
+			'' === $post_apply_original_hash
+			|| $original_id !== $this->get_original_id( $branch_id )
+			|| ! $post_apply_branch
+			|| in_array( $post_apply_branch->post_status, array( 'trash', 'auto-draft' ), true )
+			|| ! hash_equals( $reviewed_original_hash, $post_apply_original_hash )
+		) {
+			$rollback_error = Sync_Service::apply_merge_snapshot( $rollback, $branch_id, $branch->post_type );
+			if ( $rollback_error ) {
+				return new \WP_Error(
+					'wbfp_rebase_rollback_failed',
+					__( 'Updating the branch failed and its previous state could not be fully restored automatically.', 'wp-branches-for-post' ),
+					array(
+						'status'         => 500,
+						'rebase_error'   => 'wbfp_rebase_state_changed',
+						'rollback_error' => $rollback_error->get_error_code(),
+					)
+				);
+			}
+
+			return new \WP_Error(
+				'wbfp_rebase_state_changed',
+				__( 'The branch or original changed while the branch was being updated. Review the latest changes and try again.', 'wp-branches-for-post' ),
+				array( 'status' => 409 )
+			);
+		}
+
+		$base_error = $this->store_base_snapshot( $branch_id, $original_id, $analysis['original'] );
+		if ( $base_error ) {
+			$rollback_error    = Sync_Service::apply_merge_snapshot( $rollback, $branch_id, $branch->post_type );
+			$baseline_restored = $this->restore_baseline_metadata( $branch_id, $baseline_rollback );
+			if ( $rollback_error || ! $baseline_restored ) {
+				return new \WP_Error(
+					'wbfp_rebase_rollback_failed',
+					__( 'Updating the branch failed and its previous state could not be fully restored automatically.', 'wp-branches-for-post' ),
+					array(
+						'status'           => 500,
+						'rebase_error'     => $base_error->get_error_code(),
+						'rollback_error'   => $rollback_error ? $rollback_error->get_error_code() : '',
+						'baseline_restore' => $baseline_restored,
+					)
+				);
+			}
+
+			return new \WP_Error(
+				'wbfp_rebase_baseline_rolled_back',
+				__( 'The branch baseline could not be updated. Its previous state was restored.', 'wp-branches-for-post' ),
+				array(
+					'status' => 500,
+					'cause'  => $base_error->get_error_code(),
+				)
+			);
+		}
+
 		return $branch_id;
 	}
 
@@ -428,12 +531,21 @@ final class Branch_Service {
 	 * @param int                 $branch_id   Branch post ID.
 	 * @param int                 $original_id Original post ID.
 	 * @param array<string,mixed> $snapshot    Original snapshot.
-	 * @return void
+	 * @return \WP_Error|null
 	 */
-	private function store_base_snapshot( int $branch_id, int $original_id, array $snapshot ): void {
-		$original = get_post( $original_id );
+	private function store_base_snapshot( int $branch_id, int $original_id, array $snapshot ): ?\WP_Error {
+		$original  = get_post( $original_id );
+		$base_hash = Sync_Service::snapshot_hash_from_payload( $snapshot );
+		if ( '' === $base_hash ) {
+			return new \WP_Error(
+				'wbfp_base_snapshot_store_failed',
+				__( 'The branch baseline snapshot could not be stored.', 'wp-branches-for-post' ),
+				array( 'status' => 500 )
+			);
+		}
+
 		update_post_meta( $branch_id, self::META_BASE_SNAPSHOT, $snapshot );
-		update_post_meta( $branch_id, self::META_BASE_HASH, Sync_Service::snapshot_hash_from_payload( $snapshot ) );
+		update_post_meta( $branch_id, self::META_BASE_HASH, $base_hash );
 		update_post_meta( $branch_id, self::META_BASE_MODIFIED_GMT, $original ? $original->post_modified_gmt : '' );
 
 		$latest_revision = wp_get_post_revisions(
@@ -443,7 +555,77 @@ final class Branch_Service {
 				'fields'         => 'ids',
 			)
 		);
-		$revision_id = $latest_revision ? (int) reset( $latest_revision ) : 0;
+		$revision_id     = $latest_revision ? (int) reset( $latest_revision ) : 0;
 		update_post_meta( $branch_id, self::META_BASE_REVISION_ID, $revision_id );
+
+		$stored_snapshot   = $this->get_base_snapshot( $branch_id );
+		$stored_hash       = (string) get_post_meta( $branch_id, self::META_BASE_HASH, true );
+		$stored_modified   = (string) get_post_meta( $branch_id, self::META_BASE_MODIFIED_GMT, true );
+		$stored_revision   = (int) get_post_meta( $branch_id, self::META_BASE_REVISION_ID, true );
+		$expected_modified = $original ? (string) $original->post_modified_gmt : '';
+
+		if (
+			! $stored_snapshot
+			|| ! hash_equals( Sync_Service::state_hash_from_payload( $snapshot ), Sync_Service::state_hash_from_payload( $stored_snapshot ) )
+			|| ! hash_equals( $base_hash, $stored_hash )
+			|| $expected_modified !== $stored_modified
+			|| $revision_id !== $stored_revision
+		) {
+			return new \WP_Error(
+				'wbfp_base_snapshot_store_failed',
+				__( 'The branch baseline snapshot could not be stored.', 'wp-branches-for-post' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Capture baseline-control metadata so a failed rebase can restore it.
+	 *
+	 * @param int $branch_id Branch post ID.
+	 * @return array<string,array{exists:bool,value:mixed}>
+	 */
+	private function baseline_metadata_state( int $branch_id ): array {
+		$result = array();
+		foreach ( array( self::META_BASE_SNAPSHOT, self::META_BASE_HASH, self::META_BASE_MODIFIED_GMT, self::META_BASE_REVISION_ID ) as $key ) {
+			$result[ $key ] = array(
+				'exists' => metadata_exists( 'post', $branch_id, $key ),
+				'value'  => get_post_meta( $branch_id, $key, true ),
+			);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Restore baseline-control metadata after a failed rebase.
+	 *
+	 * @param int                                          $branch_id Branch post ID.
+	 * @param array<string,array{exists:bool,value:mixed}> $state     Previous metadata state.
+	 * @return bool
+	 */
+	private function restore_baseline_metadata( int $branch_id, array $state ): bool {
+		foreach ( $state as $key => $entry ) {
+			if ( ! empty( $entry['exists'] ) ) {
+				update_post_meta( $branch_id, $key, $entry['value'] );
+			} else {
+				delete_post_meta( $branch_id, $key );
+			}
+		}
+
+		foreach ( $state as $key => $entry ) {
+			$exists = metadata_exists( 'post', $branch_id, $key );
+			if ( ! empty( $entry['exists'] ) ) {
+				if ( ! $exists || get_post_meta( $branch_id, $key, true ) !== $entry['value'] ) {
+					return false;
+				}
+			} elseif ( $exists ) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 }
