@@ -94,7 +94,7 @@ jobs:
           set -euo pipefail
           pot_date="$(sed -n 's/^"POT-Creation-Date: \(.*\)\\\\n"$/\1/p' languages/wp-branches-for-post.pot | head -n1)"
           bugs_url="$(sed -n 's/^"Report-Msgid-Bugs-To: \(.*\)\\\\n"$/\1/p' languages/wp-branches-for-post.pot | head -n1)"
-          test -n "$pot_date"
+          # An empty POT-Creation-Date is intentional: it keeps the committed POT deterministic.
           test -n "$bugs_url"
           wp i18n make-pot "$GITHUB_WORKSPACE" languages/wp-branches-for-post.pot \
             --domain=wp-branches-for-post \
