@@ -12,11 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Exposes the minimal authenticated REST surface used by the block editor.
- *
- * Every route defines a permission callback. Mutating service methods repeat
- * capability checks so REST permission checks are defense in depth rather than
- * the sole authorization boundary.
+ * Exposes the authenticated REST surface used by the editor UI.
  */
 final class REST_Controller {
 	private const NAMESPACE = 'wbfp/v1';
@@ -29,17 +25,17 @@ final class REST_Controller {
 	private Branch_Service $branches;
 
 	/**
-	 * Merge/discard service.
+	 * Merge service.
 	 *
 	 * @var Merge_Service
 	 */
 	private Merge_Service $merges;
 
 	/**
-	 * Wire the branch/merge services used by REST callbacks.
+	 * Initialize the REST controller.
 	 *
 	 * @param Branch_Service $branches Branch lifecycle service.
-	 * @param Merge_Service  $merges   Merge/discard service.
+	 * @param Merge_Service  $merges   Merge service.
 	 */
 	public function __construct( Branch_Service $branches, Merge_Service $merges ) {
 		$this->branches = $branches;
@@ -47,7 +43,7 @@ final class REST_Controller {
 	}
 
 	/**
-	 * Register the authenticated REST routes used by the editor UI.
+	 * Register editor REST routes.
 	 *
 	 * @return void
 	 */
@@ -59,13 +55,7 @@ final class REST_Controller {
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'status' ),
 				'permission_callback' => array( $this, 'can_read_status' ),
-				'args'                => array(
-					'id' => array(
-						'type'              => 'integer',
-						'sanitize_callback' => 'absint',
-						'validate_callback' => static fn( $value ) => (int) $value > 0,
-					),
-				),
+				'args'                => array( 'id' => $this->id_arg() ),
 			)
 		);
 
@@ -76,13 +66,7 @@ final class REST_Controller {
 				'methods'             => \WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'create_branch' ),
 				'permission_callback' => array( $this, 'can_create_branch' ),
-				'args'                => array(
-					'id' => array(
-						'type'              => 'integer',
-						'sanitize_callback' => 'absint',
-						'validate_callback' => static fn( $value ) => (int) $value > 0,
-					),
-				),
+				'args'                => array( 'id' => $this->id_arg() ),
 			)
 		);
 
@@ -94,16 +78,27 @@ final class REST_Controller {
 				'callback'            => array( $this, 'merge_branch' ),
 				'permission_callback' => array( $this, 'can_merge_branch' ),
 				'args'                => array(
-					'id'    => array(
-						'type'              => 'integer',
-						'sanitize_callback' => 'absint',
-						'validate_callback' => static fn( $value ) => (int) $value > 0,
-					),
-					'force' => array(
+					'id'           => $this->id_arg(),
+					'force'        => array(
 						'type'    => 'boolean',
 						'default' => false,
 					),
+					'review_token' => array(
+						'type'    => 'string',
+						'default' => '',
+					),
 				),
+			)
+		);
+
+		register_rest_route(
+			self::NAMESPACE,
+			'/branches/(?P<id>\d+)/rebase',
+			array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'rebase_branch' ),
+				'permission_callback' => array( $this, 'can_merge_branch' ),
+				'args'                => array( 'id' => $this->id_arg() ),
 			)
 		);
 
@@ -114,22 +109,13 @@ final class REST_Controller {
 				'methods'             => \WP_REST_Server::DELETABLE,
 				'callback'            => array( $this, 'discard_branch' ),
 				'permission_callback' => array( $this, 'can_discard_branch' ),
-				'args'                => array(
-					'id' => array(
-						'type'              => 'integer',
-						'sanitize_callback' => 'absint',
-						'validate_callback' => static fn( $value ) => (int) $value > 0,
-					),
-				),
+				'args'                => array( 'id' => $this->id_arg() ),
 			)
 		);
 	}
 
 	/**
 	 * Authorize status reads.
-	 *
-	 * A branch status response contains information about its original post, so
-	 * branch users must be able to edit both resources.
 	 *
 	 * @param \WP_REST_Request $request REST request.
 	 * @return bool
@@ -145,8 +131,11 @@ final class REST_Controller {
 		}
 
 		$original_id = $this->branches->get_original_id( $post_id );
+		if ( $original_id < 1 ) {
+			return false;
+		}
 
-		return $original_id > 0 && current_user_can( 'edit_post', $original_id );
+		return ! get_post( $original_id ) || current_user_can( 'edit_post', $original_id );
 	}
 
 	/**
@@ -160,7 +149,7 @@ final class REST_Controller {
 	}
 
 	/**
-	 * Authorize branch merge requests.
+	 * Authorize branch merge/rebase requests.
 	 *
 	 * @param \WP_REST_Request $request REST request.
 	 * @return bool
@@ -176,7 +165,7 @@ final class REST_Controller {
 	}
 
 	/**
-	 * Authorize moving a branch to Trash.
+	 * Authorize branch discard requests.
 	 *
 	 * @param \WP_REST_Request $request REST request.
 	 * @return bool
@@ -187,7 +176,7 @@ final class REST_Controller {
 	}
 
 	/**
-	 * Return branch/original status for the editor panel.
+	 * Return editor status.
 	 *
 	 * @param \WP_REST_Request $request REST request.
 	 * @return \WP_REST_Response
@@ -197,7 +186,7 @@ final class REST_Controller {
 	}
 
 	/**
-	 * Create a branch through the service layer.
+	 * Create a branch.
 	 *
 	 * @param \WP_REST_Request $request REST request.
 	 * @return \WP_REST_Response|\WP_Error
@@ -208,23 +197,37 @@ final class REST_Controller {
 			return $branch_id;
 		}
 
-		$response = array(
-			'branch_id' => $branch_id,
-			'edit_url'  => get_edit_post_link( $branch_id, 'raw' ),
-			'status'    => $this->build_status( $branch_id ),
+		return new \WP_REST_Response(
+			array(
+				'branch_id' => $branch_id,
+				'edit_url'  => get_edit_post_link( $branch_id, 'raw' ),
+				'status'    => $this->build_status( $branch_id ),
+			),
+			201
 		);
-
-		return new \WP_REST_Response( $response, 201 );
 	}
 
 	/**
-	 * Merge a branch into its original post.
+	 * Merge a branch.
 	 *
 	 * @param \WP_REST_Request $request REST request.
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function merge_branch( \WP_REST_Request $request ) {
-		$original_id = $this->merges->merge( (int) $request['id'], (bool) $request->get_param( 'force' ) );
+		$branch_id    = (int) $request['id'];
+		$review_token = (string) $request->get_param( 'review_token' );
+		if ( '' !== $review_token ) {
+			$current_token = $this->review_token( $branch_id );
+			if ( '' === $current_token || ! hash_equals( $review_token, $current_token ) ) {
+				return new \WP_Error(
+					'wbfp_review_state_changed',
+					__( 'The review state changed. Review the latest changes before merging.', 'wp-branches-for-post' ),
+					array( 'status' => 409 )
+				);
+			}
+		}
+
+		$original_id = $this->merges->merge( $branch_id, (bool) $request->get_param( 'force' ) );
 		if ( is_wp_error( $original_id ) ) {
 			return $original_id;
 		}
@@ -239,7 +242,27 @@ final class REST_Controller {
 	}
 
 	/**
-	 * Move a branch to Trash without changing the original.
+	 * Update a branch from non-conflicting original changes.
+	 *
+	 * @param \WP_REST_Request $request REST request.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function rebase_branch( \WP_REST_Request $request ) {
+		$branch_id = $this->branches->rebase( (int) $request['id'] );
+		if ( is_wp_error( $branch_id ) ) {
+			return $branch_id;
+		}
+
+		return rest_ensure_response(
+			array(
+				'branch_id' => $branch_id,
+				'status'    => $this->build_status( $branch_id ),
+			)
+		);
+	}
+
+	/**
+	 * Discard a branch.
 	 *
 	 * @param \WP_REST_Request $request REST request.
 	 * @return \WP_REST_Response|\WP_Error
@@ -262,7 +285,7 @@ final class REST_Controller {
 	}
 
 	/**
-	 * Build the permission-filtered editor status payload.
+	 * Build permission-filtered editor status.
 	 *
 	 * @param int $post_id Post or branch ID.
 	 * @return array<string,mixed>
@@ -280,37 +303,67 @@ final class REST_Controller {
 			if ( ! $creator_id ) {
 				$creator_id = (int) get_post_meta( $post_id, '_creator_user_id', true );
 			}
-			$creator = $creator_id ? get_userdata( $creator_id ) : false;
+			$creator  = $creator_id ? get_userdata( $creator_id ) : false;
+			$analysis = $this->branches->analyze_branch( $post_id );
+			$review   = isset( $analysis['analysis'] ) && is_array( $analysis['analysis'] )
+				? $analysis['analysis']
+				: array(
+					'original_changes'      => array(),
+					'branch_changes'        => array(),
+					'conflicts'             => array(),
+					'informational_changes' => array(),
+					'can_rebase'            => false,
+				);
+
+			$pattern_refs  = Sync_Service::synced_pattern_refs( $post_id );
+			$review_values = $this->review_values( $analysis );
 
 			return array(
-				'type'              => 'branch',
-				'post_id'           => $post_id,
-				'original_id'       => $original_id,
-				'original_title'    => $original ? get_the_title( $original_id ) : '',
-				'original_url'      => $original ? get_permalink( $original_id ) : '',
-				'original_edit_url' => $original ? get_edit_post_link( $original_id, 'raw' ) : '',
-				'conflict'          => $this->branches->conflict_state( $post_id ),
-				'legacy'            => '' === (string) get_post_meta( $post_id, Branch_Service::META_BASE_HASH, true ),
-				'creator'           => $creator ? $creator->display_name : '',
-				'created_gmt'       => (string) get_post_meta( $post_id, Branch_Service::META_CREATED_GMT, true ),
-				'can_merge'         => $original && current_user_can( 'edit_post', $post_id ) && current_user_can( 'edit_post', $original_id ),
-				'can_discard'       => current_user_can( 'delete_post', $post_id ),
+				'type'                 => 'branch',
+				'post_id'              => $post_id,
+				'original_id'          => $original_id,
+				'original_title'       => $original ? get_the_title( $original_id ) : '',
+				'original_url'         => $original ? get_permalink( $original_id ) : '',
+				'original_edit_url'    => $original ? get_edit_post_link( $original_id, 'raw' ) : '',
+				'original_preview_url' => $original ? get_permalink( $original_id ) : '',
+				'branch_preview_url'   => get_preview_post_link( $post ),
+				'conflict'             => $analysis['state'] ?? Branch_Service::CONFLICT_CHANGED,
+				'legacy'               => ! empty( $analysis['legacy'] ),
+				'creator'              => $creator ? $creator->display_name : '',
+				'created_gmt'          => (string) get_post_meta( $post_id, Branch_Service::META_CREATED_GMT, true ),
+				'review_token'         => $this->review_token( $post_id ),
+				'can_merge'            => $original && current_user_can( 'edit_post', $post_id ) && current_user_can( 'edit_post', $original_id ),
+				'can_force_merge'      => $original ? $this->branches->can_force_merge( $post_id, $original_id ) : false,
+				'can_rebase'           => $original && Branch_Service::CONFLICT_REBASE === ( $analysis['state'] ?? '' ) && empty( $analysis['legacy'] ),
+				'can_discard'          => current_user_can( 'delete_post', $post_id ),
+				'review'               => $review,
+				'review_values'        => $review_values,
+				'synced_pattern_refs'  => $pattern_refs,
+				'synced_pattern_count' => count( $pattern_refs ),
 			);
 		}
 
-		$branches = array();
+		$branches          = array();
+		$original_snapshot = Sync_Service::snapshot( $post_id );
 		foreach ( $this->branches->get_branches( $post_id ) as $branch ) {
-			// Do not expose branch details the current user cannot edit.
 			if ( ! current_user_can( 'edit_post', $branch->ID ) ) {
 				continue;
 			}
 
+			$analysis   = $this->branches->analyze_branch( $branch->ID, $original_snapshot );
+			$creator_id = (int) get_post_meta( $branch->ID, Branch_Service::META_CREATOR_USER_ID, true );
+			$creator    = $creator_id ? get_userdata( $creator_id ) : false;
+			$review     = isset( $analysis['analysis'] ) && is_array( $analysis['analysis'] ) ? $analysis['analysis'] : array();
+
 			$branches[] = array(
-				'id'       => $branch->ID,
-				'title'    => get_the_title( $branch ),
-				'edit_url' => get_edit_post_link( $branch->ID, 'raw' ),
-				'modified' => $branch->post_modified_gmt,
-				'conflict' => $this->branches->conflict_state( $branch->ID ),
+				'id'             => $branch->ID,
+				'title'          => get_the_title( $branch ),
+				'edit_url'       => get_edit_post_link( $branch->ID, 'raw' ),
+				'modified'       => $branch->post_modified_gmt,
+				'creator'        => $creator ? $creator->display_name : '',
+				'conflict'       => $analysis['state'] ?? Branch_Service::CONFLICT_CHANGED,
+				'branch_changes' => count( $review['branch_changes'] ?? array() ),
+				'conflicts'      => count( $review['conflicts'] ?? array() ),
 			);
 		}
 
@@ -319,6 +372,101 @@ final class REST_Controller {
 			'post_id'    => $post_id,
 			'can_create' => $this->branches->can_create( $post_id ),
 			'branches'   => $branches,
+		);
+	}
+
+
+	/**
+	 * Build a stable token for the branch state the user is reviewing.
+	 *
+	 * The token changes for mergeable data, identity data, baseline changes, or
+	 * relationship changes. It contains no post content itself.
+	 *
+	 * @param int $branch_id Branch post ID.
+	 * @return string
+	 */
+	private function review_token( int $branch_id ): string {
+		if ( ! $this->branches->is_branch( $branch_id ) ) {
+			return '';
+		}
+
+		$original_id = $this->branches->get_original_id( $branch_id );
+		$base        = $this->branches->get_base_snapshot( $branch_id );
+		$payload     = array(
+			'original_id' => $original_id,
+			'base'        => $base
+				? Sync_Service::state_hash_from_payload( $base )
+				: (string) get_post_meta( $branch_id, Branch_Service::META_BASE_HASH, true ),
+			'original'    => $original_id > 0 ? Sync_Service::state_hash( $original_id ) : '',
+			'branch'      => Sync_Service::state_hash( $branch_id ),
+		);
+		$encoded     = wp_json_encode( $payload );
+
+		return false === $encoded ? '' : hash( 'sha256', $encoded );
+	}
+
+	/**
+	 * Return compact Base/Original/Branch values for human review.
+	 *
+	 * Only core editorial text fields are returned. Arbitrary post meta values
+	 * are intentionally not exposed through this convenience payload.
+	 *
+	 * @param array<string,mixed> $analysis Branch analysis.
+	 * @return array<string,array<string,string>>
+	 */
+	private function review_values( array $analysis ): array {
+		if ( ! empty( $analysis['legacy'] ) || empty( $analysis['base'] ) || empty( $analysis['original'] ) || empty( $analysis['branch'] ) ) {
+			return array();
+		}
+
+		$review = isset( $analysis['analysis'] ) && is_array( $analysis['analysis'] ) ? $analysis['analysis'] : array();
+		$paths  = array_unique(
+			array_merge(
+				$review['branch_changes'] ?? array(),
+				$review['original_changes'] ?? array(),
+				$review['conflicts'] ?? array()
+			)
+		);
+		$fields = array( 'post_title', 'post_excerpt', 'post_content' );
+		$result = array();
+
+		foreach ( $fields as $field ) {
+			$path = 'post.' . $field;
+			if ( ! in_array( $path, $paths, true ) ) {
+				continue;
+			}
+
+			$result[ $field ] = array(
+				'base'     => $this->compact_review_text( $analysis['base']['merge']['post'][ $field ] ?? '' ),
+				'original' => $this->compact_review_text( $analysis['original']['merge']['post'][ $field ] ?? '' ),
+				'branch'   => $this->compact_review_text( $analysis['branch']['merge']['post'][ $field ] ?? '' ),
+			);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Convert editorial text to a bounded plain-text review excerpt.
+	 *
+	 * @param mixed $value Raw field value.
+	 * @return string
+	 */
+	private function compact_review_text( $value ): string {
+		$text = trim( wp_strip_all_tags( (string) $value, true ) );
+		return wp_html_excerpt( $text, 1200, strlen( $text ) > 1200 ? '…' : '' );
+	}
+
+	/**
+	 * Shared positive-integer REST argument schema.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function id_arg(): array {
+		return array(
+			'type'              => 'integer',
+			'sanitize_callback' => 'absint',
+			'validate_callback' => static fn( $value ) => (int) $value > 0,
 		);
 	}
 }

@@ -1,51 +1,139 @@
-name: Release CI
+name: CI
 
 on:
+  pull_request:
+    branches: [master]
   push:
-    tags:
-      - 'v*.*.*'
+    branches: [master]
+  workflow_dispatch:
+  workflow_call:
 
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  php-lint:
+  php-quality:
+    name: PHP ${{ matrix.php }} quality
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.2', '8.3', '8.4']
     steps:
       - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
-      - name: PHP syntax check
+          php-version: ${{ matrix.php }}
+          coverage: none
+      - name: PHP syntax
         run: find . -name '*.php' -not -path './vendor/*' -print0 | xargs -0 -n1 php -l
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --no-progress
+      - name: WordPress Coding Standards
+        run: composer run lint
 
-  phpcs:
+  frontend:
+    name: Frontend and build contract
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Version contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="$(node -p "require('./package.json').version")"
+          grep -Eq "^[[:space:]]*\* Version:[[:space:]]+${version}$" post-branch.php
+          grep -Fq "define( 'WBFP_VERSION', '${version}' );" post-branch.php
+          grep -Eq "^Stable tag:[[:space:]]+${version}$" README.txt
+      - name: JavaScript lint
+        run: npm run lint:js
+      - name: CSS lint
+        run: npm run lint:css
+      - name: Rebuild editor asset
+        run: npm run build
+      - name: Ensure committed build is current
+        run: git diff --exit-code -- build
+
+  translations:
+    name: Translation artifacts are reproducible
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
           coverage: none
-      - name: Install Composer dependencies
-        run: composer install --no-interaction --no-progress
-      - name: PHPCS (WordPress Coding Standards)
-        run: composer run lint
-
-  editor-build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: npm
       - name: Install dependencies
-        run: npm install --no-audit --no-fund
-      - name: Build block editor assets
-        run: npm run build
+        run: npm ci --no-audit --no-fund
+      - name: Install WP-CLI and gettext
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y gettext
+          curl -fsSL -o /tmp/wp-cli.phar https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+          chmod +x /tmp/wp-cli.phar
+          sudo mv /tmp/wp-cli.phar /usr/local/bin/wp
+      - name: Rebuild translations deterministically
+        shell: bash
+        run: |
+          set -euo pipefail
+          wp i18n make-pot "$GITHUB_WORKSPACE" languages/wp-branches-for-post.pot \
+            --domain=wp-branches-for-post \
+            --headers='{"Report-Msgid-Bugs-To":"https://wordpress.org/support/plugin/wp-branches-for-post"}' \
+            --exclude=.git,node_modules,vendor,.github,.wordpress-org,tests,tools,dist,docs
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path("languages/wp-branches-for-post.pot")
+          text = path.read_text(encoding="utf-8")
+          lines = []
+          for line in text.splitlines():
+              if line.startswith('"POT-Creation-Date:'):
+                  line = '"POT-Creation-Date: \\n"'
+              lines.append(line)
+          path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+          PY
+          for locale in ja zh_CN zh_TW; do
+            po="languages/wp-branches-for-post-${locale}.po"
+            mo="languages/wp-branches-for-post-${locale}.mo"
+            msgmerge --update --backup=none "$po" languages/wp-branches-for-post.pot
+            msgattrib --no-obsolete "$po" -o "$po"
+            python3 - "$po" <<'PY'
+          from pathlib import Path
+          import sys
+          path = Path(sys.argv[1])
+          text = path.read_text(encoding="utf-8")
+          text = text.replace(
+              '"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-branch\\n"',
+              '"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-branches-for-post\\n"',
+          )
+          path.write_text(text, encoding="utf-8")
+          PY
+            msgfmt --check --check-format "$po" -o "$mo"
+          done
+          node tools/build-editor-translations.js
+      - name: Verify generated translations are committed
+        run: git diff --exit-code -- languages/
 
   plugin-check:
+    name: WordPress Plugin Check
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - name: Prepare release tree
@@ -60,7 +148,9 @@ jobs:
             --exclude='src' \
             --exclude='tools' \
             --exclude='tests' \
+            --exclude='docs' \
             --exclude='ARCHITECTURE.md' \
+            --exclude='TESTING.md' \
             --exclude='dist' \
             --exclude='package.json' \
             --exclude='package-lock.json' \
@@ -68,8 +158,7 @@ jobs:
             --exclude='composer.lock' \
             --exclude='phpcs.xml.dist' \
             --exclude='.distignore'
-      - name: Run WordPress Plugin Check
-        uses: wordpress/plugin-check-action@v1
+      - uses: wordpress/plugin-check-action@v1
         with:
           build-dir: './dist/wp-branches-for-post'
           categories: |

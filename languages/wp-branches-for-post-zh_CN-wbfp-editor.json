@@ -1,6 +1,6 @@
 {
-  "translation-revision-date": "2026-09-19 16:23+0900",
-  "generator": "WP-CLI compatible Jed JSON",
+  "translation-revision-date": "2026-09-23 03:00+0900",
+  "generator": "WP Branches For Post 2.1 translation build",
   "source": "build/index.js",
   "domain": "messages",
   "locale_data": {
@@ -10,24 +10,213 @@
         "lang": "zh_CN",
         "plural-forms": "nplurals=1; plural=0;"
       },
-      "WP Branches For Post could not complete the request.": ["WP Branches For Post 无法完成请求。"],
-      "Move this branch to Trash? The public original will not be changed.": ["要将这个分支移到回收站吗？公开的原始文章不会发生变化。"],
-      "Edit safely in a separate draft. The published post stays unchanged until you merge the branch.": ["可在独立草稿中安全编辑；在合并分支之前，已发布的文章不会发生变化。"],
-      "Creating…": ["正在创建…"],
-      "Create branch": ["创建分支"],
-      "Existing branches": ["现有分支"],
-      "Branch #%d": ["分支 #%d"],
-      "Original changed": ["原始文章已更改"],
-      "This draft is isolated from the public original.": ["此草稿与公开的原始文章相互独立。"],
-      "Open original": ["打开原始文章"],
-      "Created by %s": ["创建者：%s"],
-      "This is a legacy branch with no baseline snapshot. Review the original before merging.": ["这是一个没有基准快照的旧版分支。合并前请先检查原始文章。"],
-      "The original changed after this branch was created. A normal merge is blocked to prevent overwriting newer work.": ["创建此分支后原始文章已经发生变化。为避免覆盖较新的内容，普通合并已被阻止。"],
-      "Merging…": ["正在合并…"],
-      "Merge into original": ["合并到原始文章"],
-      "Force merge after review": ["检查后强制合并"],
-      "Discard branch": ["放弃分支"],
-      "Post Branch": ["文章分支"]
+      "%1$d branch changes · %2$d conflicts": [
+        "%1$d 项分支更改 · %2$d 项冲突"
+      ],
+      "Author": [
+        "作者"
+      ],
+      "Base": [
+        "基准版本"
+      ],
+      "Branch #%d": [
+        "分支 #%d"
+      ],
+      "Branch changes": [
+        "分支更改"
+      ],
+      "Branch now": [
+        "分支当前值"
+      ],
+      "Cancel": [
+        "取消"
+      ],
+      "Comment status": [
+        "评论状态"
+      ],
+      "Conflicts": [
+        "冲突"
+      ],
+      "Content": [
+        "内容"
+      ],
+      "Create branch": [
+        "创建分支"
+      ],
+      "Created by %s": [
+        "创建者：%s"
+      ],
+      "Creating…": [
+        "正在创建…"
+      ],
+      "Discard branch": [
+        "放弃分支"
+      ],
+      "Discard this branch?": [
+        "放弃这个分支吗？"
+      ],
+      "Edit safely in a separate draft. The published post stays unchanged until you merge the branch.": [
+        "可在独立草稿中安全编辑；在合并分支之前，已发布的文章不会发生变化。"
+      ],
+      "Excerpt": [
+        "摘要"
+      ],
+      "Existing branches": [
+        "现有分支"
+      ],
+      "Force merge": [
+        "强制合并"
+      ],
+      "Force merge conflicts?": [
+        "强制合并冲突吗？"
+      ],
+      "Force merge reviewed conflicts": [
+        "强制合并已检查的冲突"
+      ],
+      "Force merge will prefer branch values for the listed conflicts. Non-conflicting newer work on the original is still preserved.": [
+        "强制合并会对列出的冲突优先采用分支值；原始文章中不冲突的较新更改仍会保留。"
+      ],
+      "Hide merge review": [
+        "隐藏合并检查"
+      ],
+      "Legacy branch": [
+        "旧版分支"
+      ],
+      "Menu order": [
+        "菜单顺序"
+      ],
+      "Merge review": [
+        "合并检查"
+      ],
+      "Metadata: %s": [
+        "元数据：%s"
+      ],
+      "Move to Trash": [
+        "移到回收站"
+      ],
+      "Needs conflict review": [
+        "需要检查冲突"
+      ],
+      "No mergeable branch changes are currently detected.": [
+        "当前未检测到可合并的分支更改。"
+      ],
+      "Open original": [
+        "打开原始文章"
+      ],
+      "Original changed": [
+        "原始文章已更改"
+      ],
+      "Original changes since branch creation": [
+        "创建分支后原始文章的更改"
+      ],
+      "Original identity changes preserved by merge": [
+        "合并时保留的原始文章标识更改"
+      ],
+      "Original now": [
+        "原始文章当前值"
+      ],
+      "Original unavailable": [
+        "原始文章不可用"
+      ],
+      "Original updated · safe to refresh branch": [
+        "原始文章已更新 · 可安全刷新分支"
+      ],
+      "Parent": [
+        "父级"
+      ],
+      "Password": [
+        "密码"
+      ],
+      "Ping status": [
+        "Ping 状态"
+      ],
+      "Post Branch": [
+        "文章分支"
+      ],
+      "Post type": [
+        "文章类型"
+      ],
+      "Preview branch": [
+        "预览分支"
+      ],
+      "Publication status": [
+        "发布状态"
+      ],
+      "Ready": [
+        "可合并"
+      ],
+      "Ready · original identity changed": [
+        "可合并 · 原始文章标识已更改"
+      ],
+      "Review changes": [
+        "检查更改"
+      ],
+      "Save & merge into original": [
+        "保存并合并到原始文章"
+      ],
+      "Save or discard the current edits to the original before creating a branch. This prevents unpublished editor changes from being mistaken for the branch baseline.": [
+        "创建分支前，请先保存或放弃原始文章当前未保存的编辑，避免把未发布的编辑误认为分支基准。"
+      ],
+      "Saving and merging…": [
+        "正在保存并合并…"
+      ],
+      "Slug": [
+        "别名"
+      ],
+      "Taxonomy: %s": [
+        "分类法：%s"
+      ],
+      "The branch and original changed the same data differently. Review the conflicts before deciding whether to force merge.": [
+        "分支和原始文章对同一数据做了不同修改。请先检查冲突，再决定是否强制合并。"
+      ],
+      "The branch will be moved to Trash. The public original will not be changed.": [
+        "分支将被移到回收站，公开的原始文章不会发生变化。"
+      ],
+      "The original has newer, non-conflicting changes. You can update this branch first, or review and merge while preserving those original changes.": [
+        "原始文章有较新的非冲突更改。你可以先用原始文章更新分支，也可以检查后直接合并并保留这些原始更改。"
+      ],
+      "The original identity changed (for example status, slug, author, or parent). Those changes are preserved and are not overwritten by this branch.": [
+        "原始文章的标识信息发生了变化（例如状态、别名、作者或父级）。这些更改会被保留，不会被此分支覆盖。"
+      ],
+      "The original post is unavailable. This branch cannot be merged.": [
+        "原始文章不可用，无法合并此分支。"
+      ],
+      "The review state changed after saving. Review the latest conflicts before merging.": [
+        "保存后检查状态发生了变化。合并前请检查最新冲突。"
+      ],
+      "This branch predates three-way snapshots, so detailed change comparison is unavailable. Force merge only after manually reviewing the original.": [
+        "此分支创建于三方快照功能之前，因此无法提供详细更改比较。请手动检查原始文章后再强制合并。"
+      ],
+      "This branch references %d synced pattern(s). Editing a synced pattern is global in WordPress and is not isolated by the branch.": [
+        "此分支引用了 %d 个同步区块样板。编辑同步样板会全局影响 WordPress，并不会被分支隔离。"
+      ],
+      "This draft is isolated from the public original.": [
+        "此草稿与公开的原始文章相互独立。"
+      ],
+      "This older branch cannot provide a precise three-way comparison. Review the original manually before forcing a merge.": [
+        "这个旧版分支无法提供精确的三方比较。强制合并前请手动检查原始文章。"
+      ],
+      "This original has unsaved editor changes. Save or discard them before creating a branch so the baseline matches the saved public post.": [
+        "原始文章存在未保存的编辑。创建分支前请保存或放弃这些更改，使基准与已保存的公开文章一致。"
+      ],
+      "Three-way comparison": [
+        "三方比较"
+      ],
+      "Title": [
+        "标题"
+      ],
+      "Update branch from original": [
+        "从原始文章更新分支"
+      ],
+      "Updating…": [
+        "正在更新…"
+      ],
+      "View original": [
+        "查看原始文章"
+      ],
+      "WP Branches For Post could not complete the request.": [
+        "WP Branches For Post 无法完成请求。"
+      ]
     }
   }
 }

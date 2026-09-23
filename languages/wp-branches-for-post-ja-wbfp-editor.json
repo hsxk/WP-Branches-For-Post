@@ -1,6 +1,6 @@
 {
-  "translation-revision-date": "2026-09-19 16:23+0900",
-  "generator": "WP-CLI compatible Jed JSON",
+  "translation-revision-date": "2026-09-23 03:00+0900",
+  "generator": "WP Branches For Post 2.1 translation build",
   "source": "build/index.js",
   "domain": "messages",
   "locale_data": {
@@ -10,30 +10,213 @@
         "lang": "ja",
         "plural-forms": "nplurals=1; plural=0;"
       },
-      "WP Branches For Post could not complete the request.": [
-        "WP Branches For Post は要求を完了できませんでした。"
+      "%1$d branch changes · %2$d conflicts": [
+        "ブランチの変更 %1$d 件 · 競合 %2$d 件"
       ],
-      "Move this branch to Trash? The public original will not be changed.": [
-        "このブランチをゴミ箱へ移動しますか？公開中の元の投稿は変更されません。"
+      "Author": [
+        "投稿者"
+      ],
+      "Base": [
+        "基準"
+      ],
+      "Branch #%d": [
+        "ブランチ #%d"
+      ],
+      "Branch changes": [
+        "ブランチの変更"
+      ],
+      "Branch now": [
+        "現在のブランチ"
+      ],
+      "Cancel": [
+        "キャンセル"
+      ],
+      "Comment status": [
+        "コメント状態"
+      ],
+      "Conflicts": [
+        "競合"
+      ],
+      "Content": [
+        "本文"
+      ],
+      "Create branch": [
+        "ブランチを作成"
+      ],
+      "Created by %s": [
+        "作成者：%s"
+      ],
+      "Creating…": [
+        "作成中…"
+      ],
+      "Discard branch": [
+        "ブランチを破棄"
+      ],
+      "Discard this branch?": [
+        "このブランチを破棄しますか？"
       ],
       "Edit safely in a separate draft. The published post stays unchanged until you merge the branch.": [
         "独立した下書きで安全に編集できます。ブランチをマージするまで、公開中の投稿は変更されません。"
       ],
-      "Creating…": ["作成中…"],
-      "Create branch": ["ブランチを作成"],
-      "Existing branches": ["既存のブランチ"],
-      "Branch #%d": ["ブランチ #%d"],
-      "Original changed": ["元の投稿に変更あり"],
-      "This draft is isolated from the public original.": ["この下書きは公開中の元の投稿から独立しています。"],
-      "Open original": ["元の投稿を開く"],
-      "Created by %s": ["作成者：%s"],
-      "This is a legacy branch with no baseline snapshot. Review the original before merging.": ["これは基準スナップショットのない旧形式のブランチです。マージ前に元の投稿を確認してください。"],
-      "The original changed after this branch was created. A normal merge is blocked to prevent overwriting newer work.": ["このブランチの作成後に元の投稿が変更されています。新しい変更を上書きしないよう、通常のマージはブロックされています。"],
-      "Merging…": ["マージ中…"],
-      "Merge into original": ["元の投稿へマージ"],
-      "Force merge after review": ["確認後に強制マージ"],
-      "Discard branch": ["ブランチを破棄"],
-      "Post Branch": ["投稿ブランチ"]
+      "Excerpt": [
+        "抜粋"
+      ],
+      "Existing branches": [
+        "既存のブランチ"
+      ],
+      "Force merge": [
+        "強制マージ"
+      ],
+      "Force merge conflicts?": [
+        "競合を強制マージしますか？"
+      ],
+      "Force merge reviewed conflicts": [
+        "確認済みの競合を強制マージ"
+      ],
+      "Force merge will prefer branch values for the listed conflicts. Non-conflicting newer work on the original is still preserved.": [
+        "強制マージでは、一覧の競合に対してブランチ側の値を優先します。競合しない元の投稿の新しい変更は引き続き保持されます。"
+      ],
+      "Hide merge review": [
+        "マージ確認を閉じる"
+      ],
+      "Legacy branch": [
+        "旧形式のブランチ"
+      ],
+      "Menu order": [
+        "メニュー順"
+      ],
+      "Merge review": [
+        "マージ確認"
+      ],
+      "Metadata: %s": [
+        "メタデータ: %s"
+      ],
+      "Move to Trash": [
+        "ゴミ箱へ移動"
+      ],
+      "Needs conflict review": [
+        "競合の確認が必要"
+      ],
+      "No mergeable branch changes are currently detected.": [
+        "現在、マージ可能なブランチ変更は検出されていません。"
+      ],
+      "Open original": [
+        "元の投稿を開く"
+      ],
+      "Original changed": [
+        "元の投稿に変更あり"
+      ],
+      "Original changes since branch creation": [
+        "ブランチ作成後の元の投稿の変更"
+      ],
+      "Original identity changes preserved by merge": [
+        "マージで保持される元の投稿の識別情報の変更"
+      ],
+      "Original now": [
+        "現在の元の投稿"
+      ],
+      "Original unavailable": [
+        "元の投稿を利用できません"
+      ],
+      "Original updated · safe to refresh branch": [
+        "元の投稿が更新済み · 安全にブランチを更新できます"
+      ],
+      "Parent": [
+        "親"
+      ],
+      "Password": [
+        "パスワード"
+      ],
+      "Ping status": [
+        "Ping 状態"
+      ],
+      "Post Branch": [
+        "投稿ブランチ"
+      ],
+      "Post type": [
+        "投稿タイプ"
+      ],
+      "Preview branch": [
+        "ブランチをプレビュー"
+      ],
+      "Publication status": [
+        "公開状態"
+      ],
+      "Ready": [
+        "マージ可能"
+      ],
+      "Ready · original identity changed": [
+        "マージ可能 · 元の投稿の識別情報に変更あり"
+      ],
+      "Review changes": [
+        "変更を確認"
+      ],
+      "Save & merge into original": [
+        "保存して元の投稿へマージ"
+      ],
+      "Save or discard the current edits to the original before creating a branch. This prevents unpublished editor changes from being mistaken for the branch baseline.": [
+        "ブランチを作成する前に、元の投稿で現在編集中の内容を保存するか破棄してください。未公開の編集内容がブランチの基準として扱われるのを防ぎます。"
+      ],
+      "Saving and merging…": [
+        "保存してマージ中…"
+      ],
+      "Slug": [
+        "スラッグ"
+      ],
+      "Taxonomy: %s": [
+        "タクソノミー: %s"
+      ],
+      "The branch and original changed the same data differently. Review the conflicts before deciding whether to force merge.": [
+        "ブランチと元の投稿で同じデータが別々に変更されています。強制マージするか判断する前に競合を確認してください。"
+      ],
+      "The branch will be moved to Trash. The public original will not be changed.": [
+        "ブランチはゴミ箱へ移動されます。公開中の元の投稿は変更されません。"
+      ],
+      "The original has newer, non-conflicting changes. You can update this branch first, or review and merge while preserving those original changes.": [
+        "元の投稿に新しい非競合の変更があります。先に元の投稿からブランチを更新するか、その変更を保持したまま確認してマージできます。"
+      ],
+      "The original identity changed (for example status, slug, author, or parent). Those changes are preserved and are not overwritten by this branch.": [
+        "元の投稿の識別情報（ステータス、スラッグ、投稿者、親など）が変更されています。これらは保持され、このブランチでは上書きされません。"
+      ],
+      "The original post is unavailable. This branch cannot be merged.": [
+        "元の投稿を利用できないため、このブランチはマージできません。"
+      ],
+      "The review state changed after saving. Review the latest conflicts before merging.": [
+        "保存後に確認状態が変わりました。マージ前に最新の競合を確認してください。"
+      ],
+      "This branch predates three-way snapshots, so detailed change comparison is unavailable. Force merge only after manually reviewing the original.": [
+        "このブランチは三方向スナップショット導入前に作成されたため、詳細な変更比較を利用できません。元の投稿を手動で確認した後にのみ強制マージしてください。"
+      ],
+      "This branch references %d synced pattern(s). Editing a synced pattern is global in WordPress and is not isolated by the branch.": [
+        "このブランチは同期パターンを %d 件参照しています。同期パターンの編集は WordPress 全体に反映され、ブランチでは分離されません。"
+      ],
+      "This draft is isolated from the public original.": [
+        "この下書きは公開中の元の投稿から独立しています。"
+      ],
+      "This older branch cannot provide a precise three-way comparison. Review the original manually before forcing a merge.": [
+        "この旧形式のブランチでは正確な三方向比較を行えません。強制マージ前に元の投稿を手動で確認してください。"
+      ],
+      "This original has unsaved editor changes. Save or discard them before creating a branch so the baseline matches the saved public post.": [
+        "元の投稿に未保存の編集があります。基準を保存済みの公開投稿と一致させるため、ブランチ作成前に保存または破棄してください。"
+      ],
+      "Three-way comparison": [
+        "三方向比較"
+      ],
+      "Title": [
+        "タイトル"
+      ],
+      "Update branch from original": [
+        "元の投稿からブランチを更新"
+      ],
+      "Updating…": [
+        "更新中…"
+      ],
+      "View original": [
+        "元の投稿を表示"
+      ],
+      "WP Branches For Post could not complete the request.": [
+        "WP Branches For Post は要求を完了できませんでした。"
+      ]
     }
   }
 }

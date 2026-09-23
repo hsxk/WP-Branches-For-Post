@@ -1,127 +1,609 @@
 # Copyright (C) 2026 Hao Kexin
-# This file is distributed under the same license as the WP Branches For Post plugin.
+# This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: WP Branches For Post 2.0.0\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-branches-for-post/\n"
-"POT-Creation-Date: 2026-09-19 16:23+0900\n"
+"Project-Id-Version: WP Branches For Post 2.1.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-branches-for-post\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-branches-for-post\n"
 
-#. Plugin Name of the plugin.
+#. Plugin Name of the plugin
+#: post-branch.php
 msgid "WP Branches For Post"
 msgstr ""
 
-#. Description of the plugin.
+#. Plugin URI of the plugin
+#: post-branch.php
+msgid "https://github.com/hsxk/WP-Branches-For-Post/"
+msgstr ""
+
+#. Description of the plugin
+#: post-branch.php
 msgid "Create safe working branches for published WordPress content and merge them back without changing the public post while editing."
 msgstr ""
 
-msgid "You cannot create a branch for this post."
+#. Author of the plugin
+#: post-branch.php
+msgid "Hao Kexin"
 msgstr ""
 
-msgid "The original post does not exist."
+#. Author URI of the plugin
+#: post-branch.php
+msgid "https://time2log.com/about/"
 msgstr ""
 
-msgid "The original post could not be snapshotted."
+#: includes/class-admin.php:92
+#: build/index.js:8
+#: src/index.js:684
+msgid "Review changes"
 msgstr ""
 
-msgid "The original changed while the branch was being created. Please try again so the branch starts from a consistent version."
-msgstr ""
-
-msgid "This post is not a branch."
-msgstr ""
-
-msgid "The original post no longer exists."
-msgstr ""
-
-msgid "You do not have permission to merge this branch."
-msgstr ""
-
-msgid "This legacy branch has no baseline snapshot. Review the original before forcing the merge."
-msgstr ""
-
-msgid "The original post changed after this branch was created. Review the changes before forcing the merge."
-msgstr ""
-
-msgid "The original post changed before the merge could be applied. Review the latest version and try again."
-msgstr ""
-
-msgid "You do not have permission to discard this branch."
-msgstr ""
-
-msgid "The branch could not be moved to Trash."
-msgstr ""
-
+#: includes/class-admin.php:98
 msgid "Merge branch"
 msgstr ""
 
+#: includes/class-admin.php:109
+#: includes/class-admin.php:190
+#: build/index.js:6
+#: src/index.js:408
 msgid "Create branch"
 msgstr ""
 
+#. translators: %d: original post ID.
+#: includes/class-admin.php:126
+#, php-format
 msgid "Branch of #%d"
 msgstr ""
 
+#: includes/class-admin.php:153
+#: includes/class-admin.php:175
+#: includes/class-admin.php:188
+#: build/index.js:8
+#: src/index.js:763
 msgid "Post Branch"
 msgstr ""
 
+#: includes/class-admin.php:154
+#: build/index.js:6
+#: src/index.js:575
+msgid "The original post is unavailable. This branch cannot be merged."
+msgstr ""
+
+#: includes/class-admin.php:166
+#: includes/class-admin.php:265
+msgid "The original changed after this branch was created. This action will force the merge and prefer branch values where changes overlap. Continue only after reviewing both versions."
+msgstr ""
+
+#: includes/class-admin.php:178
 msgid "Force merge after review"
 msgstr ""
 
+#: includes/class-admin.php:178
 msgid "Merge into original"
 msgstr ""
 
+#: includes/class-admin.php:223
 msgid "Create Branch"
 msgstr ""
 
+#. translators: 1: original post ID, 2: edit URL for the original post.
+#: includes/class-admin.php:255
+#, php-format
 msgid "This is a working branch of post #%1$d. The public original stays unchanged until you explicitly merge this branch. <a href=\"%2$s\">Open original</a>."
 msgstr ""
 
-msgid "The original changed after this branch was created. Review both versions and use the block editor panel to force the merge only if appropriate."
-msgstr ""
-
+#: includes/class-admin.php:267
 msgid "WP Branches For Post could not complete the requested operation."
 msgstr ""
 
+#: includes/class-branch-service.php:104
+msgid "You cannot create a branch for this post."
+msgstr ""
+
+#: includes/class-branch-service.php:113
+msgid "The original post does not exist."
+msgstr ""
+
+#: includes/class-branch-service.php:123
+msgid "The original post could not be snapshotted."
+msgstr ""
+
+#: includes/class-branch-service.php:169
+msgid "The original changed while the branch was being created. Please try again so the branch starts from a consistent version."
+msgstr ""
+
+#: includes/class-branch-service.php:181
+msgid "The branch relationship metadata could not be stored."
+msgstr ""
+
+#: includes/class-branch-service.php:326
+#: includes/class-merge-service.php:235
+msgid "This post is not an active branch."
+msgstr ""
+
+#: includes/class-branch-service.php:332
+msgid "The original post is unavailable."
+msgstr ""
+
+#: includes/class-branch-service.php:336
+msgid "You do not have permission to update this branch."
+msgstr ""
+
+#: includes/class-branch-service.php:341
+msgid "This older branch cannot be automatically updated from the original."
+msgstr ""
+
+#: includes/class-branch-service.php:356
+msgid "The branch could not be snapshotted before updating it from the original."
+msgstr ""
+
+#: includes/class-branch-service.php:376
+#: includes/class-branch-service.php:431
+msgid "The branch or original changed while the branch was being updated. Review the latest changes and try again."
+msgstr ""
+
+#: includes/class-branch-service.php:387
+#: includes/class-branch-service.php:420
+#: includes/class-branch-service.php:443
+msgid "Updating the branch failed and its previous state could not be fully restored automatically."
+msgstr ""
+
+#: includes/class-branch-service.php:398
+msgid "The branch could not be updated. Its previous state was restored."
+msgstr ""
+
+#: includes/class-branch-service.php:455
+msgid "The branch baseline could not be updated. Its previous state was restored."
+msgstr ""
+
+#: includes/class-branch-service.php:542
+#: includes/class-branch-service.php:576
+msgid "The branch baseline snapshot could not be stored."
+msgstr ""
+
+#: includes/class-merge-service.php:59
+msgid "You do not have permission to force this merge."
+msgstr ""
+
+#: includes/class-merge-service.php:108
+msgid "The branch or original could not be snapshotted before merging."
+msgstr ""
+
+#: includes/class-merge-service.php:132
+#: includes/class-rest-controller.php:224
+msgid "The review state changed. Review the latest changes before merging."
+msgstr ""
+
+#: includes/class-merge-service.php:147
+msgid "The merge failed and the original could not be fully restored automatically."
+msgstr ""
+
+#: includes/class-merge-service.php:157
+msgid "The merge could not be completed. The original post was restored to its pre-merge state."
+msgstr ""
+
+#: includes/class-merge-service.php:172
+msgid "The merge was applied, the branch could not be moved to Trash, and the original could not be fully restored automatically."
+msgstr ""
+
+#: includes/class-merge-service.php:182
+msgid "The branch could not be moved to Trash, so the original post was restored and the branch remains active."
+msgstr ""
+
+#: includes/class-merge-service.php:210
+msgid "This post is not a branch."
+msgstr ""
+
+#: includes/class-merge-service.php:214
+msgid "You do not have permission to discard this branch."
+msgstr ""
+
+#: includes/class-merge-service.php:219
+msgid "The branch could not be moved to Trash."
+msgstr ""
+
+#: includes/class-merge-service.php:240
+msgid "The branch relationship changed before the merge could be applied."
+msgstr ""
+
+#: includes/class-merge-service.php:245
+msgid "The original post no longer exists."
+msgstr ""
+
+#: includes/class-merge-service.php:248
+msgid "The branch and original no longer use the same post type."
+msgstr ""
+
+#: includes/class-merge-service.php:251
+msgid "You do not have permission to merge this branch."
+msgstr ""
+
+#: includes/class-merge-service.php:270
+msgid "This older branch has no three-way baseline. Review the original before forcing the merge."
+msgstr ""
+
+#: includes/class-merge-service.php:272
+msgid "The original post is unavailable, so this branch cannot be merged."
+msgstr ""
+
+#: includes/class-merge-service.php:274
+msgid "The branch and original contain overlapping changes. Review the detected conflicts before forcing the merge."
+msgstr ""
+
+#: includes/class-sync-service.php:162
+msgid "A post metadata value could not be synchronized."
+msgstr ""
+
+#: includes/class-sync-service.php:172
+msgid "Post metadata synchronization could not be verified."
+msgstr ""
+
+#: includes/class-sync-service.php:258
+msgid "Taxonomy synchronization could not be verified."
+msgstr ""
+
+#: includes/class-sync-service.php:493
+#: includes/class-sync-service.php:520
+msgid "The branch and original contain overlapping changes that require review."
+msgstr ""
+
+#: includes/class-sync-service.php:546
+msgid "The saved branch snapshot is invalid."
+msgstr ""
+
+#: includes/class-sync-service.php:591
+msgid "The merged post state could not be verified."
+msgstr ""
+
+#: build/index.js:1
+#: src/index.js:17
 msgid "WP Branches For Post could not complete the request."
 msgstr ""
 
-msgid "Move this branch to Trash? The public original will not be changed."
+#: build/index.js:1
+#: src/index.js:62
+msgid "Ready"
 msgstr ""
 
-msgid "Edit safely in a separate draft. The published post stays unchanged until you merge the branch."
+#: build/index.js:1
+#: src/index.js:63
+msgid "Ready · original identity changed"
 msgstr ""
 
-msgid "Creating…"
+#: build/index.js:1
+#: src/index.js:67
+msgid "Original updated · safe to refresh branch"
 msgstr ""
 
-msgid "Existing branches"
+#: build/index.js:1
+#: src/index.js:71
+msgid "Needs conflict review"
 msgstr ""
 
-msgid "Branch #%d"
-msgstr ""
-
+#: build/index.js:1
+#: src/index.js:72
 msgid "Original changed"
 msgstr ""
 
-msgid "This draft is isolated from the public original."
+#: build/index.js:1
+#: src/index.js:73
+msgid "Legacy branch"
 msgstr ""
 
-msgid "Open original"
+#: build/index.js:1
+#: src/index.js:74
+msgid "Original unavailable"
 msgstr ""
 
+#: build/index.js:1
+#: build/index.js:3
+#: src/index.js:24
+#: src/index.js:107
+msgid "Title"
+msgstr ""
+
+#: build/index.js:1
+#: build/index.js:3
+#: src/index.js:25
+#: src/index.js:109
+msgid "Content"
+msgstr ""
+
+#: build/index.js:1
+#: build/index.js:3
+#: src/index.js:26
+#: src/index.js:108
+msgid "Excerpt"
+msgstr ""
+
+#: build/index.js:1
+#: src/index.js:27
+msgid "Menu order"
+msgstr ""
+
+#: build/index.js:1
+#: src/index.js:28
+msgid "Comment status"
+msgstr ""
+
+#: build/index.js:1
+#: src/index.js:29
+msgid "Ping status"
+msgstr ""
+
+#: build/index.js:1
+#: src/index.js:30
+msgid "Password"
+msgstr ""
+
+#: build/index.js:1
+#: src/index.js:31
+msgid "Publication status"
+msgstr ""
+
+#: build/index.js:1
+#: src/index.js:35
+msgid "Slug"
+msgstr ""
+
+#: build/index.js:1
+#: src/index.js:36
+msgid "Author"
+msgstr ""
+
+#: build/index.js:1
+#: src/index.js:37
+msgid "Parent"
+msgstr ""
+
+#: build/index.js:1
+#: src/index.js:38
+msgid "Post type"
+msgstr ""
+
+#. translators: %s: post meta key.
+#: build/index.js:2
+#: src/index.js:46
+#, js-format
+msgid "Metadata: %s"
+msgstr ""
+
+#. translators: %s: taxonomy slug.
+#: build/index.js:3
+#: src/index.js:53
+#, js-format
+msgid "Taxonomy: %s"
+msgstr ""
+
+#: build/index.js:3
+#: src/index.js:118
+msgid "Three-way comparison"
+msgstr ""
+
+#: build/index.js:3
+#: src/index.js:128
+msgid "Base"
+msgstr ""
+
+#: build/index.js:3
+#: src/index.js:137
+msgid "Original now"
+msgstr ""
+
+#: build/index.js:3
+#: src/index.js:147
+msgid "Branch now"
+msgstr ""
+
+#: build/index.js:3
+#: src/index.js:209
+msgid "Save or discard the current edits to the original before creating a branch. This prevents unpublished editor changes from being mistaken for the branch baseline."
+msgstr ""
+
+#: build/index.js:3
+#: src/index.js:287
+msgid "The review state changed after saving. Review the latest conflicts before merging."
+msgstr ""
+
+#. translators: %d: branch post ID.
+#: build/index.js:4
+#: src/index.js:341
+#, js-format
+msgid "Branch #%d"
+msgstr ""
+
+#. translators: %s: branch creator display name.
+#: build/index.js:5
+#: build/index.js:7
+#: src/index.js:359
+#: src/index.js:610
+#, js-format
 msgid "Created by %s"
 msgstr ""
 
-msgid "This is a legacy branch with no baseline snapshot. Review the original before merging."
+#. translators: 1: number of branch changes, 2: number of conflicts.
+#: build/index.js:6
+#: src/index.js:368
+#, js-format
+msgid "%1$d branch changes · %2$d conflicts"
 msgstr ""
 
-msgid "The original changed after this branch was created. A normal merge is blocked to prevent overwriting newer work."
+#: build/index.js:6
+#: src/index.js:384
+msgid "Edit safely in a separate draft. The published post stays unchanged until you merge the branch."
 msgstr ""
 
-msgid "Merging…"
+#: build/index.js:6
+#: src/index.js:393
+msgid "This original has unsaved editor changes. Save or discard them before creating a branch so the baseline matches the saved public post."
 msgstr ""
 
+#: build/index.js:6
+#: src/index.js:407
+msgid "Creating…"
+msgstr ""
+
+#: build/index.js:6
+#: src/index.js:417
+msgid "Existing branches"
+msgstr ""
+
+#: build/index.js:6
+#: src/index.js:441
+msgid "Merge review"
+msgstr ""
+
+#: build/index.js:6
+#: src/index.js:447
+msgid "This branch predates three-way snapshots, so detailed change comparison is unavailable. Force merge only after manually reviewing the original."
+msgstr ""
+
+#: build/index.js:6
+#: src/index.js:453
+msgid "Branch changes"
+msgstr ""
+
+#: build/index.js:6
+#: src/index.js:457
+msgid "Original changes since branch creation"
+msgstr ""
+
+#: build/index.js:6
+#: src/index.js:464
+msgid "Conflicts"
+msgstr ""
+
+#: build/index.js:6
+#: src/index.js:469
+msgid "Original identity changes preserved by merge"
+msgstr ""
+
+#: build/index.js:6
+#: src/index.js:481
+msgid "No mergeable branch changes are currently detected."
+msgstr ""
+
+#: build/index.js:6
+#: src/index.js:500
+#: src/index.js:522
+msgid "Saving and merging…"
+msgstr ""
+
+#: build/index.js:6
+#: src/index.js:504
+msgid "Save & merge into original"
+msgstr ""
+
+#: build/index.js:6
+#: src/index.js:526
+msgid "Force merge reviewed conflicts"
+msgstr ""
+
+#: build/index.js:6
+#: src/index.js:539
+msgid "The original has newer, non-conflicting changes. You can update this branch first, or review and merge while preserving those original changes."
+msgstr ""
+
+#: build/index.js:6
+#: src/index.js:548
+msgid "The original identity changed (for example status, slug, author, or parent). Those changes are preserved and are not overwritten by this branch."
+msgstr ""
+
+#: build/index.js:6
+#: src/index.js:557
+msgid "The branch and original changed the same data differently. Review the conflicts before deciding whether to force merge."
+msgstr ""
+
+#: build/index.js:6
+#: src/index.js:566
+msgid "This older branch cannot provide a precise three-way comparison. Review the original manually before forcing a merge."
+msgstr ""
+
+#: build/index.js:6
+#: src/index.js:588
+msgid "This draft is isolated from the public original."
+msgstr ""
+
+#: build/index.js:6
+#: src/index.js:600
+msgid "Open original"
+msgstr ""
+
+#. translators: %d: number of synced patterns referenced by the branch.
+#: build/index.js:8
+#: src/index.js:625
+#, js-format
+msgid "This branch references %d synced pattern(s). Editing a synced pattern is global in WordPress and is not isolated by the branch."
+msgstr ""
+
+#: build/index.js:8
+#: src/index.js:644
+msgid "Preview branch"
+msgstr ""
+
+#: build/index.js:8
+#: src/index.js:654
+msgid "View original"
+msgstr ""
+
+#: build/index.js:8
+#: src/index.js:666
+msgid "Updating…"
+msgstr ""
+
+#: build/index.js:8
+#: src/index.js:667
+msgid "Update branch from original"
+msgstr ""
+
+#: build/index.js:8
+#: src/index.js:683
+msgid "Hide merge review"
+msgstr ""
+
+#: build/index.js:8
+#: src/index.js:695
 msgid "Discard branch"
+msgstr ""
+
+#: build/index.js:8
+#: src/index.js:709
+msgid "Force merge conflicts?"
+msgstr ""
+
+#: build/index.js:8
+#: src/index.js:710
+msgid "Discard this branch?"
+msgstr ""
+
+#: build/index.js:8
+#: src/index.js:717
+msgid "Force merge will prefer branch values for the listed conflicts. Non-conflicting newer work on the original is still preserved."
+msgstr ""
+
+#: build/index.js:8
+#: src/index.js:721
+msgid "The branch will be moved to Trash. The public original will not be changed."
+msgstr ""
+
+#: build/index.js:8
+#: src/index.js:735
+msgid "Cancel"
+msgstr ""
+
+#: build/index.js:8
+#: src/index.js:753
+msgid "Force merge"
+msgstr ""
+
+#: build/index.js:8
+#: src/index.js:754
+msgid "Move to Trash"
 msgstr ""

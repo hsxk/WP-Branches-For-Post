@@ -2,129 +2,586 @@
 # This file is distributed under the same license as the WP Branches For Post plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: WP Branches For Post 2.0.0\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-branches-for-post/\n"
+"Project-Id-Version: WP Branches For Post 2.1.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-branches-for-"
+"post\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: 2026-09-23 03:00+0900\n"
+"Last-Translator: WP Branches For Post maintainers\n"
+"Language-Team: Chinese (Traditional)\n"
 "Language: zh_TW\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2026-09-19 16:23+0900\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: WP Branches For Post 2.0 maintenance\n"
+"X-Generator: WP Branches For Post 2.1 maintenance\n"
 "X-Domain: wp-branches-for-post\n"
 
-#. Plugin Name of the plugin.
+#. Plugin Name of the plugin
+#: post-branch.php
 msgid "WP Branches For Post"
 msgstr "WP Branches For Post"
 
-#. Description of the plugin.
-msgid "Create safe working branches for published WordPress content and merge them back without changing the public post while editing."
-msgstr "為已發佈的 WordPress 內容建立安全的工作分支，在編輯期間保持公開文章不變，完成後再將變更合併回原始文章。"
+#. Plugin URI of the plugin
+#: post-branch.php
+msgid "https://github.com/hsxk/WP-Branches-For-Post/"
+msgstr "https://github.com/hsxk/WP-Branches-For-Post/"
 
-msgid "You cannot create a branch for this post."
-msgstr "無法為這篇文章建立分支。"
+#. Description of the plugin
+#: post-branch.php
+msgid ""
+"Create safe working branches for published WordPress content and merge them "
+"back without changing the public post while editing."
+msgstr ""
+"為已發佈的 WordPress 內容建立安全的工作分支，在編輯期間保持公開文章不變，完成"
+"後再將變更合併回原始文章。"
 
-msgid "The original post does not exist."
-msgstr "原始文章不存在。"
+#. Author of the plugin
+#: post-branch.php
+msgid "Hao Kexin"
+msgstr "Hao Kexin"
 
-msgid "The original post could not be snapshotted."
-msgstr "無法為原始文章建立基準快照。"
+#. Author URI of the plugin
+#: post-branch.php
+msgid "https://time2log.com/about/"
+msgstr "https://time2log.com/about/"
 
-msgid "The original changed while the branch was being created. Please try again so the branch starts from a consistent version."
-msgstr "建立分支期間原始文章發生了變更。請重試，以確保分支從一致的版本開始。"
+#: includes/class-admin.php:92 build/index.js:8 src/index.js:684
+msgid "Review changes"
+msgstr "檢查變更"
 
-msgid "This post is not a branch."
-msgstr "這篇文章不是分支。"
-
-msgid "The original post no longer exists."
-msgstr "原始文章已不存在。"
-
-msgid "You do not have permission to merge this branch."
-msgstr "你沒有權限合併這個分支。"
-
-msgid "This legacy branch has no baseline snapshot. Review the original before forcing the merge."
-msgstr "這個舊版分支沒有基準快照。強制合併前請先檢查原始文章。"
-
-msgid "The original post changed after this branch was created. Review the changes before forcing the merge."
-msgstr "建立此分支後，原始文章已經發生變更。強制合併前請先檢查這些變更。"
-
-msgid "The original post changed before the merge could be applied. Review the latest version and try again."
-msgstr "套用合併前原始文章發生了變更。請檢查最新版本後再試一次。"
-
-msgid "You do not have permission to discard this branch."
-msgstr "你沒有權限捨棄這個分支。"
-
-msgid "The branch could not be moved to Trash."
-msgstr "無法將該分支移至回收桶。"
-
+#: includes/class-admin.php:98
 msgid "Merge branch"
 msgstr "合併分支"
 
+#: includes/class-admin.php:109 includes/class-admin.php:190 build/index.js:6
+#: src/index.js:408
 msgid "Create branch"
 msgstr "建立分支"
 
+#. translators: %d: original post ID.
+#: includes/class-admin.php:126
+#, php-format
 msgid "Branch of #%d"
 msgstr "#%d 的分支"
 
+#: includes/class-admin.php:153 includes/class-admin.php:175
+#: includes/class-admin.php:188 build/index.js:8 src/index.js:763
 msgid "Post Branch"
 msgstr "文章分支"
 
+#: includes/class-admin.php:154 build/index.js:6 src/index.js:575
+msgid "The original post is unavailable. This branch cannot be merged."
+msgstr "原始文章無法使用，無法合併此分支。"
+
+#: includes/class-admin.php:166 includes/class-admin.php:265
+msgid ""
+"The original changed after this branch was created. This action will force "
+"the merge and prefer branch values where changes overlap. Continue only "
+"after reviewing both versions."
+msgstr ""
+"建立此分支後原始文章已發生變更。此操作將強制合併，並在重疊變更處優先採用分支"
+"值。請檢查兩個版本後再繼續。"
+
+#: includes/class-admin.php:178
 msgid "Force merge after review"
 msgstr "檢查後強制合併"
 
+#: includes/class-admin.php:178
 msgid "Merge into original"
 msgstr "合併到原始文章"
 
+#: includes/class-admin.php:223
 msgid "Create Branch"
 msgstr "建立分支"
 
-msgid "This is a working branch of post #%1$d. The public original stays unchanged until you explicitly merge this branch. <a href=\"%2$s\">Open original</a>."
-msgstr "這是文章 #%1$d 的工作分支。在你明確合併此分支之前，公開的原始文章不會發生變更。<a href=\"%2$s\">開啟原始文章</a>。"
+#. translators: 1: original post ID, 2: edit URL for the original post.
+#: includes/class-admin.php:255
+#, php-format
+msgid ""
+"This is a working branch of post #%1$d. The public original stays unchanged "
+"until you explicitly merge this branch. <a href=\"%2$s\">Open original</a>."
+msgstr ""
+"這是文章 #%1$d 的工作分支。在你明確合併此分支之前，公開的原始文章不會發生變"
+"更。<a href=\"%2$s\">開啟原始文章</a>。"
 
-msgid "The original changed after this branch was created. Review both versions and use the block editor panel to force the merge only if appropriate."
-msgstr "建立此分支後原始文章已經發生變更。請檢查兩個版本，僅在確認適合時透過區塊編輯器面板執行強制合併。"
-
+#: includes/class-admin.php:267
 msgid "WP Branches For Post could not complete the requested operation."
 msgstr "WP Branches For Post 無法完成要求的操作。"
 
+#: includes/class-branch-service.php:104
+msgid "You cannot create a branch for this post."
+msgstr "無法為這篇文章建立分支。"
+
+#: includes/class-branch-service.php:113
+msgid "The original post does not exist."
+msgstr "原始文章不存在。"
+
+#: includes/class-branch-service.php:123
+msgid "The original post could not be snapshotted."
+msgstr "無法為原始文章建立基準快照。"
+
+#: includes/class-branch-service.php:169
+msgid ""
+"The original changed while the branch was being created. Please try again so "
+"the branch starts from a consistent version."
+msgstr "建立分支期間原始文章發生了變更。請重試，以確保分支從一致的版本開始。"
+
+#: includes/class-branch-service.php:181
+msgid "The branch relationship metadata could not be stored."
+msgstr "無法儲存分支關聯中繼資料。"
+
+#: includes/class-branch-service.php:326 includes/class-merge-service.php:235
+msgid "This post is not an active branch."
+msgstr "這篇文章不是作用中的分支。"
+
+#: includes/class-branch-service.php:332
+msgid "The original post is unavailable."
+msgstr "原始文章無法使用。"
+
+#: includes/class-branch-service.php:336
+msgid "You do not have permission to update this branch."
+msgstr "你沒有權限更新這個分支。"
+
+#: includes/class-branch-service.php:341
+msgid "This older branch cannot be automatically updated from the original."
+msgstr "無法自動從原始文章更新這個舊版分支。"
+
+#: includes/class-branch-service.php:356
+msgid ""
+"The branch could not be snapshotted before updating it from the original."
+msgstr "從原始文章更新分支前，無法為分支建立快照。"
+
+#: includes/class-branch-service.php:376 includes/class-branch-service.php:431
+msgid ""
+"The branch or original changed while the branch was being updated. Review "
+"the latest changes and try again."
+msgstr "更新分支期間，分支或原始文章發生了變更。請檢查最新變更後再試一次。"
+
+#: includes/class-branch-service.php:387 includes/class-branch-service.php:420
+#: includes/class-branch-service.php:443
+msgid ""
+"Updating the branch failed and its previous state could not be fully "
+"restored automatically."
+msgstr "更新分支失敗，且無法自動完整還原先前狀態。"
+
+#: includes/class-branch-service.php:398
+msgid "The branch could not be updated. Its previous state was restored."
+msgstr "無法更新分支，已還原到更新前的狀態。"
+
+#: includes/class-branch-service.php:455
+msgid ""
+"The branch baseline could not be updated. Its previous state was restored."
+msgstr "無法更新分支基準資訊。已還原先前狀態。"
+
+#: includes/class-branch-service.php:542 includes/class-branch-service.php:576
+msgid "The branch baseline snapshot could not be stored."
+msgstr "無法儲存分支基準快照。"
+
+#: includes/class-merge-service.php:59
+msgid "You do not have permission to force this merge."
+msgstr "你沒有權限強制執行此次合併。"
+
+#: includes/class-merge-service.php:108
+msgid "The branch or original could not be snapshotted before merging."
+msgstr "合併前無法為分支或原始文章建立快照。"
+
+#: includes/class-merge-service.php:132 includes/class-rest-controller.php:224
+msgid "The review state changed. Review the latest changes before merging."
+msgstr "檢查狀態已發生變更。合併前請重新檢查最新變更。"
+
+#: includes/class-merge-service.php:147
+msgid ""
+"The merge failed and the original could not be fully restored automatically."
+msgstr "合併失敗，且無法自動完整還原原始文章。"
+
+#: includes/class-merge-service.php:157
+msgid ""
+"The merge could not be completed. The original post was restored to its pre-"
+"merge state."
+msgstr "無法完成合併，原始文章已還原到合併前的狀態。"
+
+#: includes/class-merge-service.php:172
+msgid ""
+"The merge was applied, the branch could not be moved to Trash, and the "
+"original could not be fully restored automatically."
+msgstr "合併已套用，但無法將分支移至回收桶，且無法自動完整還原原始文章。"
+
+#: includes/class-merge-service.php:182
+msgid ""
+"The branch could not be moved to Trash, so the original post was restored "
+"and the branch remains active."
+msgstr "無法將分支移至回收桶，因此已還原原始文章，分支仍保持有效。"
+
+#: includes/class-merge-service.php:210
+msgid "This post is not a branch."
+msgstr "這篇文章不是分支。"
+
+#: includes/class-merge-service.php:214
+msgid "You do not have permission to discard this branch."
+msgstr "你沒有權限捨棄這個分支。"
+
+#: includes/class-merge-service.php:219
+msgid "The branch could not be moved to Trash."
+msgstr "無法將該分支移至回收桶。"
+
+#: includes/class-merge-service.php:240
+msgid "The branch relationship changed before the merge could be applied."
+msgstr "套用合併前，分支關聯已發生變更。"
+
+#: includes/class-merge-service.php:245
+msgid "The original post no longer exists."
+msgstr "原始文章已不存在。"
+
+#: includes/class-merge-service.php:248
+msgid "The branch and original no longer use the same post type."
+msgstr "分支與原始文章已不再使用相同的內容類型。"
+
+#: includes/class-merge-service.php:251
+msgid "You do not have permission to merge this branch."
+msgstr "你沒有權限合併這個分支。"
+
+#: includes/class-merge-service.php:270
+msgid ""
+"This older branch has no three-way baseline. Review the original before "
+"forcing the merge."
+msgstr "這個舊版分支沒有三方比較基準。強制合併前請檢查原始文章。"
+
+#: includes/class-merge-service.php:272
+msgid "The original post is unavailable, so this branch cannot be merged."
+msgstr "原始文章無法使用，因此無法合併此分支。"
+
+#: includes/class-merge-service.php:274
+msgid ""
+"The branch and original contain overlapping changes. Review the detected "
+"conflicts before forcing the merge."
+msgstr "分支與原始文章包含重疊變更。強制合併前請檢查偵測到的衝突。"
+
+#: includes/class-sync-service.php:162
+msgid "A post metadata value could not be synchronized."
+msgstr "無法同步某個文章中繼資料值。"
+
+#: includes/class-sync-service.php:172
+msgid "Post metadata synchronization could not be verified."
+msgstr "無法驗證文章中繼資料同步結果。"
+
+#: includes/class-sync-service.php:258
+msgid "Taxonomy synchronization could not be verified."
+msgstr "無法驗證分類法同步結果。"
+
+#: includes/class-sync-service.php:493 includes/class-sync-service.php:520
+msgid ""
+"The branch and original contain overlapping changes that require review."
+msgstr "分支與原始文章包含重疊變更，需要檢查。"
+
+#: includes/class-sync-service.php:546
+msgid "The saved branch snapshot is invalid."
+msgstr "儲存的分支快照無效。"
+
+#: includes/class-sync-service.php:591
+msgid "The merged post state could not be verified."
+msgstr "無法驗證合併後的文章狀態。"
+
+#: build/index.js:1 src/index.js:17
 msgid "WP Branches For Post could not complete the request."
 msgstr "WP Branches For Post 無法完成要求。"
 
-msgid "Move this branch to Trash? The public original will not be changed."
-msgstr "要將這個分支移至回收桶嗎？公開的原始文章不會發生變更。"
+#: build/index.js:1 src/index.js:62
+msgid "Ready"
+msgstr "可合併"
 
-msgid "Edit safely in a separate draft. The published post stays unchanged until you merge the branch."
-msgstr "可在獨立草稿中安全編輯；在合併分支之前，已發佈的文章不會發生變更。"
+#: build/index.js:1 src/index.js:63
+msgid "Ready · original identity changed"
+msgstr "可合併 · 原始文章識別已變更"
 
-msgid "Creating…"
-msgstr "正在建立…"
+#: build/index.js:1 src/index.js:67
+msgid "Original updated · safe to refresh branch"
+msgstr "原始文章已更新 · 可安全重新整理分支"
 
-msgid "Existing branches"
-msgstr "現有分支"
+#: build/index.js:1 src/index.js:71
+msgid "Needs conflict review"
+msgstr "需要檢查衝突"
 
-msgid "Branch #%d"
-msgstr "分支 #%d"
-
+#: build/index.js:1 src/index.js:72
 msgid "Original changed"
 msgstr "原始文章已變更"
 
-msgid "This draft is isolated from the public original."
-msgstr "此草稿與公開的原始文章相互獨立。"
+#: build/index.js:1 src/index.js:73
+msgid "Legacy branch"
+msgstr "舊版分支"
 
-msgid "Open original"
-msgstr "開啟原始文章"
+#: build/index.js:1 src/index.js:74
+msgid "Original unavailable"
+msgstr "原始文章無法使用"
 
+#: build/index.js:1 build/index.js:3 src/index.js:24 src/index.js:107
+msgid "Title"
+msgstr "標題"
+
+#: build/index.js:1 build/index.js:3 src/index.js:25 src/index.js:109
+msgid "Content"
+msgstr "內容"
+
+#: build/index.js:1 build/index.js:3 src/index.js:26 src/index.js:108
+msgid "Excerpt"
+msgstr "摘要"
+
+#: build/index.js:1 src/index.js:27
+msgid "Menu order"
+msgstr "選單順序"
+
+#: build/index.js:1 src/index.js:28
+msgid "Comment status"
+msgstr "留言狀態"
+
+#: build/index.js:1 src/index.js:29
+msgid "Ping status"
+msgstr "Ping 狀態"
+
+#: build/index.js:1 src/index.js:30
+msgid "Password"
+msgstr "密碼"
+
+#: build/index.js:1 src/index.js:31
+msgid "Publication status"
+msgstr "發佈狀態"
+
+#: build/index.js:1 src/index.js:35
+msgid "Slug"
+msgstr "代稱"
+
+#: build/index.js:1 src/index.js:36
+msgid "Author"
+msgstr "作者"
+
+#: build/index.js:1 src/index.js:37
+msgid "Parent"
+msgstr "上層"
+
+#: build/index.js:1 src/index.js:38
+msgid "Post type"
+msgstr "內容類型"
+
+#. translators: %s: post meta key.
+#: build/index.js:2 src/index.js:46
+msgid "Metadata: %s"
+msgstr "中繼資料：%s"
+
+#. translators: %s: taxonomy slug.
+#: build/index.js:3 src/index.js:53
+msgid "Taxonomy: %s"
+msgstr "分類法：%s"
+
+#: build/index.js:3 src/index.js:118
+msgid "Three-way comparison"
+msgstr "三方比較"
+
+#: build/index.js:3 src/index.js:128
+msgid "Base"
+msgstr "基準版本"
+
+#: build/index.js:3 src/index.js:137
+msgid "Original now"
+msgstr "原始文章目前值"
+
+#: build/index.js:3 src/index.js:147
+msgid "Branch now"
+msgstr "分支目前值"
+
+#: build/index.js:3 src/index.js:209
+msgid ""
+"Save or discard the current edits to the original before creating a branch. "
+"This prevents unpublished editor changes from being mistaken for the branch "
+"baseline."
+msgstr ""
+"建立分支前，請先儲存或捨棄原始文章目前未儲存的編輯，避免把未發佈的編輯誤認為"
+"分支基準。"
+
+#: build/index.js:3 src/index.js:287
+msgid ""
+"The review state changed after saving. Review the latest conflicts before "
+"merging."
+msgstr "儲存後檢查狀態發生變更。合併前請檢查最新衝突。"
+
+#. translators: %d: branch post ID.
+#: build/index.js:4 src/index.js:341
+msgid "Branch #%d"
+msgstr "分支 #%d"
+
+#. translators: %s: branch creator display name.
+#: build/index.js:5 build/index.js:7 src/index.js:359 src/index.js:610
 msgid "Created by %s"
 msgstr "建立者：%s"
 
-msgid "This is a legacy branch with no baseline snapshot. Review the original before merging."
-msgstr "這是一個沒有基準快照的舊版分支。合併前請先檢查原始文章。"
+#. translators: 1: number of branch changes, 2: number of conflicts.
+#: build/index.js:6 src/index.js:368
+msgid "%1$d branch changes · %2$d conflicts"
+msgstr "%1$d 項分支變更 · %2$d 項衝突"
 
-msgid "The original changed after this branch was created. A normal merge is blocked to prevent overwriting newer work."
-msgstr "建立此分支後原始文章已經發生變更。為避免覆寫較新的內容，一般合併已被阻止。"
+#: build/index.js:6 src/index.js:384
+msgid ""
+"Edit safely in a separate draft. The published post stays unchanged until "
+"you merge the branch."
+msgstr "可在獨立草稿中安全編輯；在合併分支之前，已發佈的文章不會發生變更。"
 
-msgid "Merging…"
-msgstr "正在合併…"
+#: build/index.js:6 src/index.js:393
+msgid ""
+"This original has unsaved editor changes. Save or discard them before "
+"creating a branch so the baseline matches the saved public post."
+msgstr ""
+"原始文章存在未儲存的編輯。建立分支前請儲存或捨棄這些變更，使基準與已儲存的公"
+"開文章一致。"
 
+#: build/index.js:6 src/index.js:407
+msgid "Creating…"
+msgstr "正在建立…"
+
+#: build/index.js:6 src/index.js:417
+msgid "Existing branches"
+msgstr "現有分支"
+
+#: build/index.js:6 src/index.js:441
+msgid "Merge review"
+msgstr "合併檢查"
+
+#: build/index.js:6 src/index.js:447
+msgid ""
+"This branch predates three-way snapshots, so detailed change comparison is "
+"unavailable. Force merge only after manually reviewing the original."
+msgstr ""
+"此分支建立於三方快照功能之前，因此無法提供詳細變更比較。請手動檢查原始文章後"
+"再強制合併。"
+
+#: build/index.js:6 src/index.js:453
+msgid "Branch changes"
+msgstr "分支變更"
+
+#: build/index.js:6 src/index.js:457
+msgid "Original changes since branch creation"
+msgstr "建立分支後原始文章的變更"
+
+#: build/index.js:6 src/index.js:464
+msgid "Conflicts"
+msgstr "衝突"
+
+#: build/index.js:6 src/index.js:469
+msgid "Original identity changes preserved by merge"
+msgstr "合併時保留的原始文章識別變更"
+
+#: build/index.js:6 src/index.js:481
+msgid "No mergeable branch changes are currently detected."
+msgstr "目前未偵測到可合併的分支變更。"
+
+#: build/index.js:6 src/index.js:500 src/index.js:522
+msgid "Saving and merging…"
+msgstr "正在儲存並合併…"
+
+#: build/index.js:6 src/index.js:504
+msgid "Save & merge into original"
+msgstr "儲存並合併到原始文章"
+
+#: build/index.js:6 src/index.js:526
+msgid "Force merge reviewed conflicts"
+msgstr "強制合併已檢查的衝突"
+
+#: build/index.js:6 src/index.js:539
+msgid ""
+"The original has newer, non-conflicting changes. You can update this branch "
+"first, or review and merge while preserving those original changes."
+msgstr ""
+"原始文章有較新的非衝突變更。你可以先用原始文章更新分支，也可以檢查後直接合併"
+"並保留這些原始變更。"
+
+#: build/index.js:6 src/index.js:548
+msgid ""
+"The original identity changed (for example status, slug, author, or parent). "
+"Those changes are preserved and are not overwritten by this branch."
+msgstr ""
+"原始文章的識別資訊發生變更（例如狀態、代稱、作者或上層）。這些變更會保留，不"
+"會被此分支覆寫。"
+
+#: build/index.js:6 src/index.js:557
+msgid ""
+"The branch and original changed the same data differently. Review the "
+"conflicts before deciding whether to force merge."
+msgstr ""
+"分支和原始文章對同一資料做了不同修改。請先檢查衝突，再決定是否強制合併。"
+
+#: build/index.js:6 src/index.js:566
+msgid ""
+"This older branch cannot provide a precise three-way comparison. Review the "
+"original manually before forcing a merge."
+msgstr "這個舊版分支無法提供精確的三方比較。強制合併前請手動檢查原始文章。"
+
+#: build/index.js:6 src/index.js:588
+msgid "This draft is isolated from the public original."
+msgstr "此草稿與公開的原始文章相互獨立。"
+
+#: build/index.js:6 src/index.js:600
+msgid "Open original"
+msgstr "開啟原始文章"
+
+#. translators: %d: number of synced patterns referenced by the branch.
+#: build/index.js:8 src/index.js:625
+msgid ""
+"This branch references %d synced pattern(s). Editing a synced pattern is "
+"global in WordPress and is not isolated by the branch."
+msgstr ""
+"此分支引用了 %d 個同步區塊版面配置。編輯同步版面配置會全域影響 WordPress，並"
+"不會被分支隔離。"
+
+#: build/index.js:8 src/index.js:644
+msgid "Preview branch"
+msgstr "預覽分支"
+
+#: build/index.js:8 src/index.js:654
+msgid "View original"
+msgstr "檢視原始文章"
+
+#: build/index.js:8 src/index.js:666
+msgid "Updating…"
+msgstr "正在更新…"
+
+#: build/index.js:8 src/index.js:667
+msgid "Update branch from original"
+msgstr "從原始文章更新分支"
+
+#: build/index.js:8 src/index.js:683
+msgid "Hide merge review"
+msgstr "隱藏合併檢查"
+
+#: build/index.js:8 src/index.js:695
 msgid "Discard branch"
 msgstr "捨棄分支"
+
+#: build/index.js:8 src/index.js:709
+msgid "Force merge conflicts?"
+msgstr "強制合併衝突嗎？"
+
+#: build/index.js:8 src/index.js:710
+msgid "Discard this branch?"
+msgstr "捨棄這個分支嗎？"
+
+#: build/index.js:8 src/index.js:717
+msgid ""
+"Force merge will prefer branch values for the listed conflicts. Non-"
+"conflicting newer work on the original is still preserved."
+msgstr ""
+"強制合併會對列出的衝突優先採用分支值；原始文章中不衝突的較新變更仍會保留。"
+
+#: build/index.js:8 src/index.js:721
+msgid ""
+"The branch will be moved to Trash. The public original will not be changed."
+msgstr "分支將移至回收桶，公開的原始文章不會變更。"
+
+#: build/index.js:8 src/index.js:735
+msgid "Cancel"
+msgstr "取消"
+
+#: build/index.js:8 src/index.js:753
+msgid "Force merge"
+msgstr "強制合併"
+
+#: build/index.js:8 src/index.js:754
+msgid "Move to Trash"
+msgstr "移至回收桶"
