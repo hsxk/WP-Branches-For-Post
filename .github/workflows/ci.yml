@@ -92,9 +92,35 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          pot_date="$(sed -n 's/^"POT-Creation-Date: \(.*\)\\\\n"$/\1/p' languages/wp-branches-for-post.pot | head -n1)"
+          bugs_url="$(sed -n 's/^"Report-Msgid-Bugs-To: \(.*\)\\\\n"$/\1/p' languages/wp-branches-for-post.pot | head -n1)"
+          test -n "$pot_date"
+          test -n "$bugs_url"
           wp i18n make-pot "$GITHUB_WORKSPACE" languages/wp-branches-for-post.pot \
             --domain=wp-branches-for-post \
             --exclude=.git,node_modules,vendor,.github,.wordpress-org,tests,tools,dist,docs
+          python3 - "$pot_date" "$bugs_url" <<'PY'
+          import pathlib
+          import re
+          import sys
+
+          path = pathlib.Path("languages/wp-branches-for-post.pot")
+          text = path.read_text(encoding="utf-8")
+          pot_date, bugs_url = sys.argv[1], sys.argv[2]
+          text = re.sub(
+              r'"POT-Creation-Date: .*?\\n"',
+              f'"POT-Creation-Date: {pot_date}\\\\n"',
+              text,
+              count=1,
+          )
+          text = re.sub(
+              r'"Report-Msgid-Bugs-To: .*?\\n"',
+              f'"Report-Msgid-Bugs-To: {bugs_url}\\\\n"',
+              text,
+              count=1,
+          )
+          path.write_text(text, encoding="utf-8")
+          PY
           for locale in ja zh_CN zh_TW; do
             po="languages/wp-branches-for-post-${locale}.po"
             mo="languages/wp-branches-for-post-${locale}.mo"
