@@ -88,44 +88,41 @@ jobs:
           curl -fsSL -o /tmp/wp-cli.phar https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
           chmod +x /tmp/wp-cli.phar
           sudo mv /tmp/wp-cli.phar /usr/local/bin/wp
-      - name: Rebuild translations
+      - name: Rebuild translations deterministically
         shell: bash
         run: |
           set -euo pipefail
-          pot_date="$(sed -n 's/^"POT-Creation-Date: \(.*\)\\\\n"$/\1/p' languages/wp-branches-for-post.pot | head -n1)"
-          bugs_url="$(sed -n 's/^"Report-Msgid-Bugs-To: \(.*\)\\\\n"$/\1/p' languages/wp-branches-for-post.pot | head -n1)"
-          # An empty POT-Creation-Date is intentional: it keeps the committed POT deterministic.
-          test -n "$bugs_url"
           wp i18n make-pot "$GITHUB_WORKSPACE" languages/wp-branches-for-post.pot \
             --domain=wp-branches-for-post \
+            --headers='{"Report-Msgid-Bugs-To":"https://wordpress.org/support/plugin/wp-branches-for-post"}' \
             --exclude=.git,node_modules,vendor,.github,.wordpress-org,tests,tools,dist,docs
-          python3 - "$pot_date" "$bugs_url" <<'PY'
-          import pathlib
-          import re
-          import sys
-
-          path = pathlib.Path("languages/wp-branches-for-post.pot")
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path("languages/wp-branches-for-post.pot")
           text = path.read_text(encoding="utf-8")
-          pot_date, bugs_url = sys.argv[1], sys.argv[2]
-          text = re.sub(
-              r'"POT-Creation-Date: .*?\\n"',
-              f'"POT-Creation-Date: {pot_date}\\\\n"',
-              text,
-              count=1,
-          )
-          text = re.sub(
-              r'"Report-Msgid-Bugs-To: .*?\\n"',
-              f'"Report-Msgid-Bugs-To: {bugs_url}\\\\n"',
-              text,
-              count=1,
-          )
-          path.write_text(text, encoding="utf-8")
+          lines = []
+          for line in text.splitlines():
+              if line.startswith('"POT-Creation-Date:'):
+                  line = '"POT-Creation-Date: \\n"'
+              lines.append(line)
+          path.write_text("\n".join(lines) + "\n", encoding="utf-8")
           PY
           for locale in ja zh_CN zh_TW; do
             po="languages/wp-branches-for-post-${locale}.po"
             mo="languages/wp-branches-for-post-${locale}.mo"
             msgmerge --update --backup=none "$po" languages/wp-branches-for-post.pot
             msgattrib --no-obsolete "$po" -o "$po"
+            python3 - "$po" <<'PY'
+          from pathlib import Path
+          import sys
+          path = Path(sys.argv[1])
+          text = path.read_text(encoding="utf-8")
+          text = text.replace(
+              '"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-branch\\n"',
+              '"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-branches-for-post\\n"',
+          )
+          path.write_text(text, encoding="utf-8")
+          PY
             msgfmt --check --check-format "$po" -o "$mo"
           done
           node tools/build-editor-translations.js
