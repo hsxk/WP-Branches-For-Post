@@ -139,7 +139,6 @@ Human-readable source code and build tooling are maintained at https://github.co
 * Improved Plugin Check and PHPCS coverage and aligned the release build tree.
 * Moved WordPress.org artwork into the standard .wordpress-org directory and added tag-driven SVN deployment.
 * Added additional real-WordPress security verification coverage.
-* Thanks to @miyanialkesh7 for contributions through PRs #2–#6, covering security verification, Plugin Check/PHPCS, i18n, and WordPress.org release tooling.
 
 = 2.0.0 =
 * Rebuilt the branch workflow for modern WordPress.

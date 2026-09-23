@@ -1,3 +1,316 @@
-(()=>{"use strict";const e={n:n=>{const r=n&&n.__esModule?()=>n.default:()=>n;return e.d(r,{a:r}),r},d:(n,r)=>{for(var t in r)e.o(r,t)&&!e.o(n,t)&&Object.defineProperty(n,t,{enumerable:!0,get:r[t]})},o:(e,n)=>Object.hasOwn(e,n)},n=window.wp.apiFetch;var r=e.n(n);const t=window.wp.components,s=window.wp.data,a=window.wp.editor,i=window.wp.element,o=window.wp.i18n,c=window.wp.plugins,h=window.ReactJSXRuntime,l=e=>e?.message||(0,o.__)("WP Branches For Post could not complete the request.","wp-branches-for-post");(0,c.registerPlugin)("wp-branches-for-post",{render:function(){const e=(0,s.useSelect)(e=>e("core/editor").getCurrentPostId(),[]),[n,c]=(0,i.useState)(null),[p,d]=(0,i.useState)(!1),[w,b]=(0,i.useState)("");(0,i.useEffect)(()=>{if(!e)return;let n=!0;return r()({path:`/wbfp/v1/posts/${e}/status`}).then(e=>n&&c(e)).catch(e=>n&&b(l(e))),()=>{n=!1}},[e]);const f=async(n=!1)=>{d(!0),b("");try{const t=await r()({path:`/wbfp/v1/branches/${e}/merge`,method:"POST",data:{force:n}});window.location.assign(t.edit_url)}catch(e){b(l(e)),d(!1)}},_=async()=>{if(window.confirm((0,o.__)("Move this branch to Trash? The public original will not be changed.","wp-branches-for-post"))){d(!0),b("");try{const n=await r()({path:`/wbfp/v1/branches/${e}`,method:"DELETE"});window.location.assign(n.edit_url||"edit.php")}catch(e){b(l(e)),d(!1)}}};let g=(0,h.jsx)(t.Spinner,{});if("original"===n?.type)g=(0,h.jsxs)(h.Fragment,{children:[(0,h.jsx)("p",{children:(0,o.__)("Edit safely in a separate draft. The published post stays unchanged until you merge the branch.","wp-branches-for-post")}),n.can_create&&(0,h.jsx)(t.Button,{variant:"primary",onClick:async()=>{d(!0),b("");try{const n=await r()({path:`/wbfp/v1/posts/${e}/branches`,method:"POST"});window.location.assign(n.edit_url)}catch(e){b(l(e)),d(!1)}},disabled:p,children:p?(0,o.__)("Creating…","wp-branches-for-post"):(0,o.__)("Create branch","wp-branches-for-post")}),n.branches?.length>0&&(0,h.jsxs)("div",{className:"wbfp-existing-branches",children:[(0,h.jsx)("strong",{children:(0,o.__)("Existing branches","wp-branches-for-post")}),(0,h.jsx)("ul",{children:n.branches.map(e=>(0,h.jsxs)("li",{children:[(0,h.jsx)("a",{href:e.edit_url,children:(0,o.sprintf)(/* translators: %d: branch post ID. */ /* translators: %d: branch post ID. */
-(0,o.__)("Branch #%d","wp-branches-for-post"),e.id)}),"clean"!==e.conflict&&(0,h.jsx)("span",{className:"wbfp-conflict-dot",title:(0,o.__)("Original changed","wp-branches-for-post"),children:"!"})]},e.id))})]})]});else if("branch"===n?.type){const e="clean"!==n.conflict;g=(0,h.jsxs)(h.Fragment,{children:[(0,h.jsxs)("p",{children:[(0,o.__)("This draft is isolated from the public original.","wp-branches-for-post"),n.original_edit_url&&(0,h.jsxs)(h.Fragment,{children:[" ",(0,h.jsx)("a",{href:n.original_edit_url,children:(0,o.__)("Open original","wp-branches-for-post")})]})]}),n.creator&&(0,h.jsx)("p",{className:"wbfp-meta",children:(0,o.sprintf)(/* translators: %s: branch creator display name. */ /* translators: %s: branch creator display name. */
-(0,o.__)("Created by %s","wp-branches-for-post"),n.creator)}),e&&(0,h.jsx)(t.Notice,{status:"warning",isDismissible:!1,children:"unknown"===n.conflict?(0,o.__)("This is a legacy branch with no baseline snapshot. Review the original before merging.","wp-branches-for-post"):(0,o.__)("The original changed after this branch was created. A normal merge is blocked to prevent overwriting newer work.","wp-branches-for-post")}),(0,h.jsxs)("div",{className:"wbfp-actions",children:[n.can_merge&&!e&&(0,h.jsx)(t.Button,{variant:"primary",onClick:()=>f(!1),disabled:p,children:p?(0,o.__)("Merging…","wp-branches-for-post"):(0,o.__)("Merge into original","wp-branches-for-post")}),n.can_merge&&e&&(0,h.jsx)(t.Button,{variant:"secondary",isDestructive:!0,onClick:()=>f(!0),disabled:p,children:p?(0,o.__)("Merging…","wp-branches-for-post"):(0,o.__)("Force merge after review","wp-branches-for-post")}),n.can_discard&&(0,h.jsx)(t.Button,{variant:"tertiary",isDestructive:!0,onClick:_,disabled:p,children:(0,o.__)("Discard branch","wp-branches-for-post")})]})]})}return(0,h.jsxs)(a.PluginDocumentSettingPanel,{name:"wbfp-branch",title:(0,o.__)("Post Branch","wp-branches-for-post"),children:[w&&(0,h.jsx)(t.Notice,{status:"error",onRemove:()=>b(""),children:w}),g]})}})})();
+(() => {
+	'use strict';
+	const apiFetch = window.wp.apiFetch.default || window.wp.apiFetch;
+	const { Button, Notice, Spinner } = window.wp.components;
+	const { useDispatch, useSelect } = window.wp.data;
+	const { PluginDocumentSettingPanel } = window.wp.editor;
+	const { createElement, Fragment, useEffect, useState } = window.wp.element;
+	const { __, sprintf } = window.wp.i18n;
+	const { registerPlugin } = window.wp.plugins;
+
+const el = createElement;
+const apiErrorMessage = ( error ) =>
+	error?.message || __( 'WP Branches For Post could not complete the request.', 'wp-branches-for-post' );
+
+const pathLabel = ( path ) => {
+	const labels = {
+		'post.post_title': __( 'Title', 'wp-branches-for-post' ),
+		'post.post_content': __( 'Content', 'wp-branches-for-post' ),
+		'post.post_excerpt': __( 'Excerpt', 'wp-branches-for-post' ),
+		'post.menu_order': __( 'Menu order', 'wp-branches-for-post' ),
+		'post.comment_status': __( 'Comment status', 'wp-branches-for-post' ),
+		'post.ping_status': __( 'Ping status', 'wp-branches-for-post' ),
+		'post.post_password': __( 'Password', 'wp-branches-for-post' ),
+		'identity.post_status': __( 'Publication status', 'wp-branches-for-post' ),
+		'identity.post_name': __( 'Slug', 'wp-branches-for-post' ),
+		'identity.post_author': __( 'Author', 'wp-branches-for-post' ),
+		'identity.post_parent': __( 'Parent', 'wp-branches-for-post' ),
+		'identity.post_type': __( 'Post type', 'wp-branches-for-post' ),
+	};
+	if ( labels[ path ] ) {
+		return labels[ path ];
+	}
+	if ( path.startsWith( 'meta.' ) ) {
+		return sprintf( __( 'Metadata: %s', 'wp-branches-for-post' ), path.slice( 5 ) );
+	}
+	if ( path.startsWith( 'taxonomies.' ) ) {
+		return sprintf( __( 'Taxonomy: %s', 'wp-branches-for-post' ), path.slice( 11 ) );
+	}
+	return path;
+};
+
+const stateLabel = ( state ) => {
+	const labels = {
+		clean: __( 'Ready', 'wp-branches-for-post' ),
+		informational: __( 'Ready · original identity changed', 'wp-branches-for-post' ),
+		rebase_available: __( 'Original updated · safe to refresh branch', 'wp-branches-for-post' ),
+		conflict: __( 'Needs conflict review', 'wp-branches-for-post' ),
+		changed: __( 'Original changed', 'wp-branches-for-post' ),
+		unknown: __( 'Legacy branch', 'wp-branches-for-post' ),
+		missing: __( 'Original unavailable', 'wp-branches-for-post' ),
+	};
+	return labels[ state ] || state;
+};
+
+function ChangeList( { title, paths, danger = false } ) {
+	if ( ! paths?.length ) {
+		return null;
+	}
+	return el(
+		'div',
+		{ className: danger ? 'wbfp-review-group wbfp-review-group--danger' : 'wbfp-review-group' },
+		el( 'strong', null, title ),
+		el( 'ul', null, paths.map( ( path ) => el( 'li', { key: path }, pathLabel( path ) ) ) )
+	);
+}
+
+function ReviewValues( { values } ) {
+	if ( ! values || ! Object.keys( values ).length ) {
+		return null;
+	}
+
+	const labels = {
+		post_title: __( 'Title', 'wp-branches-for-post' ),
+		post_excerpt: __( 'Excerpt', 'wp-branches-for-post' ),
+		post_content: __( 'Content', 'wp-branches-for-post' ),
+	};
+
+	return el(
+		'div',
+		{ className: 'wbfp-compare' },
+		el( 'strong', null, __( 'Three-way comparison', 'wp-branches-for-post' ) ),
+		...Object.entries( values ).map( ( [ field, value ] ) =>
+			el(
+				'details',
+				{ key: field, className: 'wbfp-compare__field' },
+				el( 'summary', null, labels[ field ] || field ),
+				el( 'div', { className: 'wbfp-compare__version' }, el( 'span', null, __( 'Base', 'wp-branches-for-post' ) ), el( 'pre', null, value.base || '—' ) ),
+				el( 'div', { className: 'wbfp-compare__version' }, el( 'span', null, __( 'Original now', 'wp-branches-for-post' ) ), el( 'pre', null, value.original || '—' ) ),
+				el( 'div', { className: 'wbfp-compare__version' }, el( 'span', null, __( 'Branch now', 'wp-branches-for-post' ) ), el( 'pre', null, value.branch || '—' ) )
+			)
+		)
+	);
+}
+
+function BranchPanel() {
+	const editor = useSelect( ( select ) => {
+		const store = select( 'core/editor' );
+		return {
+			postId: store.getCurrentPostId(),
+			dirty: store.isEditedPostDirty(),
+			saving: store.isSavingPost(),
+		};
+	}, [] );
+	const { savePost } = useDispatch( 'core/editor' );
+	const [ status, setStatus ] = useState( null );
+	const [ busy, setBusy ] = useState( false );
+	const [ error, setError ] = useState( '' );
+	const [ reviewOpen, setReviewOpen ] = useState( false );
+
+	const refreshStatus = async () => {
+		if ( ! editor.postId ) {
+			return null;
+		}
+		const result = await apiFetch( { path: `/wbfp/v1/posts/${ editor.postId }/status` } );
+		setStatus( result );
+		return result;
+	};
+
+	useEffect( () => {
+		if ( ! editor.postId ) {
+			return;
+		}
+		let active = true;
+		apiFetch( { path: `/wbfp/v1/posts/${ editor.postId }/status` } )
+			.then( ( result ) => active && setStatus( result ) )
+			.catch( ( requestError ) => active && setError( apiErrorMessage( requestError ) ) );
+		return () => {
+			active = false;
+		};
+	}, [ editor.postId ] );
+
+	const saveBranchIfNeeded = async () => {
+		if ( ! editor.dirty ) {
+			return;
+		}
+		await savePost();
+	};
+
+	const createBranch = async () => {
+		if ( editor.dirty ) {
+			setError( __( 'Save or discard the current edits to the original before creating a branch. This prevents unpublished editor changes from being mistaken for the branch baseline.', 'wp-branches-for-post' ) );
+			return;
+		}
+		setBusy( true );
+		setError( '' );
+		try {
+			const result = await apiFetch( {
+				path: `/wbfp/v1/posts/${ editor.postId }/branches`,
+				method: 'POST',
+			} );
+			window.location.assign( result.edit_url );
+		} catch ( requestError ) {
+			setError( apiErrorMessage( requestError ) );
+			setBusy( false );
+		}
+	};
+
+	const rebaseBranch = async () => {
+		setBusy( true );
+		setError( '' );
+		try {
+			await saveBranchIfNeeded();
+			const result = await apiFetch( {
+				path: `/wbfp/v1/branches/${ editor.postId }/rebase`,
+				method: 'POST',
+			} );
+			setStatus( result.status );
+			setReviewOpen( true );
+		} catch ( requestError ) {
+			setError( apiErrorMessage( requestError ) );
+		} finally {
+			setBusy( false );
+		}
+	};
+
+	const mergeBranch = async ( force = false ) => {
+		if ( force && ! window.confirm( __( 'Force merge will prefer branch values for the listed conflicts. Non-conflicting newer work on the original is still preserved. Continue?', 'wp-branches-for-post' ) ) ) {
+			return;
+		}
+		setBusy( true );
+		setError( '' );
+		try {
+			await saveBranchIfNeeded();
+			const fresh = await refreshStatus();
+			const blocked = [ 'conflict', 'changed', 'unknown', 'missing' ].includes( fresh?.conflict );
+			if ( blocked && ! force ) {
+				setReviewOpen( true );
+				setError( __( 'The review state changed after saving. Review the latest conflicts before merging.', 'wp-branches-for-post' ) );
+				return;
+			}
+			const result = await apiFetch( {
+				path: `/wbfp/v1/branches/${ editor.postId }/merge`,
+				method: 'POST',
+				data: { force },
+			} );
+			window.location.assign( result.edit_url );
+		} catch ( requestError ) {
+			setError( apiErrorMessage( requestError ) );
+		} finally {
+			setBusy( false );
+		}
+	};
+
+	const discardBranch = async () => {
+		if ( ! window.confirm( __( 'Move this branch to Trash? The public original will not be changed.', 'wp-branches-for-post' ) ) ) {
+			return;
+		}
+		setBusy( true );
+		setError( '' );
+		try {
+			const result = await apiFetch( {
+				path: `/wbfp/v1/branches/${ editor.postId }`,
+				method: 'DELETE',
+			} );
+			window.location.assign( result.edit_url || 'edit.php' );
+		} catch ( requestError ) {
+			setError( apiErrorMessage( requestError ) );
+			setBusy( false );
+		}
+	};
+
+	let content = el( Spinner );
+
+	if ( status?.type === 'original' ) {
+		const branchCards = status.branches?.map( ( branch ) =>
+			el(
+				'li',
+				{ key: branch.id, className: 'wbfp-branch-card' },
+				el( 'div', { className: 'wbfp-branch-card__head' },
+					el( 'a', { href: branch.edit_url }, branch.title || sprintf( __( 'Branch #%d', 'wp-branches-for-post' ), branch.id ) ),
+					el( 'span', { className: `wbfp-state wbfp-state--${ branch.conflict }` }, stateLabel( branch.conflict ) )
+				),
+				branch.creator && el( 'div', { className: 'wbfp-meta' }, sprintf( __( 'Created by %s', 'wp-branches-for-post' ), branch.creator ) ),
+				el( 'div', { className: 'wbfp-meta' }, sprintf( __( '%d branch changes · %d conflicts', 'wp-branches-for-post' ), branch.branch_changes || 0, branch.conflicts || 0 ) )
+			)
+		);
+		content = el(
+			Fragment,
+			null,
+			el( 'p', null, __( 'Edit safely in a separate draft. The published post stays unchanged until you merge the branch.', 'wp-branches-for-post' ) ),
+			editor.dirty && el( Notice, { status: 'warning', isDismissible: false }, __( 'This original has unsaved editor changes. Save or discard them before creating a branch so the baseline matches the saved public post.', 'wp-branches-for-post' ) ),
+			status.can_create && el( Button, { variant: 'primary', onClick: createBranch, disabled: busy || editor.dirty || editor.saving }, busy ? __( 'Creating…', 'wp-branches-for-post' ) : __( 'Create branch', 'wp-branches-for-post' ) ),
+			status.branches?.length > 0 && el( 'div', { className: 'wbfp-existing-branches' }, el( 'strong', null, __( 'Existing branches', 'wp-branches-for-post' ) ), el( 'ul', null, branchCards ) )
+		);
+	} else if ( status?.type === 'branch' ) {
+		const state = status.conflict;
+		const review = status.review || {};
+		const hardConflict = [ 'conflict', 'changed', 'unknown', 'missing' ].includes( state );
+		const hasBranchChanges = status.legacy || ( review.branch_changes?.length || 0 ) > 0;
+		const reviewPanel = reviewOpen && el(
+			'div',
+			{ className: 'wbfp-review' },
+			el( 'div', { className: 'wbfp-review__title' }, __( 'Merge review', 'wp-branches-for-post' ) ),
+			status.legacy && el( Notice, { status: 'warning', isDismissible: false }, __( 'This branch predates three-way snapshots, so detailed change comparison is unavailable. Force merge only after manually reviewing the original.', 'wp-branches-for-post' ) ),
+			el( ChangeList, { title: __( 'Branch changes', 'wp-branches-for-post' ), paths: review.branch_changes } ),
+			el( ChangeList, { title: __( 'Original changes since branch creation', 'wp-branches-for-post' ), paths: review.original_changes } ),
+			el( ChangeList, { title: __( 'Conflicts', 'wp-branches-for-post' ), paths: review.conflicts, danger: true } ),
+			el( ChangeList, { title: __( 'Original identity changes preserved by merge', 'wp-branches-for-post' ), paths: review.informational_changes } ),
+			el( ReviewValues, { values: status.review_values } ),
+			! status.legacy && ! review.branch_changes?.length && el( 'p', { className: 'wbfp-meta' }, __( 'No mergeable branch changes are currently detected.', 'wp-branches-for-post' ) ),
+			el(
+				'div',
+				{ className: 'wbfp-review__actions' },
+				status.can_merge && ! hardConflict && hasBranchChanges && el( Button, { variant: 'primary', onClick: () => mergeBranch( false ), disabled: busy || editor.saving }, busy ? __( 'Saving and merging…', 'wp-branches-for-post' ) : __( 'Save & merge into original', 'wp-branches-for-post' ) ),
+				status.can_merge && hardConflict && status.can_force_merge && state !== 'missing' && el( Button, { variant: 'secondary', isDestructive: true, onClick: () => mergeBranch( true ), disabled: busy || editor.saving }, busy ? __( 'Saving and merging…', 'wp-branches-for-post' ) : __( 'Force merge reviewed conflicts', 'wp-branches-for-post' ) )
+			)
+		);
+
+		let stateNotice = null;
+		if ( state === 'rebase_available' ) {
+			stateNotice = el( Notice, { status: 'info', isDismissible: false }, __( 'The original has newer, non-conflicting changes. You can update this branch first, or review and merge while preserving those original changes.', 'wp-branches-for-post' ) );
+		} else if ( state === 'informational' ) {
+			stateNotice = el( Notice, { status: 'info', isDismissible: false }, __( 'The original identity changed (for example status, slug, author, or parent). Those changes are preserved and are not overwritten by this branch.', 'wp-branches-for-post' ) );
+		} else if ( state === 'conflict' ) {
+			stateNotice = el( Notice, { status: 'warning', isDismissible: false }, __( 'The branch and original changed the same data differently. Review the conflicts before deciding whether to force merge.', 'wp-branches-for-post' ) );
+		} else if ( state === 'changed' || state === 'unknown' ) {
+			stateNotice = el( Notice, { status: 'warning', isDismissible: false }, __( 'This older branch cannot provide a precise three-way comparison. Review the original manually before forcing a merge.', 'wp-branches-for-post' ) );
+		} else if ( state === 'missing' ) {
+			stateNotice = el( Notice, { status: 'error', isDismissible: false }, __( 'The original post is unavailable. This branch cannot be merged.', 'wp-branches-for-post' ) );
+		}
+
+		content = el(
+			Fragment,
+			null,
+			el( 'p', null,
+				__( 'This draft is isolated from the public original.', 'wp-branches-for-post' ),
+				status.original_edit_url && el( Fragment, null, ' ', el( 'a', { href: status.original_edit_url }, __( 'Open original', 'wp-branches-for-post' ) ) )
+			),
+			status.creator && el( 'p', { className: 'wbfp-meta' }, sprintf( __( 'Created by %s', 'wp-branches-for-post' ), status.creator ) ),
+			el( 'div', { className: `wbfp-state wbfp-state--${ state }` }, stateLabel( state ) ),
+			status.synced_pattern_count > 0 && el( Notice, { status: 'warning', isDismissible: false }, sprintf( __( 'This branch references %d synced pattern(s). Editing a synced pattern is global in WordPress and is not isolated by the branch.', 'wp-branches-for-post' ), status.synced_pattern_count ) ),
+			stateNotice,
+			el( 'div', { className: 'wbfp-preview-links' },
+				status.branch_preview_url && el( 'a', { href: status.branch_preview_url, target: '_blank', rel: 'noreferrer' }, __( 'Preview branch', 'wp-branches-for-post' ) ),
+				status.original_preview_url && el( 'a', { href: status.original_preview_url, target: '_blank', rel: 'noreferrer' }, __( 'View original', 'wp-branches-for-post' ) )
+			),
+			status.can_rebase && el( Button, { variant: 'secondary', onClick: rebaseBranch, disabled: busy || editor.saving }, busy ? __( 'Updating…', 'wp-branches-for-post' ) : __( 'Update branch from original', 'wp-branches-for-post' ) ),
+			el( 'div', { className: 'wbfp-actions' },
+				el( Button, { variant: reviewOpen ? 'secondary' : 'primary', onClick: () => setReviewOpen( ! reviewOpen ), disabled: busy }, reviewOpen ? __( 'Hide merge review', 'wp-branches-for-post' ) : __( 'Review changes', 'wp-branches-for-post' ) ),
+				status.can_discard && el( Button, { variant: 'tertiary', isDestructive: true, onClick: discardBranch, disabled: busy }, __( 'Discard branch', 'wp-branches-for-post' ) )
+			),
+			reviewPanel
+		);
+	}
+
+	return el(
+		PluginDocumentSettingPanel,
+		{ name: 'wbfp-branch', title: __( 'Post Branch', 'wp-branches-for-post' ) },
+		error && el( Notice, { status: 'error', onRemove: () => setError( '' ) }, error ),
+		content
+	);
+}
+
+registerPlugin( 'wp-branches-for-post', { render: BranchPanel } );
+
+})();

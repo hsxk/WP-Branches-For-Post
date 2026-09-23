@@ -1,4 +1,4 @@
-#wpadminbar #wp-admin-bar-wbfp_create_branch > .ab-item::before {
+#wpadminbar #wp-admin-bar-wbfp-create-branch > .ab-item::before {
 	content: url(../image/adminbar-20x20.svg);
 	top: 3px;
 }
@@ -8,11 +8,11 @@
 }
 
 @media screen and (max-width: 782px) {
-	#wpadminbar li#wp-admin-bar-wbfp_create_branch {
+	#wpadminbar li#wp-admin-bar-wbfp-create-branch {
 		display: block;
 	}
 
-	#wpadminbar li#wp-admin-bar-wbfp_create_branch > .ab-item {
+	#wpadminbar li#wp-admin-bar-wbfp-create-branch > .ab-item {
 		position: relative;
 		width: 52px;
 		padding: 0;
@@ -22,7 +22,7 @@
 		white-space: nowrap;
 	}
 
-	#wpadminbar li#wp-admin-bar-wbfp_create_branch > .ab-item::before {
+	#wpadminbar li#wp-admin-bar-wbfp-create-branch > .ab-item::before {
 		display: block;
 		top: 7px;
 		width: 52px;

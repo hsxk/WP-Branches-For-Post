@@ -1,12 +1,6 @@
 <?php
 /**
- * Branch creation, relationship metadata, and conflict state.
- *
- * Security invariants:
- * - A branch is always created as a non-public draft.
- * - A branch always uses the same post type as its original.
- * - Creating a branch requires edit capability for the original post.
- * - Conflict detection fails closed when the original cannot be snapshotted.
+ * Branch creation, relationship metadata, review state, and rebase support.
  *
  * @package WPBranchesForPost
  */
@@ -27,17 +21,18 @@ final class Branch_Service {
 	public const META_BASE_MODIFIED_GMT = '_wbfp_base_modified_gmt';
 	public const META_BASE_HASH         = '_wbfp_base_snapshot_hash';
 	public const META_BASE_REVISION_ID  = '_wbfp_base_revision_id';
+	public const META_BASE_SNAPSHOT     = '_wbfp_base_snapshot';
 
-	public const CONFLICT_CLEAN   = 'clean';
-	public const CONFLICT_CHANGED = 'changed';
-	public const CONFLICT_UNKNOWN = 'unknown';
-	public const CONFLICT_MISSING = 'missing';
+	public const CONFLICT_CLEAN         = 'clean';
+	public const CONFLICT_INFORMATIONAL = 'informational';
+	public const CONFLICT_REBASE        = 'rebase_available';
+	public const CONFLICT_CHANGED       = 'changed';
+	public const CONFLICT_CONFLICT      = 'conflict';
+	public const CONFLICT_UNKNOWN       = 'unknown';
+	public const CONFLICT_MISSING       = 'missing';
 
 	/**
 	 * Return the original post ID for a branch.
-	 *
-	 * The legacy key is intentionally retained so branches created by 1.x can
-	 * still be opened and reviewed after upgrading to 2.0.
 	 *
 	 * @param int $post_id Candidate branch post ID.
 	 * @return int Original post ID, or 0 when the post is not a branch.
@@ -64,9 +59,6 @@ final class Branch_Service {
 	/**
 	 * Determine whether the current user may create a branch for a post.
 	 *
-	 * Capability checks are the authorization boundary. Nonces used by admin
-	 * actions protect against CSRF but are never treated as authorization.
-	 *
 	 * @param int $post_id Original post ID.
 	 * @return bool
 	 */
@@ -88,9 +80,6 @@ final class Branch_Service {
 		/**
 		 * Filters post statuses that may be branched.
 		 *
-		 * Keep the default list non-public/safely editable. Implementations that
-		 * extend this filter are still subject to the edit_post capability check.
-		 *
 		 * @param string[] $allowed_statuses Allowed post statuses.
 		 * @param \WP_Post $post             Original post.
 		 */
@@ -104,11 +93,6 @@ final class Branch_Service {
 
 	/**
 	 * Create an isolated draft branch from an original post.
-	 *
-	 * A baseline hash is captured before copying and verified again after the
-	 * copy. If the original changes during creation, the new branch is removed
-	 * and the caller receives a conflict response instead of an inconsistent
-	 * branch.
 	 *
 	 * @param int $original_id Original post ID.
 	 * @return int|\WP_Error New branch ID on success.
@@ -131,8 +115,9 @@ final class Branch_Service {
 			);
 		}
 
-		$base_hash = Sync_Service::snapshot_hash( $original_id );
-		if ( '' === $base_hash ) {
+		$base_snapshot = Sync_Service::snapshot( $original_id );
+		$base_hash     = $base_snapshot ? Sync_Service::snapshot_hash_from_payload( $base_snapshot ) : '';
+		if ( ! $base_snapshot || '' === $base_hash ) {
 			return new \WP_Error(
 				'wbfp_snapshot_failed',
 				__( 'The original post could not be snapshotted.', 'wp-branches-for-post' ),
@@ -149,16 +134,11 @@ final class Branch_Service {
 		/**
 		 * Filters data used to create a branch post.
 		 *
-		 * The plugin re-applies its non-public and same-post-type invariants
-		 * after this filter so third-party customizations cannot accidentally
-		 * publish a branch or move it to another post type.
-		 *
 		 * @param array<string,mixed> $data     Branch post data.
 		 * @param \WP_Post           $original Original post.
 		 */
 		$data = apply_filters( 'wbfp_create_branch_post_data', $data, $original );
 
-		// Security invariant: a newly created branch must never be public.
 		$data['post_status'] = 'draft';
 		$data['post_name']   = '';
 		$data['post_type']   = $original->post_type;
@@ -168,7 +148,11 @@ final class Branch_Service {
 			return $branch_id;
 		}
 
-		Sync_Service::sync_meta( $original_id, $branch_id );
+		$meta_error = Sync_Service::sync_meta( $original_id, $branch_id );
+		if ( $meta_error ) {
+			wp_delete_post( $branch_id, true );
+			return $meta_error;
+		}
 
 		$taxonomy_error = Sync_Service::sync_taxonomies( $original_id, $branch_id, $original->post_type );
 		if ( $taxonomy_error ) {
@@ -176,10 +160,10 @@ final class Branch_Service {
 			return $taxonomy_error;
 		}
 
-		$current_hash = Sync_Service::snapshot_hash( $original_id );
+		$current_snapshot = Sync_Service::snapshot( $original_id );
+		$current_hash     = $current_snapshot ? Sync_Service::snapshot_hash_from_payload( $current_snapshot ) : '';
 		if ( '' === $current_hash || ! hash_equals( $base_hash, $current_hash ) ) {
 			wp_delete_post( $branch_id, true );
-
 			return new \WP_Error(
 				'wbfp_original_changed_during_branch_creation',
 				__( 'The original changed while the branch was being created. Please try again so the branch starts from a consistent version.', 'wp-branches-for-post' ),
@@ -187,21 +171,10 @@ final class Branch_Service {
 			);
 		}
 
-		$latest_revision = wp_get_post_revisions(
-			$original_id,
-			array(
-				'posts_per_page' => 1,
-				'fields'         => 'ids',
-			)
-		);
-		$revision_id     = $latest_revision ? (int) reset( $latest_revision ) : 0;
-
 		update_post_meta( $branch_id, self::META_ORIGINAL_ID, $original_id );
 		update_post_meta( $branch_id, self::META_CREATOR_USER_ID, get_current_user_id() );
 		update_post_meta( $branch_id, self::META_CREATED_GMT, current_time( 'mysql', true ) );
-		update_post_meta( $branch_id, self::META_BASE_MODIFIED_GMT, $original->post_modified_gmt );
-		update_post_meta( $branch_id, self::META_BASE_HASH, $base_hash );
-		update_post_meta( $branch_id, self::META_BASE_REVISION_ID, $revision_id );
+		$this->store_base_snapshot( $branch_id, $original_id, $base_snapshot );
 
 		/**
 		 * Fires after a branch has been created successfully.
@@ -216,9 +189,6 @@ final class Branch_Service {
 
 	/**
 	 * Prevent an existing branch from being made public through normal saves.
-	 *
-	 * Trash and auto-draft transitions are allowed because they are internal
-	 * lifecycle states. Every other attempted status is normalized to draft.
 	 *
 	 * @param array<string,mixed> $data    Sanitized post data.
 	 * @param array<string,mixed> $postarr Raw post array supplied to WordPress.
@@ -235,45 +205,183 @@ final class Branch_Service {
 		}
 
 		$data['post_status'] = 'draft';
-
 		return $data;
 	}
 
 	/**
-	 * Compare a branch baseline with the current original post.
-	 *
-	 * Unknown is reserved for legacy 1.x branches that never stored a baseline.
-	 * Snapshot failures are treated as changed (fail closed), so a normal merge
-	 * cannot silently proceed when the original state cannot be verified.
+	 * Return a version-2.1 base snapshot, if available.
 	 *
 	 * @param int $branch_id Branch post ID.
-	 * @return string One of the CONFLICT_* constants.
+	 * @return array<string,mixed>|null
+	 */
+	public function get_base_snapshot( int $branch_id ): ?array {
+		$base = get_post_meta( $branch_id, self::META_BASE_SNAPSHOT, true );
+		return is_array( $base ) && isset( $base['merge'] ) ? $base : null;
+	}
+
+	/**
+	 * Analyze current branch state using a three-way comparison when possible.
+	 *
+	 * @param int                      $branch_id          Branch post ID.
+	 * @param array<string,mixed>|null $original_snapshot Optional already-captured original snapshot.
+	 * @return array<string,mixed>
+	 */
+	public function analyze_branch( int $branch_id, ?array $original_snapshot = null ): array {
+		$branch = get_post( $branch_id );
+		if ( ! $branch || ! $this->is_branch( $branch_id ) || in_array( $branch->post_status, array( 'trash', 'auto-draft' ), true ) ) {
+			return array( 'state' => self::CONFLICT_MISSING, 'legacy' => false );
+		}
+
+		$original_id = $this->get_original_id( $branch_id );
+		$original    = get_post( $original_id );
+		if ( ! $original || $branch->post_type !== $original->post_type ) {
+			return array( 'state' => self::CONFLICT_MISSING, 'legacy' => false );
+		}
+
+		$base = $this->get_base_snapshot( $branch_id );
+		if ( ! $base ) {
+			$base_hash = (string) get_post_meta( $branch_id, self::META_BASE_HASH, true );
+			if ( '' === $base_hash ) {
+				return array( 'state' => self::CONFLICT_UNKNOWN, 'legacy' => true );
+			}
+			$current_hash = Sync_Service::legacy_snapshot_hash( $original_id );
+			return array(
+				'state'  => '' !== $current_hash && hash_equals( $base_hash, $current_hash ) ? self::CONFLICT_CLEAN : self::CONFLICT_CHANGED,
+				'legacy' => true,
+			);
+		}
+
+		$original_snapshot = $original_snapshot ?? Sync_Service::snapshot( $original_id );
+		$branch_snapshot   = Sync_Service::snapshot( $branch_id );
+		if ( ! $original_snapshot || ! $branch_snapshot ) {
+			return array( 'state' => self::CONFLICT_CHANGED, 'legacy' => false );
+		}
+
+		$analysis = Sync_Service::three_way_analysis( $base, $original_snapshot, $branch_snapshot );
+		if ( ! empty( $analysis['conflicts'] ) ) {
+			$state = self::CONFLICT_CONFLICT;
+		} elseif ( ! empty( $analysis['original_changes'] ) ) {
+			$state = self::CONFLICT_REBASE;
+		} elseif ( ! empty( $analysis['informational_changes'] ) ) {
+			$state = self::CONFLICT_INFORMATIONAL;
+		} else {
+			$state = self::CONFLICT_CLEAN;
+		}
+
+		return array(
+			'state'    => $state,
+			'legacy'   => false,
+			'base'     => $base,
+			'original' => $original_snapshot,
+			'branch'   => $branch_snapshot,
+			'analysis' => $analysis,
+		);
+	}
+
+	/**
+	 * Return the current conflict/review state label.
+	 *
+	 * @param int $branch_id Branch post ID.
+	 * @return string
 	 */
 	public function conflict_state( int $branch_id ): string {
+		$analysis = $this->analyze_branch( $branch_id );
+		return (string) ( $analysis['state'] ?? self::CONFLICT_CHANGED );
+	}
+
+	/**
+	 * Rebase non-conflicting original changes into a branch.
+	 *
+	 * @param int $branch_id Branch post ID.
+	 * @return int|\WP_Error Branch post ID on success.
+	 */
+	public function rebase( int $branch_id ) {
+		$branch = get_post( $branch_id );
+		if ( ! $branch || ! $this->is_branch( $branch_id ) || in_array( $branch->post_status, array( 'trash', 'auto-draft' ), true ) ) {
+			return new \WP_Error( 'wbfp_not_branch', __( 'This post is not an active branch.', 'wp-branches-for-post' ), array( 'status' => 400 ) );
+		}
+
 		$original_id = $this->get_original_id( $branch_id );
-		if ( $original_id < 1 || ! get_post( $original_id ) ) {
-			return self::CONFLICT_MISSING;
+		$original    = get_post( $original_id );
+		if ( ! $original || $original->post_type !== $branch->post_type ) {
+			return new \WP_Error( 'wbfp_missing_original', __( 'The original post is unavailable.', 'wp-branches-for-post' ), array( 'status' => 404 ) );
 		}
 
-		$base_hash = (string) get_post_meta( $branch_id, self::META_BASE_HASH, true );
-		if ( '' === $base_hash ) {
-			return self::CONFLICT_UNKNOWN;
+		if ( ! current_user_can( 'edit_post', $branch_id ) || ! current_user_can( 'edit_post', $original_id ) ) {
+			return new \WP_Error( 'wbfp_cannot_rebase', __( 'You do not have permission to update this branch.', 'wp-branches-for-post' ), array( 'status' => 403 ) );
 		}
 
-		$current_hash = Sync_Service::snapshot_hash( $original_id );
-		if ( '' === $current_hash ) {
-			return self::CONFLICT_CHANGED;
+		$analysis = $this->analyze_branch( $branch_id );
+		if ( ! empty( $analysis['legacy'] ) || empty( $analysis['base'] ) || empty( $analysis['original'] ) || empty( $analysis['branch'] ) ) {
+			return new \WP_Error( 'wbfp_rebase_unavailable', __( 'This older branch cannot be automatically updated from the original.', 'wp-branches-for-post' ), array( 'status' => 409 ) );
 		}
 
-		return hash_equals( $base_hash, $current_hash ) ? self::CONFLICT_CLEAN : self::CONFLICT_CHANGED;
+		$rebased = Sync_Service::rebased_snapshot( $analysis['base'], $analysis['original'], $analysis['branch'] );
+		if ( is_wp_error( $rebased ) ) {
+			$rebased->add_data( array( 'status' => 409 ) );
+			return $rebased;
+		}
+
+		$rollback = Sync_Service::snapshot( $branch_id );
+		if ( ! $rollback ) {
+			return new \WP_Error(
+				'wbfp_rebase_snapshot_failed',
+				__( 'The branch could not be snapshotted before updating it from the original.', 'wp-branches-for-post' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		$apply_error = Sync_Service::apply_merge_snapshot( $rebased, $branch_id, $branch->post_type );
+		if ( $apply_error ) {
+			$rollback_error = Sync_Service::apply_merge_snapshot( $rollback, $branch_id, $branch->post_type );
+			if ( $rollback_error ) {
+				return new \WP_Error(
+					'wbfp_rebase_rollback_failed',
+					__( 'Updating the branch failed and its previous state could not be fully restored automatically.', 'wp-branches-for-post' ),
+					array(
+						'status'         => 500,
+						'rebase_error'   => $apply_error->get_error_code(),
+						'rollback_error' => $rollback_error->get_error_code(),
+					)
+				);
+			}
+
+			return new \WP_Error(
+				'wbfp_rebase_rolled_back',
+				__( 'The branch could not be updated. Its previous state was restored.', 'wp-branches-for-post' ),
+				array(
+					'status' => 500,
+					'cause'  => $apply_error->get_error_code(),
+				)
+			);
+		}
+
+		$this->store_base_snapshot( $branch_id, $original_id, $analysis['original'] );
+		return $branch_id;
+	}
+
+	/**
+	 * Determine whether force merge is allowed for the current user.
+	 *
+	 * @param int $branch_id   Branch post ID.
+	 * @param int $original_id Original post ID.
+	 * @return bool
+	 */
+	public function can_force_merge( int $branch_id, int $original_id ): bool {
+		$allowed = current_user_can( 'edit_post', $branch_id ) && current_user_can( 'edit_post', $original_id );
+		/**
+		 * Filters whether the current user may force a conflicting merge.
+		 *
+		 * @param bool $allowed     Default permission result.
+		 * @param int  $branch_id   Branch post ID.
+		 * @param int  $original_id Original post ID.
+		 * @param int  $user_id     Current user ID.
+		 */
+		return (bool) apply_filters( 'wbfp_can_force_merge', $allowed, $branch_id, $original_id, get_current_user_id() );
 	}
 
 	/**
 	 * Query active branches for an original post.
-	 *
-	 * Both current and 1.x relationship meta are queried for upgrade
-	 * compatibility. Callers that expose results to users must apply their own
-	 * per-branch capability checks before returning branch details.
 	 *
 	 * @param int $original_id Original post ID.
 	 * @return \WP_Post[]
@@ -292,7 +400,7 @@ final class Branch_Service {
 				'orderby'        => 'modified',
 				'order'          => 'DESC',
 				'no_found_rows'  => true,
-				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- OR across current and legacy 1.x relationship keys is required for branch lookup; no non-meta index is available.
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Required for current + legacy branch relationships.
 				'meta_query'     => array(
 					'relation' => 'OR',
 					array(
@@ -312,5 +420,30 @@ final class Branch_Service {
 		);
 
 		return $query->posts;
+	}
+
+	/**
+	 * Store baseline metadata after create/rebase.
+	 *
+	 * @param int                 $branch_id   Branch post ID.
+	 * @param int                 $original_id Original post ID.
+	 * @param array<string,mixed> $snapshot    Original snapshot.
+	 * @return void
+	 */
+	private function store_base_snapshot( int $branch_id, int $original_id, array $snapshot ): void {
+		$original = get_post( $original_id );
+		update_post_meta( $branch_id, self::META_BASE_SNAPSHOT, $snapshot );
+		update_post_meta( $branch_id, self::META_BASE_HASH, Sync_Service::snapshot_hash_from_payload( $snapshot ) );
+		update_post_meta( $branch_id, self::META_BASE_MODIFIED_GMT, $original ? $original->post_modified_gmt : '' );
+
+		$latest_revision = wp_get_post_revisions(
+			$original_id,
+			array(
+				'posts_per_page' => 1,
+				'fields'         => 'ids',
+			)
+		);
+		$revision_id = $latest_revision ? (int) reset( $latest_revision ) : 0;
+		update_post_meta( $branch_id, self::META_BASE_REVISION_ID, $revision_id );
 	}
 }

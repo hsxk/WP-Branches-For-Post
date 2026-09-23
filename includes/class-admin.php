@@ -132,7 +132,7 @@ final class Admin {
 				$force        = Branch_Service::CONFLICT_CLEAN !== $conflict;
 				$confirm_attr = '';
 				if ( $force ) {
-					$confirm_message = __( 'The original changed after this branch was created. Review both versions and use the block editor panel to force the merge only if appropriate.', 'wp-branches-for-post' );
+					$confirm_message = __( 'The original changed after this branch was created. This action will force the merge and prefer branch values where changes overlap. Continue only after reviewing both versions.', 'wp-branches-for-post' );
 					$confirm_attr    = sprintf(
 						' onclick="return window.confirm(%s);"',
 						esc_attr( (string) wp_json_encode( $confirm_message ) )
@@ -188,7 +188,7 @@ final class Admin {
 
 		$admin_bar->add_node(
 			array(
-				'id'    => 'wbfp_create_branch',
+				'id'    => 'wbfp-create-branch',
 				'title' => esc_html__( 'Create Branch', 'wp-branches-for-post' ),
 				'href'  => $this->create_url( $post_id ),
 			)
@@ -225,7 +225,7 @@ final class Admin {
 		$notice_input = filter_input( INPUT_GET, 'wbfp_notice', FILTER_UNSAFE_RAW );
 		$notice       = is_string( $notice_input ) ? sanitize_key( $notice_input ) : '';
 		if ( 'merge_conflict' === $notice ) {
-			echo '<div class="notice notice-warning is-dismissible"><p>' . esc_html__( 'The original changed after this branch was created. Review both versions and use the block editor panel to force the merge only if appropriate.', 'wp-branches-for-post' ) . '</p></div>';
+			echo '<div class="notice notice-warning is-dismissible"><p>' . esc_html__( 'The original changed after this branch was created. This action will force the merge and prefer branch values where changes overlap. Continue only after reviewing both versions.', 'wp-branches-for-post' ) . '</p></div>';
 		} elseif ( 'operation_failed' === $notice ) {
 			echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__( 'WP Branches For Post could not complete the requested operation.', 'wp-branches-for-post' ) . '</p></div>';
 		}
