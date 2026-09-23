@@ -8,6 +8,7 @@
 }
 
 @media screen and (max-width: 782px) {
+
 	#wpadminbar li#wp-admin-bar-wbfp-create-branch {
 		display: block;
 	}
