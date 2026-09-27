@@ -23,7 +23,7 @@
     "@wordpress/editor": "^15.0.0",
     "@wordpress/element": "^8.7.0",
     "@wordpress/i18n": "^6.28.0",
-    "@wordpress/plugins": "^7.55.0"
+    "@wordpress/plugins": "^7.56.0"
   },
   "files": [
     "post-branch.php",
