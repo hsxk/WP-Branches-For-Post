@@ -360,7 +360,7 @@ final class REST_Controller {
 				'title'          => get_the_title( $branch ),
 				'edit_url'       => get_edit_post_link( $branch->ID, 'raw' ),
 				'modified'       => $branch->post_modified_gmt,
-				'modified_human' => $this->modified_human_label( $branch ),
+				'modified_human' => $this->modified_display_label( $branch ),
 				'creator'        => $creator ? $creator->display_name : '',
 				'conflict'       => $analysis['state'] ?? Branch_Service::CONFLICT_CHANGED,
 				'branch_changes' => count( $review['branch_changes'] ?? array() ),
@@ -461,11 +461,14 @@ final class REST_Controller {
 			}
 
 			if ( 'meta._thumbnail_id' === $path ) {
-				$base     = $this->review_featured_image_value( $analysis['base']['merge']['meta']['_thumbnail_id'] ?? array() );
-				$original = $this->review_featured_image_value( $analysis['original']['merge']['meta']['_thumbnail_id'] ?? array() );
-				$branch   = $this->review_featured_image_value( $analysis['branch']['merge']['meta']['_thumbnail_id'] ?? array() );
+				$base       = $this->review_featured_image_value( $analysis['base']['merge']['meta']['_thumbnail_id'] ?? array() );
+				$original   = $this->review_featured_image_value( $analysis['original']['merge']['meta']['_thumbnail_id'] ?? array() );
+				$branch     = $this->review_featured_image_value( $analysis['branch']['merge']['meta']['_thumbnail_id'] ?? array() );
+				$post_type  = (string) ( $analysis['branch']['identity']['post_type'] ?? '' );
+				$type_obj   = '' !== $post_type ? get_post_type_object( $post_type ) : null;
+				$image_label = $type_obj && ! empty( $type_obj->labels->featured_image ) ? (string) $type_obj->labels->featured_image : 'Featured image';
 				$result[ $path ] = array(
-					'label'                => __( 'Featured image' ),
+					'label'                => $image_label,
 					'base'                 => $base['label'],
 					'original'             => $original['label'],
 					'branch'               => $branch['label'],
@@ -570,19 +573,14 @@ final class REST_Controller {
 	}
 
 	/**
-	 * Build a localized relative modified-time label for branch cards.
+	 * Build a localized modified-time display for branch cards.
 	 *
 	 * @param \WP_Post $post Branch post.
 	 * @return string
 	 */
-	private function modified_human_label( \WP_Post $post ): string {
-		$modified = (int) get_post_modified_time( 'U', true, $post );
-		if ( $modified < 1 ) {
-			return '';
-		}
-
-		$diff = human_time_diff( $modified, current_time( 'timestamp', true ) );
-		return '' === $diff ? '' : sprintf( __( '%s ago' ), $diff );
+	private function modified_display_label( \WP_Post $post ): string {
+		$format = trim( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ) );
+		return (string) get_post_modified_time( $format, false, $post );
 	}
 
 	/**
