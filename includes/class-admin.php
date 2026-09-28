@@ -158,6 +158,7 @@ final class Admin {
 			return $views;
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only list-table filter state.
 		$current = isset( $_GET['wbfp_view'] ) && 'branches' === sanitize_key( wp_unslash( $_GET['wbfp_view'] ) );
 		$url     = add_query_arg(
 			array_filter(
@@ -190,6 +191,7 @@ final class Admin {
 			return;
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only list-table filter state.
 		$view = isset( $_GET['wbfp_view'] ) ? sanitize_key( wp_unslash( $_GET['wbfp_view'] ) ) : '';
 		if ( 'branches' !== $view ) {
 			return;
@@ -202,6 +204,7 @@ final class Admin {
 		}
 
 		$query->set( 'post_status', array( 'draft', 'pending', 'private', 'future' ) );
+		// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Branch relationships are stored as post meta by design.
 		$query->set( 'meta_query', $this->branch_relationship_meta_query() );
 	}
 
@@ -223,6 +226,7 @@ final class Admin {
 			'posts_per_page' => 1,
 			'fields'         => 'ids',
 			'no_found_rows'  => false,
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Branch relationships are stored as post meta by design.
 			'meta_query'     => $this->branch_relationship_meta_query(),
 		);
 
