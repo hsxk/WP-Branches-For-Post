@@ -301,6 +301,21 @@ async function openOriginal( page ) {
 			Boolean( reviewedStatus.review_token ),
 			'Real editor status includes a reviewed-state token'
 		);
+		check(
+			Boolean(
+				reviewedStatus.review_values?.['post.post_content']?.branch
+			),
+			'Real editor REST status exposes the reviewed branch content value'
+		);
+		const originalWithBranch = await branchStatus( page, originalId );
+		check(
+			originalWithBranch.branches?.some(
+				( branch ) =>
+					branch.id === firstBranchId &&
+					Boolean( branch.modified_human )
+			),
+			'Original status exposes branch ID and modified display metadata'
+		);
 
 		// Change the branch after review. The first merge click must not merge.
 		await editBranch( page, {
