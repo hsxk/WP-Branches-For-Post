@@ -448,6 +448,40 @@ try {
 	$safe_actions = $admin_ui->row_actions( array(), get_post( $ui_safe_branch ) );
 	wbfp_check( isset( $safe_actions['wbfp_merge'] ) && ! isset( $safe_actions['wbfp_review'] ), 'List row keeps normal merge for rebase-available non-conflicting state' );
 
+	$safe_states = $admin_ui->post_states( array(), get_post( $ui_safe_branch ) );
+	wbfp_check(
+		isset( $safe_states['wbfp_branch'] )
+		&& false !== strpos( $safe_states['wbfp_branch'], '#' . $ui_safe_original )
+		&& false !== strpos( $safe_states['wbfp_branch'], get_the_title( $ui_safe_original ) ),
+		'Branch list state identifies the original by ID and title'
+	);
+
+	$status_request = new WP_REST_Request( 'GET', '/wbfp/v1/posts/' . $ui_safe_original . '/status' );
+	$status_request->set_param( 'id', $ui_safe_original );
+	$original_status = $rest->status( $status_request )->get_data();
+	wbfp_check(
+		! empty( $original_status['branches'][0]['modified_human'] ),
+		'Original status includes a human-readable branch modified time'
+	);
+
+	$previous_screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+	set_current_screen( 'edit-post' );
+	$_GET['wbfp_view'] = 'branches';
+	$branch_views = $admin_ui->branch_views( array() );
+	wbfp_check( isset( $branch_views['wbfp_branches'] ), 'Posts list exposes a dedicated existing-branches view' );
+	$branch_query = new WP_Query();
+	$GLOBALS['wp_the_query'] = $branch_query;
+	$admin_ui->filter_branch_view_query( $branch_query );
+	$branch_meta_query = $branch_query->get( 'meta_query' );
+	wbfp_check(
+		is_array( $branch_meta_query )
+		&& 'OR' === ( $branch_meta_query['relation'] ?? '' )
+		&& Branch_Service::META_ORIGINAL_ID === ( $branch_meta_query[0]['key'] ?? '' ),
+		'Dedicated branch view filters the main list query by branch relationship'
+	);
+	unset( $_GET['wbfp_view'] );
+	set_current_screen( $previous_screen ? $previous_screen->id : 'front' );
+
 	$previous_post = $GLOBALS['post'] ?? null;
 	$GLOBALS['post'] = get_post( $ui_safe_branch );
 	ob_start();
@@ -569,7 +603,14 @@ try {
 	$cpt_branch_terms = wp_get_object_terms( $cpt_branch, 'wbfp_topic', array( 'fields' => 'ids' ) );
 	wbfp_check( array( (int) $topic['term_id'] ) === array_map( 'intval', $cpt_branch_terms ), 'Custom taxonomy assignment is copied to the branch' );
 
-	wp_update_post( array( 'ID' => $cpt_branch, 'post_content' => 'Custom story branch content' ) );
+	wp_update_post(
+		array(
+			'ID'            => $cpt_branch,
+			'post_content'  => 'Custom story branch content',
+			'menu_order'    => 7,
+			'post_password' => 'super-secret-test',
+		)
+	);
 	update_post_meta( $cpt_branch, 'wbfp_custom_meta', 'custom-meta-branch' );
 	delete_post_meta( $cpt_branch, 'wbfp_remove_meta' );
 	delete_post_meta( $cpt_branch, 'wbfp_multi_meta' );
@@ -577,6 +618,37 @@ try {
 	add_post_meta( $cpt_branch, 'wbfp_multi_meta', 'multi-four' );
 	update_post_meta( $cpt_branch, '_thumbnail_id', $thumb_b );
 	wp_set_object_terms( $cpt_branch, array(), 'wbfp_topic', false );
+
+	$cpt_status_request = new WP_REST_Request( 'GET', '/wbfp/v1/posts/' . $cpt_branch . '/status' );
+	$cpt_status_request->set_param( 'id', $cpt_branch );
+	$cpt_status = $rest->status( $cpt_status_request )->get_data();
+	$review_values = $cpt_status['review_values'] ?? array();
+	wbfp_check(
+		isset( $review_values['taxonomies.wbfp_topic'] )
+		&& false !== strpos( $review_values['taxonomies.wbfp_topic']['base'], 'Branch taxonomy topic' )
+		&& '—' === $review_values['taxonomies.wbfp_topic']['branch'],
+		'Merge review exposes readable taxonomy term changes'
+	);
+	wbfp_check(
+		isset( $review_values['meta._thumbnail_id'] )
+		&& false !== strpos( $review_values['meta._thumbnail_id']['base'], 'Featured image A' )
+		&& false !== strpos( $review_values['meta._thumbnail_id']['branch'], 'Featured image B' ),
+		'Merge review exposes readable featured-image identity changes'
+	);
+	wbfp_check(
+		'7' === ( $review_values['post.menu_order']['branch'] ?? '' ),
+		'Merge review exposes menu-order values'
+	);
+	wbfp_check(
+		'••••••' === ( $review_values['post.post_password']['branch'] ?? '' )
+		&& false === strpos( wp_json_encode( $review_values ), 'super-secret-test' ),
+		'Merge review masks post passwords instead of exposing them through REST'
+	);
+	wbfp_check(
+		! isset( $review_values['meta.wbfp_custom_meta'] ),
+		'Merge review keeps arbitrary custom-meta values private'
+	);
+
 	$cpt_merge = $merges->merge( $cpt_branch, false );
 	wbfp_check( $cpt_original === $cpt_merge, 'Custom post type branch merges normally' );
 	wbfp_check( 'Custom story branch content' === get_post( $cpt_original )->post_content, 'Custom post type editorial content merges' );
