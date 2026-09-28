@@ -451,6 +451,7 @@ final class REST_Controller {
 			if ( str_starts_with( $path, 'taxonomies.' ) ) {
 				$taxonomy = substr( $path, 11 );
 				$object   = get_taxonomy( $taxonomy );
+
 				$result[ $path ] = array(
 					'label'    => $object && ! empty( $object->labels->name ) ? (string) $object->labels->name : $taxonomy,
 					'base'     => $this->review_taxonomy_value( $taxonomy, $analysis['base']['merge']['taxonomies'][ $taxonomy ] ?? array() ),
@@ -461,11 +462,11 @@ final class REST_Controller {
 			}
 
 			if ( 'meta._thumbnail_id' === $path ) {
-				$base       = $this->review_featured_image_value( $analysis['base']['merge']['meta']['_thumbnail_id'] ?? array() );
-				$original   = $this->review_featured_image_value( $analysis['original']['merge']['meta']['_thumbnail_id'] ?? array() );
-				$branch     = $this->review_featured_image_value( $analysis['branch']['merge']['meta']['_thumbnail_id'] ?? array() );
-				$post_type  = (string) ( $analysis['branch']['identity']['post_type'] ?? '' );
-				$type_obj   = '' !== $post_type ? get_post_type_object( $post_type ) : null;
+				$base        = $this->review_featured_image_value( $analysis['base']['merge']['meta']['_thumbnail_id'] ?? array() );
+				$original    = $this->review_featured_image_value( $analysis['original']['merge']['meta']['_thumbnail_id'] ?? array() );
+				$branch      = $this->review_featured_image_value( $analysis['branch']['merge']['meta']['_thumbnail_id'] ?? array() );
+				$post_type   = (string) ( $analysis['branch']['identity']['post_type'] ?? '' );
+				$type_obj    = '' !== $post_type ? get_post_type_object( $post_type ) : null;
 				$image_label = $type_obj && ! empty( $type_obj->labels->featured_image ) ? (string) $type_obj->labels->featured_image : 'Featured image';
 				$result[ $path ] = array(
 					'label'                => $image_label,
@@ -526,7 +527,7 @@ final class REST_Controller {
 
 		$names = array();
 		foreach ( $ids as $term_id ) {
-			$term = get_term( $term_id, $taxonomy );
+			$term    = get_term( $term_id, $taxonomy );
 			$names[] = $term && ! is_wp_error( $term ) ? (string) $term->name : '#' . $term_id;
 		}
 
