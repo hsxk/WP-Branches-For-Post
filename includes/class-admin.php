@@ -130,8 +130,8 @@ final class Admin {
 				__( 'Branch of #%d', 'wp-branches-for-post' ),
 				$original_id
 			);
-			$original    = get_post( $original_id );
-			$title       = $original ? trim( wp_strip_all_tags( get_the_title( $original ) ) ) : '';
+			$original = get_post( $original_id );
+			$title    = $original ? trim( wp_strip_all_tags( get_the_title( $original ) ) ) : '';
 			if ( '' !== $title ) {
 				$label .= ' — ' . $title;
 			}
@@ -160,7 +160,8 @@ final class Admin {
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only list-table filter state.
 		$current = isset( $_GET['wbfp_view'] ) && 'branches' === sanitize_key( wp_unslash( $_GET['wbfp_view'] ) );
-		$url     = add_query_arg(
+
+		$url = add_query_arg(
 			array_filter(
 				array(
 					'post_type' => 'post' === $post_type ? null : $post_type,
@@ -169,6 +170,7 @@ final class Admin {
 			),
 			admin_url( 'edit.php' )
 		);
+
 		$views['wbfp_branches'] = sprintf(
 			'<a href="%1$s"%2$s>%3$s <span class="count">(%4$d)</span></a>',
 			esc_url( $url ),
