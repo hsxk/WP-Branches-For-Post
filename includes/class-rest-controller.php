@@ -360,6 +360,7 @@ final class REST_Controller {
 				'title'          => get_the_title( $branch ),
 				'edit_url'       => get_edit_post_link( $branch->ID, 'raw' ),
 				'modified'       => $branch->post_modified_gmt,
+				'modified_human' => $this->modified_human_label( $branch ),
 				'creator'        => $creator ? $creator->display_name : '',
 				'conflict'       => $analysis['state'] ?? Branch_Service::CONFLICT_CHANGED,
 				'branch_changes' => count( $review['branch_changes'] ?? array() ),
@@ -408,8 +409,9 @@ final class REST_Controller {
 	/**
 	 * Return compact Base/Original/Branch values for human review.
 	 *
-	 * Only core editorial text fields are returned. Arbitrary post meta values
-	 * are intentionally not exposed through this convenience payload.
+	 * Core editorial fields, taxonomy term names, and featured-image identity
+	 * are exposed to the authorized editor. Arbitrary post-meta values remain
+	 * intentionally hidden even when their keys are listed as changed.
 	 *
 	 * @param array<string,mixed> $analysis Branch analysis.
 	 * @return array<string,array<string,string>>
@@ -420,30 +422,140 @@ final class REST_Controller {
 		}
 
 		$review = isset( $analysis['analysis'] ) && is_array( $analysis['analysis'] ) ? $analysis['analysis'] : array();
-		$paths  = array_unique(
-			array_merge(
-				$review['branch_changes'] ?? array(),
-				$review['original_changes'] ?? array(),
-				$review['conflicts'] ?? array()
+		$paths  = array_values(
+			array_unique(
+				array_merge(
+					$review['branch_changes'] ?? array(),
+					$review['original_changes'] ?? array(),
+					$review['conflicts'] ?? array()
+				)
 			)
 		);
-		$fields = array( 'post_title', 'post_excerpt', 'post_content' );
 		$result = array();
 
-		foreach ( $fields as $field ) {
-			$path = 'post.' . $field;
-			if ( ! in_array( $path, $paths, true ) ) {
+		foreach ( $paths as $path ) {
+			if ( str_starts_with( $path, 'post.' ) ) {
+				$field = substr( $path, 5 );
+				if ( ! in_array( $field, array( 'post_title', 'post_excerpt', 'post_content', 'menu_order', 'comment_status', 'ping_status', 'post_password' ), true ) ) {
+					continue;
+				}
+
+				$result[ $path ] = array(
+					'base'     => $this->review_post_value( $field, $analysis['base']['merge']['post'][ $field ] ?? '' ),
+					'original' => $this->review_post_value( $field, $analysis['original']['merge']['post'][ $field ] ?? '' ),
+					'branch'   => $this->review_post_value( $field, $analysis['branch']['merge']['post'][ $field ] ?? '' ),
+				);
 				continue;
 			}
 
-			$result[ $field ] = array(
-				'base'     => $this->compact_review_text( $analysis['base']['merge']['post'][ $field ] ?? '' ),
-				'original' => $this->compact_review_text( $analysis['original']['merge']['post'][ $field ] ?? '' ),
-				'branch'   => $this->compact_review_text( $analysis['branch']['merge']['post'][ $field ] ?? '' ),
-			);
+			if ( str_starts_with( $path, 'taxonomies.' ) ) {
+				$taxonomy = substr( $path, 11 );
+				$object   = get_taxonomy( $taxonomy );
+				$result[ $path ] = array(
+					'label'    => $object && ! empty( $object->labels->name ) ? (string) $object->labels->name : $taxonomy,
+					'base'     => $this->review_taxonomy_value( $taxonomy, $analysis['base']['merge']['taxonomies'][ $taxonomy ] ?? array() ),
+					'original' => $this->review_taxonomy_value( $taxonomy, $analysis['original']['merge']['taxonomies'][ $taxonomy ] ?? array() ),
+					'branch'   => $this->review_taxonomy_value( $taxonomy, $analysis['branch']['merge']['taxonomies'][ $taxonomy ] ?? array() ),
+				);
+				continue;
+			}
+
+			if ( 'meta._thumbnail_id' === $path ) {
+				$base     = $this->review_featured_image_value( $analysis['base']['merge']['meta']['_thumbnail_id'] ?? array() );
+				$original = $this->review_featured_image_value( $analysis['original']['merge']['meta']['_thumbnail_id'] ?? array() );
+				$branch   = $this->review_featured_image_value( $analysis['branch']['merge']['meta']['_thumbnail_id'] ?? array() );
+				$result[ $path ] = array(
+					'label'                => __( 'Featured image' ),
+					'base'                 => $base['label'],
+					'original'             => $original['label'],
+					'branch'               => $branch['label'],
+					'base_preview_url'     => $base['url'],
+					'original_preview_url' => $original['url'],
+					'branch_preview_url'   => $branch['url'],
+				);
+			}
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Format one core post field for the compact review.
+	 *
+	 * Passwords are deliberately masked rather than returned through REST.
+	 *
+	 * @param string $field Core post field.
+	 * @param mixed  $value Raw snapshot value.
+	 * @return string
+	 */
+	private function review_post_value( string $field, $value ): string {
+		if ( 'post_password' === $field ) {
+			return '' === (string) $value ? '—' : '••••••';
+		}
+
+		if ( 'menu_order' === $field ) {
+			return (string) (int) $value;
+		}
+
+		if ( in_array( $field, array( 'comment_status', 'ping_status' ), true ) ) {
+			if ( 'open' === $value ) {
+				return __( 'Open' );
+			}
+			if ( 'closed' === $value ) {
+				return __( 'Closed' );
+			}
+		}
+
+		$text = $this->compact_review_text( $value );
+		return '' === $text ? '—' : $text;
+	}
+
+	/**
+	 * Convert taxonomy term IDs into readable localized term names.
+	 *
+	 * @param string $taxonomy Taxonomy slug.
+	 * @param mixed  $value    Snapshot taxonomy value.
+	 * @return string
+	 */
+	private function review_taxonomy_value( string $taxonomy, $value ): string {
+		$ids = is_array( $value ) ? array_values( array_filter( array_map( 'absint', $value ) ) ) : array();
+		if ( empty( $ids ) ) {
+			return '—';
+		}
+
+		$names = array();
+		foreach ( $ids as $term_id ) {
+			$term = get_term( $term_id, $taxonomy );
+			$names[] = $term && ! is_wp_error( $term ) ? (string) $term->name : '#' . $term_id;
+		}
+
+		return implode( ', ', $names );
+	}
+
+	/**
+	 * Return a safe featured-image label and optional thumbnail URL.
+	 *
+	 * @param mixed $value Snapshot meta value.
+	 * @return array{label:string,url:string}
+	 */
+	private function review_featured_image_value( $value ): array {
+		$raw = is_array( $value ) ? reset( $value ) : $value;
+		$id  = absint( $raw );
+		if ( $id < 1 ) {
+			return array(
+				'label' => '—',
+				'url'   => '',
+			);
+		}
+
+		$attachment = get_post( $id );
+		$title      = $attachment ? trim( wp_strip_all_tags( get_the_title( $attachment ) ) ) : '';
+		$url        = wp_get_attachment_image_url( $id, 'thumbnail' );
+
+		return array(
+			'label' => '' !== $title ? sprintf( '%1$s (#%2$d)', $title, $id ) : '#' . $id,
+			'url'   => $url ? (string) $url : '',
+		);
 	}
 
 	/**
@@ -455,6 +567,22 @@ final class REST_Controller {
 	private function compact_review_text( $value ): string {
 		$text = trim( wp_strip_all_tags( (string) $value, true ) );
 		return wp_html_excerpt( $text, 1200, strlen( $text ) > 1200 ? '…' : '' );
+	}
+
+	/**
+	 * Build a localized relative modified-time label for branch cards.
+	 *
+	 * @param \WP_Post $post Branch post.
+	 * @return string
+	 */
+	private function modified_human_label( \WP_Post $post ): string {
+		$modified = (int) get_post_modified_time( 'U', true, $post );
+		if ( $modified < 1 ) {
+			return '';
+		}
+
+		$diff = human_time_diff( $modified, current_time( 'timestamp', true ) );
+		return '' === $diff ? '' : sprintf( __( '%s ago' ), $diff );
 	}
 
 	/**
