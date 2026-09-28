@@ -470,6 +470,17 @@ try {
 	$_GET['wbfp_view'] = 'branches';
 	$branch_views = $admin_ui->branch_views( array() );
 	wbfp_check( isset( $branch_views['wbfp_branches'] ), 'Posts list exposes a dedicated existing-branches view' );
+
+	$page_filter_original = wbfp_make_post( array( 'post_type' => 'page', 'post_title' => 'Branch view page' ) );
+	$page_filter_branch   = $branches->create( $page_filter_original );
+	wbfp_check( ! is_wp_error( $page_filter_branch ), 'Create page branch for Pages list filter test' );
+	$page_filter_branch = (int) $page_filter_branch;
+	$created_posts[] = $page_filter_branch;
+	set_current_screen( 'edit-page' );
+	$page_branch_views = $admin_ui->branch_views( array() );
+	wbfp_check( isset( $page_branch_views['wbfp_branches'] ), 'Pages list exposes a dedicated existing-branches view' );
+	set_current_screen( 'edit-post' );
+
 	$branch_query = new WP_Query();
 	$GLOBALS['wp_the_query'] = $branch_query;
 	$admin_ui->filter_branch_view_query( $branch_query );
