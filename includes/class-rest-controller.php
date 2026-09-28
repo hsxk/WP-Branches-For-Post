@@ -468,6 +468,7 @@ final class REST_Controller {
 				$post_type   = (string) ( $analysis['branch']['identity']['post_type'] ?? '' );
 				$type_obj    = '' !== $post_type ? get_post_type_object( $post_type ) : null;
 				$image_label = $type_obj && ! empty( $type_obj->labels->featured_image ) ? (string) $type_obj->labels->featured_image : 'Featured image';
+
 				$result[ $path ] = array(
 					'label'                => $image_label,
 					'base'                 => $base['label'],
