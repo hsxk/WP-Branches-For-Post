@@ -11,7 +11,7 @@
     "plugin-zip": "wp-scripts plugin-zip && zip -d wp-branches-for-post.zip 'wp-branches-for-post/package.json'"
   },
   "devDependencies": {
-    "@wordpress/scripts": "^35.0.0"
+    "@wordpress/scripts": "^36.0.0"
   },
   "engines": {
     "node": ">=22"
