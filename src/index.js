@@ -103,11 +103,19 @@ function ReviewValues( { values } ) {
 		return null;
 	}
 
-	const labels = {
-		post_title: __( 'Title', 'wp-branches-for-post' ),
-		post_excerpt: __( 'Excerpt', 'wp-branches-for-post' ),
-		post_content: __( 'Content', 'wp-branches-for-post' ),
-	};
+	const version = ( label, text, previewUrl ) =>
+		el(
+			'div',
+			{ className: 'wbfp-compare__version' },
+			el( 'span', null, label ),
+			previewUrl &&
+				el( 'img', {
+					className: 'wbfp-compare__thumbnail',
+					src: previewUrl,
+					alt: '',
+				} ),
+			el( 'pre', null, text || '—' )
+		);
 
 	return el(
 		'div',
@@ -117,36 +125,25 @@ function ReviewValues( { values } ) {
 			null,
 			__( 'Three-way comparison', 'wp-branches-for-post' )
 		),
-		...Object.entries( values ).map( ( [ field, value ] ) =>
+		...Object.entries( values ).map( ( [ path, value ] ) =>
 			el(
 				'details',
-				{ key: field, className: 'wbfp-compare__field' },
-				el( 'summary', null, labels[ field ] || field ),
-				el(
-					'div',
-					{ className: 'wbfp-compare__version' },
-					el( 'span', null, __( 'Base', 'wp-branches-for-post' ) ),
-					el( 'pre', null, value.base || '—' )
+				{ key: path, className: 'wbfp-compare__field' },
+				el( 'summary', null, value.label || pathLabel( path ) ),
+				version(
+					__( 'Base', 'wp-branches-for-post' ),
+					value.base,
+					value.base_preview_url
 				),
-				el(
-					'div',
-					{ className: 'wbfp-compare__version' },
-					el(
-						'span',
-						null,
-						__( 'Original now', 'wp-branches-for-post' )
-					),
-					el( 'pre', null, value.original || '—' )
+				version(
+					__( 'Original now', 'wp-branches-for-post' ),
+					value.original,
+					value.original_preview_url
 				),
-				el(
-					'div',
-					{ className: 'wbfp-compare__version' },
-					el(
-						'span',
-						null,
-						__( 'Branch now', 'wp-branches-for-post' )
-					),
-					el( 'pre', null, value.branch || '—' )
+				version(
+					__( 'Branch now', 'wp-branches-for-post' ),
+					value.branch,
+					value.branch_preview_url
 				)
 			)
 		)
@@ -333,14 +330,27 @@ function BranchPanel() {
 					'div',
 					{ className: 'wbfp-branch-card__head' },
 					el(
-						'a',
-						{ href: branch.edit_url },
-						branch.title ||
+						'div',
+						{ className: 'wbfp-branch-card__identity' },
+						el(
+							'a',
+							{ href: branch.edit_url },
+							branch.title ||
+								sprintf(
+									/* translators: %d: branch post ID. */
+									__( 'Branch #%d', 'wp-branches-for-post' ),
+									branch.id
+								)
+						),
+						el(
+							'span',
+							{ className: 'wbfp-branch-card__id' },
 							sprintf(
 								/* translators: %d: branch post ID. */
 								__( 'Branch #%d', 'wp-branches-for-post' ),
 								branch.id
 							)
+						)
 					),
 					el(
 						'span',
@@ -350,15 +360,22 @@ function BranchPanel() {
 						stateLabel( branch.conflict )
 					)
 				),
-				branch.creator &&
+				( branch.creator || branch.modified_human ) &&
 					el(
 						'div',
-						{ className: 'wbfp-meta' },
-						sprintf(
-							/* translators: %s: branch creator display name. */
-							__( 'Created by %s', 'wp-branches-for-post' ),
-							branch.creator
-						)
+						{ className: 'wbfp-meta wbfp-branch-card__meta' },
+						branch.creator &&
+							el(
+								'span',
+								null,
+								sprintf(
+									/* translators: %s: branch creator display name. */
+									__( 'Created by %s', 'wp-branches-for-post' ),
+									branch.creator
+								)
+							),
+						branch.modified_human &&
+							el( 'span', null, branch.modified_human )
 					),
 				el(
 					'div',
@@ -414,7 +431,8 @@ function BranchPanel() {
 					el(
 						'strong',
 						null,
-						__( 'Existing branches', 'wp-branches-for-post' )
+						__( 'Existing branches', 'wp-branches-for-post' ),
+						` (\${ status.branches.length })`
 					),
 					el( 'ul', null, branchCards )
 				)
