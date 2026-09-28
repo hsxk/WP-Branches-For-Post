@@ -39,67 +39,73 @@ msgstr ""
 msgid "https://time2log.com/about/"
 msgstr ""
 
-#: includes/class-admin.php:92
-#: build/index.js:8
-#: src/index.js:684
+#: includes/class-admin.php:95
+#: build/index.js:9
+#: src/index.js:705
 msgid "Review changes"
 msgstr ""
 
-#: includes/class-admin.php:98
+#: includes/class-admin.php:101
 msgid "Merge branch"
 msgstr ""
 
-#: includes/class-admin.php:109
-#: includes/class-admin.php:190
-#: build/index.js:6
-#: src/index.js:408
+#: includes/class-admin.php:112
+#: includes/class-admin.php:323
+#: build/index.js:7
+#: src/index.js:428
 msgid "Create branch"
 msgstr ""
 
 #. translators: %d: original post ID.
-#: includes/class-admin.php:126
+#: includes/class-admin.php:130
 #, php-format
 msgid "Branch of #%d"
 msgstr ""
 
-#: includes/class-admin.php:153
-#: includes/class-admin.php:175
-#: includes/class-admin.php:188
-#: build/index.js:8
-#: src/index.js:763
+#: includes/class-admin.php:178
+#: build/index.js:7
+#: src/index.js:437
+msgid "Existing branches"
+msgstr ""
+
+#: includes/class-admin.php:286
+#: includes/class-admin.php:308
+#: includes/class-admin.php:321
+#: build/index.js:9
+#: src/index.js:784
 msgid "Post Branch"
 msgstr ""
 
-#: includes/class-admin.php:154
-#: build/index.js:6
-#: src/index.js:575
+#: includes/class-admin.php:287
+#: build/index.js:7
+#: src/index.js:596
 msgid "The original post is unavailable. This branch cannot be merged."
 msgstr ""
 
-#: includes/class-admin.php:166
-#: includes/class-admin.php:265
+#: includes/class-admin.php:299
+#: includes/class-admin.php:398
 msgid "The original changed after this branch was created. This action will force the merge and prefer branch values where changes overlap. Continue only after reviewing both versions."
 msgstr ""
 
-#: includes/class-admin.php:178
+#: includes/class-admin.php:311
 msgid "Force merge after review"
 msgstr ""
 
-#: includes/class-admin.php:178
+#: includes/class-admin.php:311
 msgid "Merge into original"
 msgstr ""
 
-#: includes/class-admin.php:223
+#: includes/class-admin.php:356
 msgid "Create Branch"
 msgstr ""
 
 #. translators: 1: original post ID, 2: edit URL for the original post.
-#: includes/class-admin.php:255
+#: includes/class-admin.php:388
 #, php-format
 msgid "This is a working branch of post #%1$d. The public original stays unchanged until you explicitly merge this branch. <a href=\"%2$s\">Open original</a>."
 msgstr ""
 
-#: includes/class-admin.php:267
+#: includes/class-admin.php:400
 msgid "WP Branches For Post could not complete the requested operation."
 msgstr ""
 
@@ -268,58 +274,17 @@ msgid "WP Branches For Post could not complete the request."
 msgstr ""
 
 #: build/index.js:1
-#: src/index.js:62
-msgid "Ready"
-msgstr ""
-
-#: build/index.js:1
-#: src/index.js:63
-msgid "Ready · original identity changed"
-msgstr ""
-
-#: build/index.js:1
-#: src/index.js:67
-msgid "Original updated · safe to refresh branch"
-msgstr ""
-
-#: build/index.js:1
-#: src/index.js:71
-msgid "Needs conflict review"
-msgstr ""
-
-#: build/index.js:1
-#: src/index.js:72
-msgid "Original changed"
-msgstr ""
-
-#: build/index.js:1
-#: src/index.js:73
-msgid "Legacy branch"
-msgstr ""
-
-#: build/index.js:1
-#: src/index.js:74
-msgid "Original unavailable"
-msgstr ""
-
-#: build/index.js:1
-#: build/index.js:3
 #: src/index.js:24
-#: src/index.js:107
 msgid "Title"
 msgstr ""
 
 #: build/index.js:1
-#: build/index.js:3
 #: src/index.js:25
-#: src/index.js:109
 msgid "Content"
 msgstr ""
 
 #: build/index.js:1
-#: build/index.js:3
 #: src/index.js:26
-#: src/index.js:108
 msgid "Excerpt"
 msgstr ""
 
@@ -383,227 +348,259 @@ msgid "Taxonomy: %s"
 msgstr ""
 
 #: build/index.js:3
-#: src/index.js:118
+#: src/index.js:62
+msgid "Ready"
+msgstr ""
+
+#: build/index.js:3
+#: src/index.js:63
+msgid "Ready · original identity changed"
+msgstr ""
+
+#: build/index.js:3
+#: src/index.js:67
+msgid "Original updated · safe to refresh branch"
+msgstr ""
+
+#: build/index.js:3
+#: src/index.js:71
+msgid "Needs conflict review"
+msgstr ""
+
+#: build/index.js:3
+#: src/index.js:72
+msgid "Original changed"
+msgstr ""
+
+#: build/index.js:3
+#: src/index.js:73
+msgid "Legacy branch"
+msgstr ""
+
+#: build/index.js:3
+#: src/index.js:74
+msgid "Original unavailable"
+msgstr ""
+
+#: build/index.js:3
+#: src/index.js:126
 msgid "Three-way comparison"
 msgstr ""
 
 #: build/index.js:3
-#: src/index.js:128
+#: src/index.js:134
 msgid "Base"
 msgstr ""
 
 #: build/index.js:3
-#: src/index.js:137
+#: src/index.js:139
 msgid "Original now"
 msgstr ""
 
 #: build/index.js:3
-#: src/index.js:147
+#: src/index.js:144
 msgid "Branch now"
 msgstr ""
 
 #: build/index.js:3
-#: src/index.js:209
+#: src/index.js:206
 msgid "Save or discard the current edits to the original before creating a branch. This prevents unpublished editor changes from being mistaken for the branch baseline."
 msgstr ""
 
 #: build/index.js:3
-#: src/index.js:287
+#: src/index.js:284
 msgid "The review state changed after saving. Review the latest conflicts before merging."
 msgstr ""
 
 #. translators: %d: branch post ID.
 #: build/index.js:4
+#: build/index.js:5
 #: src/index.js:341
+#: src/index.js:350
 #, js-format
 msgid "Branch #%d"
 msgstr ""
 
 #. translators: %s: branch creator display name.
-#: build/index.js:5
-#: build/index.js:7
-#: src/index.js:359
-#: src/index.js:610
+#: build/index.js:6
+#: build/index.js:8
+#: src/index.js:373
+#: src/index.js:631
 #, js-format
 msgid "Created by %s"
 msgstr ""
 
 #. translators: 1: number of branch changes, 2: number of conflicts.
-#: build/index.js:6
-#: src/index.js:368
+#: build/index.js:7
+#: src/index.js:388
 #, js-format
 msgid "%1$d branch changes · %2$d conflicts"
 msgstr ""
 
-#: build/index.js:6
-#: src/index.js:384
+#: build/index.js:7
+#: src/index.js:404
 msgid "Edit safely in a separate draft. The published post stays unchanged until you merge the branch."
 msgstr ""
 
-#: build/index.js:6
-#: src/index.js:393
+#: build/index.js:7
+#: src/index.js:413
 msgid "This original has unsaved editor changes. Save or discard them before creating a branch so the baseline matches the saved public post."
 msgstr ""
 
-#: build/index.js:6
-#: src/index.js:407
+#: build/index.js:7
+#: src/index.js:427
 msgid "Creating…"
 msgstr ""
 
-#: build/index.js:6
-#: src/index.js:417
-msgid "Existing branches"
-msgstr ""
-
-#: build/index.js:6
-#: src/index.js:441
+#: build/index.js:7
+#: src/index.js:462
 msgid "Merge review"
 msgstr ""
 
-#: build/index.js:6
-#: src/index.js:447
+#: build/index.js:7
+#: src/index.js:468
 msgid "This branch predates three-way snapshots, so detailed change comparison is unavailable. Force merge only after manually reviewing the original."
 msgstr ""
 
-#: build/index.js:6
-#: src/index.js:453
+#: build/index.js:7
+#: src/index.js:474
 msgid "Branch changes"
 msgstr ""
 
-#: build/index.js:6
-#: src/index.js:457
+#: build/index.js:7
+#: src/index.js:478
 msgid "Original changes since branch creation"
 msgstr ""
 
-#: build/index.js:6
-#: src/index.js:464
+#: build/index.js:7
+#: src/index.js:485
 msgid "Conflicts"
 msgstr ""
 
-#: build/index.js:6
-#: src/index.js:469
+#: build/index.js:7
+#: src/index.js:490
 msgid "Original identity changes preserved by merge"
 msgstr ""
 
-#: build/index.js:6
-#: src/index.js:481
+#: build/index.js:7
+#: src/index.js:502
 msgid "No mergeable branch changes are currently detected."
 msgstr ""
 
-#: build/index.js:6
-#: src/index.js:500
-#: src/index.js:522
+#: build/index.js:7
+#: src/index.js:521
+#: src/index.js:543
 msgid "Saving and merging…"
 msgstr ""
 
-#: build/index.js:6
-#: src/index.js:504
+#: build/index.js:7
+#: src/index.js:525
 msgid "Save & merge into original"
 msgstr ""
 
-#: build/index.js:6
-#: src/index.js:526
+#: build/index.js:7
+#: src/index.js:547
 msgid "Force merge reviewed conflicts"
 msgstr ""
 
-#: build/index.js:6
-#: src/index.js:539
+#: build/index.js:7
+#: src/index.js:560
 msgid "The original has newer, non-conflicting changes. You can update this branch first, or review and merge while preserving those original changes."
 msgstr ""
 
-#: build/index.js:6
-#: src/index.js:548
+#: build/index.js:7
+#: src/index.js:569
 msgid "The original identity changed (for example status, slug, author, or parent). Those changes are preserved and are not overwritten by this branch."
 msgstr ""
 
-#: build/index.js:6
-#: src/index.js:557
+#: build/index.js:7
+#: src/index.js:578
 msgid "The branch and original changed the same data differently. Review the conflicts before deciding whether to force merge."
 msgstr ""
 
-#: build/index.js:6
-#: src/index.js:566
+#: build/index.js:7
+#: src/index.js:587
 msgid "This older branch cannot provide a precise three-way comparison. Review the original manually before forcing a merge."
 msgstr ""
 
-#: build/index.js:6
-#: src/index.js:588
+#: build/index.js:7
+#: src/index.js:609
 msgid "This draft is isolated from the public original."
 msgstr ""
 
-#: build/index.js:6
-#: src/index.js:600
+#: build/index.js:7
+#: src/index.js:621
 msgid "Open original"
 msgstr ""
 
 #. translators: %d: number of synced patterns referenced by the branch.
-#: build/index.js:8
-#: src/index.js:625
+#: build/index.js:9
+#: src/index.js:646
 #, js-format
 msgid "This branch references %d synced pattern(s). Editing a synced pattern is global in WordPress and is not isolated by the branch."
 msgstr ""
 
-#: build/index.js:8
-#: src/index.js:644
+#: build/index.js:9
+#: src/index.js:665
 msgid "Preview branch"
 msgstr ""
 
-#: build/index.js:8
-#: src/index.js:654
+#: build/index.js:9
+#: src/index.js:675
 msgid "View original"
 msgstr ""
 
-#: build/index.js:8
-#: src/index.js:666
+#: build/index.js:9
+#: src/index.js:687
 msgid "Updating…"
 msgstr ""
 
-#: build/index.js:8
-#: src/index.js:667
+#: build/index.js:9
+#: src/index.js:688
 msgid "Update branch from original"
 msgstr ""
 
-#: build/index.js:8
-#: src/index.js:683
+#: build/index.js:9
+#: src/index.js:704
 msgid "Hide merge review"
 msgstr ""
 
-#: build/index.js:8
-#: src/index.js:695
+#: build/index.js:9
+#: src/index.js:716
 msgid "Discard branch"
 msgstr ""
 
-#: build/index.js:8
-#: src/index.js:709
+#: build/index.js:9
+#: src/index.js:730
 msgid "Force merge conflicts?"
 msgstr ""
 
-#: build/index.js:8
-#: src/index.js:710
+#: build/index.js:9
+#: src/index.js:731
 msgid "Discard this branch?"
 msgstr ""
 
-#: build/index.js:8
-#: src/index.js:717
+#: build/index.js:9
+#: src/index.js:738
 msgid "Force merge will prefer branch values for the listed conflicts. Non-conflicting newer work on the original is still preserved."
 msgstr ""
 
-#: build/index.js:8
-#: src/index.js:721
+#: build/index.js:9
+#: src/index.js:742
 msgid "The branch will be moved to Trash. The public original will not be changed."
 msgstr ""
 
-#: build/index.js:8
-#: src/index.js:735
+#: build/index.js:9
+#: src/index.js:756
 msgid "Cancel"
 msgstr ""
 
-#: build/index.js:8
-#: src/index.js:753
+#: build/index.js:9
+#: src/index.js:774
 msgid "Force merge"
 msgstr ""
 
-#: build/index.js:8
-#: src/index.js:754
+#: build/index.js:9
+#: src/index.js:775
 msgid "Move to Trash"
 msgstr ""
