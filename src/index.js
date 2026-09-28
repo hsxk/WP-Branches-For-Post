@@ -432,7 +432,7 @@ function BranchPanel() {
 						'strong',
 						null,
 						__( 'Existing branches', 'wp-branches-for-post' ),
-						` (\${ status.branches.length })`
+						` (${ status.branches.length })`
 					),
 					el( 'ul', null, branchCards )
 				)
