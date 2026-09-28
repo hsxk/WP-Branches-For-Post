@@ -211,7 +211,7 @@ jobs:
         run: echo "35 semantic UI cases passed; regenerated PNGs are retained as evidence rather than byte-for-byte golden files."
       - name: Upload regenerated screenshot evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: wp-branches-for-post-visual-evidence
           path: |
@@ -222,7 +222,7 @@ jobs:
           retention-days: 14
       - name: Upload server log on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: wp-browser-log
           path: /tmp/wp-browser.log

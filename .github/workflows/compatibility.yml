@@ -139,7 +139,7 @@ jobs:
               exit 1
             fi
           done
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: wp-branches-for-post-release-candidate
           path: '*.zip'
