@@ -371,9 +371,9 @@ function BranchPanel() {
 								sprintf(
 									/* translators: %s: branch creator display name. */
 									__(
-									'Created by %s',
-									'wp-branches-for-post'
-								),
+										'Created by %s',
+										'wp-branches-for-post'
+									),
 									branch.creator
 								)
 							),
