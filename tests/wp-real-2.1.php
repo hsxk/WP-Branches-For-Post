@@ -464,7 +464,8 @@ try {
 		'Original status includes a human-readable branch modified time'
 	);
 
-	$previous_screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+	$previous_screen   = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+	$previous_wp_query = $GLOBALS['wp_the_query'] ?? null;
 	set_current_screen( 'edit-post' );
 	$_GET['wbfp_view'] = 'branches';
 	$branch_views = $admin_ui->branch_views( array() );
@@ -480,6 +481,7 @@ try {
 		'Dedicated branch view filters the main list query by branch relationship'
 	);
 	unset( $_GET['wbfp_view'] );
+	$GLOBALS['wp_the_query'] = $previous_wp_query;
 	set_current_screen( $previous_screen ? $previous_screen->id : 'front' );
 
 	$previous_post = $GLOBALS['post'] ?? null;
