@@ -1,0 +1,41 @@
+name: Refresh 2.1.1 build
+
+on:
+  push:
+    branches:
+      - feat/2.1.1-review-branch-management
+
+permissions:
+  contents: write
+
+jobs:
+  refresh-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Lint sources
+        run: |
+          npm run lint:js
+          npm run lint:css
+      - name: Rebuild editor asset
+        run: npm run build
+      - name: Commit generated build
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- build; then
+            echo "Build is already current."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add build
+          git commit -m "build: refresh editor asset for 2.1.1"
+          git push origin HEAD:feat/2.1.1-review-branch-management
