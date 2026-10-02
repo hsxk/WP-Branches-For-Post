@@ -130,8 +130,9 @@ final class Admin {
 				__( 'Branch of #%d', 'wp-branches-for-post' ),
 				$original_id
 			);
-			$original = get_post( $original_id );
-			$title    = $original ? trim( wp_strip_all_tags( get_the_title( $original ) ) ) : '';
+			$can_read_original = $original_id > 0 && current_user_can( 'read_post', $original_id );
+			$original          = $can_read_original ? get_post( $original_id ) : null;
+			$title             = $original ? trim( wp_strip_all_tags( get_the_title( $original ) ) ) : '';
 			if ( '' !== $title ) {
 				$label .= ' — ' . $title;
 			}
