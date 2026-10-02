@@ -465,9 +465,12 @@ final class REST_Controller {
 				$base        = $this->review_featured_image_value( $analysis['base']['merge']['meta']['_thumbnail_id'] ?? array() );
 				$original    = $this->review_featured_image_value( $analysis['original']['merge']['meta']['_thumbnail_id'] ?? array() );
 				$branch      = $this->review_featured_image_value( $analysis['branch']['merge']['meta']['_thumbnail_id'] ?? array() );
-				$post_type   = (string) ( $analysis['branch']['identity']['post_type'] ?? '' );
-				$type_obj    = '' !== $post_type ? get_post_type_object( $post_type ) : null;
-				$image_label = $type_obj && ! empty( $type_obj->labels->featured_image ) ? (string) $type_obj->labels->featured_image : 'Featured image';
+				$post_type    = (string) ( $analysis['branch']['identity']['post_type'] ?? '' );
+				$type_obj     = '' !== $post_type ? get_post_type_object( $post_type ) : null;
+				$fallback_obj = get_post_type_object( 'post' );
+				$image_label  = $type_obj && ! empty( $type_obj->labels->featured_image )
+					? (string) $type_obj->labels->featured_image
+					: (string) ( $fallback_obj->labels->featured_image ?? '' );
 
 				$result[ $path ] = array(
 					'label'                => $image_label,
