@@ -267,6 +267,18 @@ Human-readable source code and build tooling are maintained at https://github.co
 
 == Changelog ==
 
+= 2.1.1 =
+* Improved merge review with readable Base / Original / Branch values for menu order, comment status, ping status and password state.
+* Added readable taxonomy term names and featured-image identity with thumbnail previews to the three-way review.
+* Kept post passwords masked and arbitrary custom-meta values private in the REST review payload.
+* Expanded Existing branches cards with branch ID, creator, modified time, state, change count and conflict count.
+* Added dedicated Existing branches views to the Posts and Pages list tables, including legacy branch relationships.
+* Kept branch-list counts and filtering aligned with WordPress author capabilities so users without edit_others_posts see only their own branches.
+* Prevented private original titles from being exposed in branch list states when the current user cannot read the original.
+* Localized readable Open / Closed review values through WordPress core translations.
+* Expanded real WordPress integration coverage to 128 checks and real Gutenberg browser coverage to 42 checks, while retaining the 35-case semantic UI/tutorial contract.
+* Tightened release-tree and ZIP hygiene so development hidden files remain outside the distributable plugin.
+
 = 2.1.0 =
 * Added a three-way branch/original/baseline review instead of treating every newer original edit as the same kind of conflict.
 * Added detailed branch changes, original changes, exact conflicts and preserved identity changes to the Block Editor merge review.
