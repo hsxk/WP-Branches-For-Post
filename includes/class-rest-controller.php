@@ -506,9 +506,9 @@ final class REST_Controller {
 		}
 
 		if ( in_array( $field, array( 'comment_status', 'ping_status' ), true ) ) {
-			$statuses = get_comment_statuses();
-			if ( isset( $statuses[ (string) $value ] ) ) {
-				return (string) $statuses[ (string) $value ];
+			$status = (string) $value;
+			if ( in_array( $status, array( 'open', 'closed' ), true ) ) {
+				return 'open' === $status ? translate( 'Open' ) : translate( 'Closed' );
 			}
 		}
 

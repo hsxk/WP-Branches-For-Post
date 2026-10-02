@@ -54,7 +54,7 @@ msgstr "変更を確認"
 msgid "Merge branch"
 msgstr "ブランチをマージ"
 
-#: includes/class-admin.php:112 includes/class-admin.php:323 build/index.js:7
+#: includes/class-admin.php:112 includes/class-admin.php:333 build/index.js:7
 #: src/index.js:428
 msgid "Create branch"
 msgstr "ブランチを作成"
@@ -65,20 +65,20 @@ msgstr "ブランチを作成"
 msgid "Branch of #%d"
 msgstr "#%d のブランチ"
 
-#: includes/class-admin.php:178 build/index.js:7 src/index.js:437
+#: includes/class-admin.php:179 build/index.js:7 src/index.js:437
 msgid "Existing branches"
 msgstr "既存のブランチ"
 
-#: includes/class-admin.php:286 includes/class-admin.php:308
-#: includes/class-admin.php:321 build/index.js:9 src/index.js:784
+#: includes/class-admin.php:296 includes/class-admin.php:318
+#: includes/class-admin.php:331 build/index.js:9 src/index.js:784
 msgid "Post Branch"
 msgstr "投稿ブランチ"
 
-#: includes/class-admin.php:287 build/index.js:7 src/index.js:596
+#: includes/class-admin.php:297 build/index.js:7 src/index.js:596
 msgid "The original post is unavailable. This branch cannot be merged."
 msgstr "元の投稿を利用できないため、このブランチはマージできません。"
 
-#: includes/class-admin.php:299 includes/class-admin.php:398
+#: includes/class-admin.php:309 includes/class-admin.php:408
 msgid ""
 "The original changed after this branch was created. This action will force "
 "the merge and prefer branch values where changes overlap. Continue only "
@@ -88,20 +88,20 @@ msgstr ""
 "い、重複する変更ではブランチ側の値を優先します。両方の内容を確認してから続行"
 "してください。"
 
-#: includes/class-admin.php:311
+#: includes/class-admin.php:321
 msgid "Force merge after review"
 msgstr "確認後に強制マージ"
 
-#: includes/class-admin.php:311
+#: includes/class-admin.php:321
 msgid "Merge into original"
 msgstr "元の投稿へマージ"
 
-#: includes/class-admin.php:356
+#: includes/class-admin.php:366
 msgid "Create Branch"
 msgstr "ブランチを作成"
 
 #. translators: 1: original post ID, 2: edit URL for the original post.
-#: includes/class-admin.php:388
+#: includes/class-admin.php:398
 #, php-format
 msgid ""
 "This is a working branch of post #%1$d. The public original stays unchanged "
@@ -110,7 +110,7 @@ msgstr ""
 "これは投稿 #%1$d の作業用ブランチです。このブランチを明示的にマージするまで、"
 "公開中の元の投稿は変更されません。<a href=\"%2$s\">元の投稿を開く</a>。"
 
-#: includes/class-admin.php:400
+#: includes/class-admin.php:410
 msgid "WP Branches For Post could not complete the requested operation."
 msgstr "WP Branches For Post は要求された操作を完了できませんでした。"
 

@@ -648,15 +648,16 @@ try {
 	$status_review_request->set_param( 'id', $status_branch );
 	$status_review_data = $rest->status( $status_review_request )->get_data();
 	$status_review_values = $status_review_data['review_values'] ?? array();
-	$comment_statuses = get_comment_statuses();
+	$open_status_label   = translate( 'Open' );
+	$closed_status_label = translate( 'Closed' );
 	wbfp_check(
-		( $comment_statuses['open'] ?? 'Open' ) === ( $status_review_values['post.comment_status']['base'] ?? '' )
-		&& ( $comment_statuses['closed'] ?? 'Closed' ) === ( $status_review_values['post.comment_status']['branch'] ?? '' ),
+		$open_status_label === ( $status_review_values['post.comment_status']['base'] ?? '' )
+		&& $closed_status_label === ( $status_review_values['post.comment_status']['branch'] ?? '' ),
 		'Merge review exposes readable comment-status values'
 	);
 	wbfp_check(
-		( $comment_statuses['open'] ?? 'Open' ) === ( $status_review_values['post.ping_status']['base'] ?? '' )
-		&& ( $comment_statuses['closed'] ?? 'Closed' ) === ( $status_review_values['post.ping_status']['branch'] ?? '' ),
+		$open_status_label === ( $status_review_values['post.ping_status']['base'] ?? '' )
+		&& $closed_status_label === ( $status_review_values['post.ping_status']['branch'] ?? '' ),
 		'Merge review exposes readable ping-status values'
 	);
 	$status_merge = $merges->merge( $status_branch, false );

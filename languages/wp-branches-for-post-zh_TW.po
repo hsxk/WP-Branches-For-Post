@@ -54,7 +54,7 @@ msgstr "檢查變更"
 msgid "Merge branch"
 msgstr "合併分支"
 
-#: includes/class-admin.php:112 includes/class-admin.php:323 build/index.js:7
+#: includes/class-admin.php:112 includes/class-admin.php:333 build/index.js:7
 #: src/index.js:428
 msgid "Create branch"
 msgstr "建立分支"
@@ -65,20 +65,20 @@ msgstr "建立分支"
 msgid "Branch of #%d"
 msgstr "#%d 的分支"
 
-#: includes/class-admin.php:178 build/index.js:7 src/index.js:437
+#: includes/class-admin.php:179 build/index.js:7 src/index.js:437
 msgid "Existing branches"
 msgstr "現有分支"
 
-#: includes/class-admin.php:286 includes/class-admin.php:308
-#: includes/class-admin.php:321 build/index.js:9 src/index.js:784
+#: includes/class-admin.php:296 includes/class-admin.php:318
+#: includes/class-admin.php:331 build/index.js:9 src/index.js:784
 msgid "Post Branch"
 msgstr "文章分支"
 
-#: includes/class-admin.php:287 build/index.js:7 src/index.js:596
+#: includes/class-admin.php:297 build/index.js:7 src/index.js:596
 msgid "The original post is unavailable. This branch cannot be merged."
 msgstr "原始文章無法使用，無法合併此分支。"
 
-#: includes/class-admin.php:299 includes/class-admin.php:398
+#: includes/class-admin.php:309 includes/class-admin.php:408
 msgid ""
 "The original changed after this branch was created. This action will force "
 "the merge and prefer branch values where changes overlap. Continue only "
@@ -87,20 +87,20 @@ msgstr ""
 "建立此分支後原始文章已發生變更。此操作將強制合併，並在重疊變更處優先採用分支"
 "值。請檢查兩個版本後再繼續。"
 
-#: includes/class-admin.php:311
+#: includes/class-admin.php:321
 msgid "Force merge after review"
 msgstr "檢查後強制合併"
 
-#: includes/class-admin.php:311
+#: includes/class-admin.php:321
 msgid "Merge into original"
 msgstr "合併到原始文章"
 
-#: includes/class-admin.php:356
+#: includes/class-admin.php:366
 msgid "Create Branch"
 msgstr "建立分支"
 
 #. translators: 1: original post ID, 2: edit URL for the original post.
-#: includes/class-admin.php:388
+#: includes/class-admin.php:398
 #, php-format
 msgid ""
 "This is a working branch of post #%1$d. The public original stays unchanged "
@@ -109,7 +109,7 @@ msgstr ""
 "這是文章 #%1$d 的工作分支。在你明確合併此分支之前，公開的原始文章不會發生變"
 "更。<a href=\"%2$s\">開啟原始文章</a>。"
 
-#: includes/class-admin.php:400
+#: includes/class-admin.php:410
 msgid "WP Branches For Post could not complete the requested operation."
 msgstr "WP Branches For Post 無法完成要求的操作。"
 

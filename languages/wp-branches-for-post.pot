@@ -50,7 +50,7 @@ msgid "Merge branch"
 msgstr ""
 
 #: includes/class-admin.php:112
-#: includes/class-admin.php:323
+#: includes/class-admin.php:333
 #: build/index.js:7
 #: src/index.js:428
 msgid "Create branch"
@@ -62,50 +62,50 @@ msgstr ""
 msgid "Branch of #%d"
 msgstr ""
 
-#: includes/class-admin.php:178
+#: includes/class-admin.php:179
 #: build/index.js:7
 #: src/index.js:437
 msgid "Existing branches"
 msgstr ""
 
-#: includes/class-admin.php:286
-#: includes/class-admin.php:308
-#: includes/class-admin.php:321
+#: includes/class-admin.php:296
+#: includes/class-admin.php:318
+#: includes/class-admin.php:331
 #: build/index.js:9
 #: src/index.js:784
 msgid "Post Branch"
 msgstr ""
 
-#: includes/class-admin.php:287
+#: includes/class-admin.php:297
 #: build/index.js:7
 #: src/index.js:596
 msgid "The original post is unavailable. This branch cannot be merged."
 msgstr ""
 
-#: includes/class-admin.php:299
-#: includes/class-admin.php:398
+#: includes/class-admin.php:309
+#: includes/class-admin.php:408
 msgid "The original changed after this branch was created. This action will force the merge and prefer branch values where changes overlap. Continue only after reviewing both versions."
 msgstr ""
 
-#: includes/class-admin.php:311
+#: includes/class-admin.php:321
 msgid "Force merge after review"
 msgstr ""
 
-#: includes/class-admin.php:311
+#: includes/class-admin.php:321
 msgid "Merge into original"
 msgstr ""
 
-#: includes/class-admin.php:356
+#: includes/class-admin.php:366
 msgid "Create Branch"
 msgstr ""
 
 #. translators: 1: original post ID, 2: edit URL for the original post.
-#: includes/class-admin.php:388
+#: includes/class-admin.php:398
 #, php-format
 msgid "This is a working branch of post #%1$d. The public original stays unchanged until you explicitly merge this branch. <a href=\"%2$s\">Open original</a>."
 msgstr ""
 
-#: includes/class-admin.php:400
+#: includes/class-admin.php:410
 msgid "WP Branches For Post could not complete the requested operation."
 msgstr ""
 
