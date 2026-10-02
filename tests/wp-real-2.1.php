@@ -549,6 +549,27 @@ try {
 		&& false !== strpos( $author_views['wbfp_branches'], '(2)' ),
 		'Existing-branches view count matches the branches visible to the current author'
 	);
+
+	wp_set_current_user( $admin_id );
+	wp_update_post(
+		array(
+			'ID'          => $author_original,
+			'post_author' => $admin_id,
+			'post_status' => 'private',
+		)
+	);
+	wp_set_current_user( $author_id );
+	wbfp_check(
+		! current_user_can( 'read_post', $author_original ),
+		'Branch author cannot read a private original reassigned to another user'
+	);
+	$private_original_states = $admin_ui->post_states( array(), get_post( $author_branch ) );
+	wbfp_check(
+		isset( $private_original_states['wbfp_branch'] )
+		&& false !== strpos( $private_original_states['wbfp_branch'], '#' . $author_original )
+		&& false === strpos( $private_original_states['wbfp_branch'], 'Author-owned branch source' ),
+		'Branch list state does not leak a private original title without read permission'
+	);
 	wp_set_current_user( $admin_id );
 
 	unset( $_GET['wbfp_view'] );
