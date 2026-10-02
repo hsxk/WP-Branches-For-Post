@@ -205,7 +205,16 @@ final class Admin {
 			return;
 		}
 
+		$post_type_object = get_post_type_object( $post_type );
+		if ( ! $post_type_object || ! current_user_can( $post_type_object->cap->edit_posts ) ) {
+			return;
+		}
+
 		$query->set( 'post_status', array( 'draft', 'pending', 'private', 'future' ) );
+		// Keep the list query aligned with the count shown by branch_views().
+		if ( ! current_user_can( $post_type_object->cap->edit_others_posts ) ) {
+			$query->set( 'author', get_current_user_id() );
+		}
 		// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Branch relationships are stored as post meta by design.
 		$query->set( 'meta_query', $this->branch_relationship_meta_query() );
 	}
