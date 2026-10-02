@@ -141,6 +141,7 @@ jobs:
           mkdir -p dist/wp-branches-for-post
           rsync -a ./ dist/wp-branches-for-post/ \
             --exclude='.git' \
+            --exclude='.gitignore' \
             --exclude='.github' \
             --exclude='.wordpress-org' \
             --exclude='node_modules' \
