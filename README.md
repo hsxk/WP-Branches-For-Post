@@ -84,12 +84,12 @@ See [ARCHITECTURE.md](./ARCHITECTURE.md) and [SECURITY.md](./SECURITY.md) for th
 
 ## Validation depth
 
-The 2.1.0 release was promoted only after the same candidate passed the following gates:
+The current 2.1.1 candidate extends the 2.1.0 validation baseline and has passed the following gates:
 
 | Layer | Release validation |
 | --- | --- |
-| Real WordPress service/integration suite | **104 / 104 checks** |
-| Real Chromium + Gutenberg E2E | **33 / 33 checks** |
+| Real WordPress service/integration suite | **128 / 128 checks** |
+| Real Chromium + Gutenberg E2E | **42 / 42 checks** |
 | Semantic UI/tutorial coverage | **35 / 35 cases** |
 | WordPress compatibility | **6.6 + 7.1.1** |
 | PHP compatibility | **8.2 / 8.3 / 8.4** |

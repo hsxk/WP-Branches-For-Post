@@ -9,7 +9,8 @@ The disposable CI laboratory is:
 - Repository: `time2analyze/wp-branch`
 - Branch: `main`
 - Source repository: `hsxk/WP-Branches-For-Post`
-- 2.1 development source: `feat/2.1-merge-review-safety`
+- 2.1 baseline source: `feat/2.1-merge-review-safety`
+- 2.1.1 release-candidate source: `feat/2.1.1-review-branch-management`
 - Lab workflow: `.github/workflows/lab-full-validation.yml`
 
 The lab repository uses the second GitHub account so validation does not consume the Actions quota of the formal plugin repository.
@@ -43,7 +44,7 @@ The release candidate must report the same version in all public package metadat
 - `README.txt` Stable tag
 - `package.json`
 
-For the 2.1 release candidate these must all be `2.1.0`.
+For the released 2.1.0 build these are all `2.1.0`. During 2.1.1 development they remain unchanged until the release decision; before a 2.1.1 tag is created, all four values must be advanced together and the full release validation rerun.
 
 ### JavaScript and CSS
 
@@ -92,6 +93,8 @@ wp eval-file wp-content/plugins/wp-branches-for-post/tests/wp-real-2.1.php
 
 The suite exercises real WordPress posts, metadata, taxonomies, users, capabilities, REST objects and the plugin's service classes. Test data is deleted at the end.
 
+The current 2.1.1 candidate passes **128 / 128** checks across WordPress 6.6 / PHP 8.2, WordPress 7.1.1 / PHP 8.2, and WordPress 7.1.1 / PHP 8.4.
+
 Important covered scenarios include branch creation, forced-draft protection, three-way merge, non-conflicting original changes, rebase, real conflicts, force-merge permission checks, hierarchical URL identity preservation, rollback after injected write failures, synced-pattern detection, REST review payloads, legacy compatibility and discard behavior.
 
 ## Real Gutenberg browser test
@@ -118,6 +121,8 @@ The browser test verifies the real admin/editor experience:
 10. Perform Save & merge into original.
 11. Return to the original.
 12. Verify the merged branch content is present.
+
+The current 2.1.1 browser contract contains **42 / 42** passing checks, including the Existing branches list view, branch-card metadata, stale-review protection, rebase, force-merge confirmation and discard behavior.
 
 This is a real browser + WordPress + MySQL test, not a DOM fixture or mocked REST test.
 
