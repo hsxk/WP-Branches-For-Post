@@ -604,13 +604,52 @@ try {
 	$created_posts[] = $future_branch;
 	wbfp_check( 'draft' === get_post_status( $future_branch ), 'Branch created from a scheduled original is draft' );
 
+	// Comment and ping status review values on a post type that natively supports them.
+	$status_original = wbfp_make_post(
+		array(
+			'post_title'     => 'Status review source',
+			'comment_status' => 'open',
+			'ping_status'    => 'open',
+		)
+	);
+	$status_branch = $branches->create( $status_original );
+	wbfp_check( ! is_wp_error( $status_branch ), 'Create branch for comment and ping status review' );
+	$status_branch = (int) $status_branch;
+	$created_posts[] = $status_branch;
+	wp_update_post(
+		array(
+			'ID'             => $status_branch,
+			'comment_status' => 'closed',
+			'ping_status'    => 'closed',
+		)
+	);
+	$status_review_request = new WP_REST_Request( 'GET', '/wbfp/v1/posts/' . $status_branch . '/status' );
+	$status_review_request->set_param( 'id', $status_branch );
+	$status_review_data = $rest->status( $status_review_request )->get_data();
+	$status_review_values = $status_review_data['review_values'] ?? array();
+	$comment_statuses = get_comment_statuses();
+	wbfp_check(
+		( $comment_statuses['open'] ?? 'Open' ) === ( $status_review_values['post.comment_status']['base'] ?? '' )
+		&& ( $comment_statuses['closed'] ?? 'Closed' ) === ( $status_review_values['post.comment_status']['branch'] ?? '' ),
+		'Merge review exposes readable comment-status values'
+	);
+	wbfp_check(
+		( $comment_statuses['open'] ?? 'Open' ) === ( $status_review_values['post.ping_status']['base'] ?? '' )
+		&& ( $comment_statuses['closed'] ?? 'Closed' ) === ( $status_review_values['post.ping_status']['branch'] ?? '' ),
+		'Merge review exposes readable ping-status values'
+	);
+	$status_merge = $merges->merge( $status_branch, false );
+	wbfp_check( $status_original === $status_merge, 'Comment and ping status branch merges normally' );
+	wbfp_check( 'closed' === get_post( $status_original )->comment_status, 'Comment status merges from the reviewed branch value' );
+	wbfp_check( 'closed' === get_post( $status_original )->ping_status, 'Ping status merges from the reviewed branch value' );
+
 	// Custom post type, custom taxonomy, custom meta and featured-image metadata.
 	register_post_type(
 		'wbfp_story',
 		array(
 			'public'       => true,
 			'show_in_rest' => true,
-			'supports'     => array( 'title', 'editor', 'excerpt', 'thumbnail', 'comments', 'trackbacks' ),
+			'supports'     => array( 'title', 'editor', 'excerpt', 'thumbnail' ),
 			'capability_type' => 'post',
 			'map_meta_cap' => true,
 		)
@@ -688,11 +727,9 @@ try {
 
 	$cpt_original = wbfp_make_post(
 		array(
-			'post_type'      => 'wbfp_story',
-			'post_title'     => 'Custom story',
-			'post_content'   => 'Custom story original content',
-			'comment_status' => 'open',
-			'ping_status'    => 'open',
+			'post_type'    => 'wbfp_story',
+			'post_title'   => 'Custom story',
+			'post_content' => 'Custom story original content',
 		)
 	);
 	update_post_meta( $cpt_original, 'wbfp_custom_meta', 'custom-meta-base' );
@@ -716,12 +753,10 @@ try {
 
 	wp_update_post(
 		array(
-			'ID'             => $cpt_branch,
-			'post_content'   => 'Custom story branch content',
-			'menu_order'     => 7,
-			'post_password'  => 'super-secret-test',
-			'comment_status' => 'closed',
-			'ping_status'    => 'closed',
+			'ID'            => $cpt_branch,
+			'post_content'  => 'Custom story branch content',
+			'menu_order'    => 7,
+			'post_password' => 'super-secret-test',
 		)
 	);
 	update_post_meta( $cpt_branch, 'wbfp_custom_meta', 'custom-meta-branch' );
@@ -758,17 +793,6 @@ try {
 		'7' === ( $review_values['post.menu_order']['branch'] ?? '' ),
 		'Merge review exposes menu-order values'
 	);
-	$comment_statuses = get_comment_statuses();
-	wbfp_check(
-		( $comment_statuses['open'] ?? 'Open' ) === ( $review_values['post.comment_status']['base'] ?? '' )
-		&& ( $comment_statuses['closed'] ?? 'Closed' ) === ( $review_values['post.comment_status']['branch'] ?? '' ),
-		'Merge review exposes readable comment-status values'
-	);
-	wbfp_check(
-		( $comment_statuses['open'] ?? 'Open' ) === ( $review_values['post.ping_status']['base'] ?? '' )
-		&& ( $comment_statuses['closed'] ?? 'Closed' ) === ( $review_values['post.ping_status']['branch'] ?? '' ),
-		'Merge review exposes readable ping-status values'
-	);
 	wbfp_check(
 		'••••••' === ( $review_values['post.post_password']['branch'] ?? '' )
 		&& false === strpos( wp_json_encode( $review_values ), 'super-secret-test' ),
@@ -782,8 +806,6 @@ try {
 	$cpt_merge = $merges->merge( $cpt_branch, false );
 	wbfp_check( $cpt_original === $cpt_merge, 'Custom post type branch merges normally' );
 	wbfp_check( 'Custom story branch content' === get_post( $cpt_original )->post_content, 'Custom post type editorial content merges' );
-	wbfp_check( 'closed' === get_post( $cpt_original )->comment_status, 'Comment status merges from the reviewed branch value' );
-	wbfp_check( 'closed' === get_post( $cpt_original )->ping_status, 'Ping status merges from the reviewed branch value' );
 	wbfp_check( 'custom-meta-branch' === get_post_meta( $cpt_original, 'wbfp_custom_meta', true ), 'Custom metadata changes merge back to the original' );
 	wbfp_check( ! metadata_exists( 'post', $cpt_original, 'wbfp_remove_meta' ), 'Removing custom metadata on the branch removes it from the original on merge' );
 	wbfp_check( array( 'multi-three', 'multi-four' ) === array_values( get_post_meta( $cpt_original, 'wbfp_multi_meta', false ) ), 'Multi-value metadata is replaced exactly during merge' );
