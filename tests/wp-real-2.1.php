@@ -491,6 +491,66 @@ try {
 		&& Branch_Service::META_ORIGINAL_ID === ( $branch_meta_query[0]['key'] ?? '' ),
 		'Dedicated branch view filters the main list query by branch relationship'
 	);
+
+	$author_id = wp_create_user( 'wbfp-branch-author', 'wbfp-test-password', 'wbfp-branch-author@example.test' );
+	if ( is_wp_error( $author_id ) ) {
+		throw new RuntimeException( $author_id->get_error_message() );
+	}
+	$author_id = (int) $author_id;
+	$created_users[] = $author_id;
+	( new WP_User( $author_id ) )->set_role( 'author' );
+	wp_set_current_user( $author_id );
+
+	$author_original = wbfp_make_post(
+		array(
+			'post_author' => $author_id,
+			'post_title'  => 'Author-owned branch source',
+		)
+	);
+	$author_branch = $branches->create( $author_original );
+	wbfp_check( ! is_wp_error( $author_branch ), 'Author can create a branch for an editable own post' );
+	$author_branch = (int) $author_branch;
+	$created_posts[] = $author_branch;
+
+	$author_legacy_original = wbfp_make_post(
+		array(
+			'post_author' => $author_id,
+			'post_title'  => 'Author-owned legacy branch source',
+		)
+	);
+	$author_legacy_branch = wbfp_make_post(
+		array(
+			'post_author' => $author_id,
+			'post_status' => 'draft',
+			'post_title'  => 'Author-owned legacy branch',
+		)
+	);
+	update_post_meta( $author_legacy_branch, '_original_post_id', $author_legacy_original );
+
+	$author_branch_query = new WP_Query();
+	$GLOBALS['wp_the_query'] = $author_branch_query;
+	$author_branch_query->set( 'post_type', 'post' );
+	$admin_ui->filter_branch_view_query( $author_branch_query );
+	wbfp_check(
+		$author_id === (int) $author_branch_query->get( 'author' ),
+		'Existing-branches query explicitly scopes users without edit_others_posts to their own branches'
+	);
+	$author_branch_query->query( $author_branch_query->query_vars );
+	$author_branch_ids = array_map( 'intval', wp_list_pluck( $author_branch_query->posts, 'ID' ) );
+	wbfp_check(
+		in_array( $author_branch, $author_branch_ids, true )
+		&& in_array( $author_legacy_branch, $author_branch_ids, true )
+		&& ! in_array( $ui_safe_branch, $author_branch_ids, true ),
+		'Existing-branches query returns current and legacy own branches without leaking another author branch'
+	);
+	$author_views = $admin_ui->branch_views( array() );
+	wbfp_check(
+		isset( $author_views['wbfp_branches'] )
+		&& false !== strpos( $author_views['wbfp_branches'], '(2)' ),
+		'Existing-branches view count matches the branches visible to the current author'
+	);
+	wp_set_current_user( $admin_id );
+
 	unset( $_GET['wbfp_view'] );
 	$GLOBALS['wp_the_query'] = $previous_wp_query;
 	set_current_screen( $previous_screen ? $previous_screen->id : 'front' );
@@ -589,12 +649,50 @@ try {
 	}
 	$thumb_a = wbfp_track_post( (int) $thumb_a );
 	$thumb_b = wbfp_track_post( (int) $thumb_b );
+	update_post_meta( $thumb_a, '_wp_attached_file', '2026/09/featured-image-a.jpg' );
+	update_post_meta(
+		$thumb_a,
+		'_wp_attachment_metadata',
+		array(
+			'width'  => 1200,
+			'height' => 800,
+			'file'   => '2026/09/featured-image-a.jpg',
+			'sizes'  => array(
+				'thumbnail' => array(
+					'file'      => 'featured-image-a-150x150.jpg',
+					'width'     => 150,
+					'height'    => 150,
+					'mime-type' => 'image/jpeg',
+				),
+			),
+		)
+	);
+	update_post_meta( $thumb_b, '_wp_attached_file', '2026/09/featured-image-b.jpg' );
+	update_post_meta(
+		$thumb_b,
+		'_wp_attachment_metadata',
+		array(
+			'width'  => 1200,
+			'height' => 800,
+			'file'   => '2026/09/featured-image-b.jpg',
+			'sizes'  => array(
+				'thumbnail' => array(
+					'file'      => 'featured-image-b-150x150.jpg',
+					'width'     => 150,
+					'height'    => 150,
+					'mime-type' => 'image/jpeg',
+				),
+			),
+		)
+	);
 
 	$cpt_original = wbfp_make_post(
 		array(
-			'post_type'    => 'wbfp_story',
-			'post_title'   => 'Custom story',
-			'post_content' => 'Custom story original content',
+			'post_type'      => 'wbfp_story',
+			'post_title'     => 'Custom story',
+			'post_content'   => 'Custom story original content',
+			'comment_status' => 'open',
+			'ping_status'    => 'open',
 		)
 	);
 	update_post_meta( $cpt_original, 'wbfp_custom_meta', 'custom-meta-base' );
@@ -618,10 +716,12 @@ try {
 
 	wp_update_post(
 		array(
-			'ID'            => $cpt_branch,
-			'post_content'  => 'Custom story branch content',
-			'menu_order'    => 7,
-			'post_password' => 'super-secret-test',
+			'ID'             => $cpt_branch,
+			'post_content'   => 'Custom story branch content',
+			'menu_order'     => 7,
+			'post_password'  => 'super-secret-test',
+			'comment_status' => 'closed',
+			'ping_status'    => 'closed',
 		)
 	);
 	update_post_meta( $cpt_branch, 'wbfp_custom_meta', 'custom-meta-branch' );
@@ -649,8 +749,25 @@ try {
 		'Merge review exposes readable featured-image identity changes'
 	);
 	wbfp_check(
+		! empty( $review_values['meta._thumbnail_id']['base_preview_url'] )
+		&& ! empty( $review_values['meta._thumbnail_id']['branch_preview_url'] )
+		&& $review_values['meta._thumbnail_id']['base_preview_url'] !== $review_values['meta._thumbnail_id']['branch_preview_url'],
+		'Merge review exposes distinct thumbnail preview URLs when image data is available'
+	);
+	wbfp_check(
 		'7' === ( $review_values['post.menu_order']['branch'] ?? '' ),
 		'Merge review exposes menu-order values'
+	);
+	$comment_statuses = get_comment_statuses();
+	wbfp_check(
+		( $comment_statuses['open'] ?? 'Open' ) === ( $review_values['post.comment_status']['base'] ?? '' )
+		&& ( $comment_statuses['closed'] ?? 'Closed' ) === ( $review_values['post.comment_status']['branch'] ?? '' ),
+		'Merge review exposes readable comment-status values'
+	);
+	wbfp_check(
+		( $comment_statuses['open'] ?? 'Open' ) === ( $review_values['post.ping_status']['base'] ?? '' )
+		&& ( $comment_statuses['closed'] ?? 'Closed' ) === ( $review_values['post.ping_status']['branch'] ?? '' ),
+		'Merge review exposes readable ping-status values'
 	);
 	wbfp_check(
 		'••••••' === ( $review_values['post.post_password']['branch'] ?? '' )
@@ -665,6 +782,8 @@ try {
 	$cpt_merge = $merges->merge( $cpt_branch, false );
 	wbfp_check( $cpt_original === $cpt_merge, 'Custom post type branch merges normally' );
 	wbfp_check( 'Custom story branch content' === get_post( $cpt_original )->post_content, 'Custom post type editorial content merges' );
+	wbfp_check( 'closed' === get_post( $cpt_original )->comment_status, 'Comment status merges from the reviewed branch value' );
+	wbfp_check( 'closed' === get_post( $cpt_original )->ping_status, 'Ping status merges from the reviewed branch value' );
 	wbfp_check( 'custom-meta-branch' === get_post_meta( $cpt_original, 'wbfp_custom_meta', true ), 'Custom metadata changes merge back to the original' );
 	wbfp_check( ! metadata_exists( 'post', $cpt_original, 'wbfp_remove_meta' ), 'Removing custom metadata on the branch removes it from the original on merge' );
 	wbfp_check( array( 'multi-three', 'multi-four' ) === array_values( get_post_meta( $cpt_original, 'wbfp_multi_meta', false ) ), 'Multi-value metadata is replaced exactly during merge' );
