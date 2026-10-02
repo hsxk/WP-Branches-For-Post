@@ -508,7 +508,7 @@ final class REST_Controller {
 		if ( in_array( $field, array( 'comment_status', 'ping_status' ), true ) ) {
 			$status = (string) $value;
 			if ( in_array( $status, array( 'open', 'closed' ), true ) ) {
-				return 'open' === $status ? translate( 'Open' ) : translate( 'Closed' );
+				return get_translations_for_domain( 'default' )->translate( 'open' === $status ? 'Open' : 'Closed' );
 			}
 		}
 
