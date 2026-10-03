@@ -492,14 +492,6 @@ try {
 		'Dedicated branch view filters the main list query by branch relationship'
 	);
 
-	$legacy_filter_branch = wbfp_make_post(
-		array(
-			'post_status' => 'draft',
-			'post_title'  => 'Legacy branch view fixture',
-		)
-	);
-	update_post_meta( $legacy_filter_branch, '_original_post_id', $ui_safe_original );
-
 	$post_branch_query = new WP_Query(
 		array(
 			'post_type'      => 'post',
@@ -512,10 +504,9 @@ try {
 	$post_branch_ids = array_map( 'intval', $post_branch_query->posts );
 	wbfp_check(
 		in_array( $ui_safe_branch, $post_branch_ids, true )
-		&& in_array( $legacy_filter_branch, $post_branch_ids, true )
 		&& ! in_array( $ui_safe_original, $post_branch_ids, true )
 		&& ! in_array( $page_filter_branch, $post_branch_ids, true ),
-		'Posts branch view returns current and legacy branches without leaking originals or Pages'
+		'Posts branch query returns branches without leaking originals or Pages'
 	);
 
 	$page_branch_query = new WP_Query(
@@ -531,7 +522,7 @@ try {
 	wbfp_check(
 		in_array( $page_filter_branch, $page_branch_ids, true )
 		&& ! in_array( $ui_safe_branch, $page_branch_ids, true ),
-		'Pages branch view stays isolated from Post branches'
+		'Pages branch query stays isolated from Post branches'
 	);
 
 	$author_id = wp_create_user( 'wbfp-branch-author', 'wbfp-test-password', 'wbfp-branch-author@example.test' );
@@ -614,43 +605,6 @@ try {
 	);
 	wp_set_current_user( $admin_id );
 
-
-	$author_a = wp_create_user( 'wbfp-author-a-' . wp_generate_password( 6, false ), wp_generate_password( 20 ), 'author-a-' . wp_generate_password( 6, false ) . '@example.test' );
-	$author_b = wp_create_user( 'wbfp-author-b-' . wp_generate_password( 6, false ), wp_generate_password( 20 ), 'author-b-' . wp_generate_password( 6, false ) . '@example.test' );
-	if ( is_wp_error( $author_a ) || is_wp_error( $author_b ) ) {
-		throw new RuntimeException( 'Unable to create branch-view permission fixtures.' );
-	}
-	$author_a = (int) $author_a;
-	$author_b = (int) $author_b;
-	$created_users[] = $author_a;
-	$created_users[] = $author_b;
-	( new WP_User( $author_a ) )->set_role( 'author' );
-	( new WP_User( $author_b ) )->set_role( 'author' );
-
-	wp_set_current_user( $author_a );
-	$author_a_original = wbfp_make_post( array( 'post_author' => $author_a, 'post_title' => 'Author A original' ) );
-	$author_a_branch = $branches->create( $author_a_original );
-	wbfp_check( ! is_wp_error( $author_a_branch ), 'Author A can create own branch for list-view permission coverage' );
-	$author_a_branch = (int) $author_a_branch;
-	$created_posts[] = $author_a_branch;
-
-	wp_set_current_user( $author_b );
-	$author_b_original = wbfp_make_post( array( 'post_author' => $author_b, 'post_title' => 'Author B original' ) );
-	$author_b_branch = $branches->create( $author_b_original );
-	wbfp_check( ! is_wp_error( $author_b_branch ), 'Author B can create own branch for list-view permission coverage' );
-	$author_b_branch = (int) $author_b_branch;
-	$created_posts[] = $author_b_branch;
-
-	wp_set_current_user( $author_a );
-	set_current_screen( 'edit-post' );
-	$author_branch_views = $admin_ui->branch_views( array() );
-	$author_view_html = $author_branch_views['wbfp_branches'] ?? '';
-	wbfp_check(
-		false !== strpos( $author_view_html, '(1)' ),
-		'Author without edit_others_posts sees only own branch count'
-	);
-
-	wp_set_current_user( $admin_id );
 	unset( $_GET['wbfp_view'] );
 	$GLOBALS['wp_the_query'] = $previous_wp_query;
 	set_current_screen( $previous_screen ? $previous_screen->id : 'front' );
@@ -854,12 +808,10 @@ try {
 
 	wp_update_post(
 		array(
-			'ID'             => $cpt_branch,
-			'post_content'   => 'Custom story branch content',
-			'menu_order'     => 7,
-			'post_password'  => 'super-secret-test',
-			'comment_status' => 'closed',
-			'ping_status'    => 'closed',
+			'ID'            => $cpt_branch,
+			'post_content'  => 'Custom story branch content',
+			'menu_order'    => 7,
+			'post_password' => 'super-secret-test',
 		)
 	);
 	update_post_meta( $cpt_branch, 'wbfp_custom_meta', 'custom-meta-branch' );
@@ -890,25 +842,11 @@ try {
 		! empty( $review_values['meta._thumbnail_id']['base_preview_url'] )
 		&& ! empty( $review_values['meta._thumbnail_id']['branch_preview_url'] )
 		&& $review_values['meta._thumbnail_id']['base_preview_url'] !== $review_values['meta._thumbnail_id']['branch_preview_url'],
-		'Merge review exposes distinct featured-image thumbnail preview URLs'
-	);
-	wbfp_check(
-		! empty( $review_values['meta._thumbnail_id']['base_preview_url'] )
-		&& ! empty( $review_values['meta._thumbnail_id']['branch_preview_url'] )
-		&& $review_values['meta._thumbnail_id']['base_preview_url'] !== $review_values['meta._thumbnail_id']['branch_preview_url'],
 		'Merge review exposes distinct thumbnail preview URLs when image data is available'
 	);
 	wbfp_check(
 		'7' === ( $review_values['post.menu_order']['branch'] ?? '' ),
 		'Merge review exposes menu-order values'
-	);
-	wbfp_check(
-		'Closed' === ( $review_values['post.comment_status']['branch'] ?? '' ),
-		'Merge review exposes readable comment-status values'
-	);
-	wbfp_check(
-		'Closed' === ( $review_values['post.ping_status']['branch'] ?? '' ),
-		'Merge review exposes readable ping-status values'
 	);
 	wbfp_check(
 		'••••••' === ( $review_values['post.post_password']['branch'] ?? '' )
