@@ -11,7 +11,7 @@
 
 WP Branches For Post lets editors create an isolated working branch from an existing WordPress post, page, or supported custom post type, edit without changing the public original, review the difference against a saved baseline, and merge safely when the work is ready.
 
-Version **2.1.0** turns the plugin into a true three-way editorial workflow rather than a simple duplicate-and-replace tool.
+Version **2.1.1** builds on the three-way editorial workflow with clearer merge review values, stronger branch management, tighter privacy boundaries, and broader release validation.
 
 <p align="center">
   <img src=".wordpress-org/screenshot-3.png" alt="WP Branches For Post three-way merge review" width="920">
@@ -30,7 +30,7 @@ This plugin models the problem explicitly:
 
 The result is an editorial workflow closer to source control, while still using normal WordPress posts, permissions, metadata, taxonomies, and editors.
 
-## What 2.1.0 can do
+## What 2.1.1 can do
 
 - Create an isolated draft branch from published, private, or scheduled content.
 - Review **Base / Original / Branch** before merging.
@@ -84,11 +84,11 @@ See [ARCHITECTURE.md](./ARCHITECTURE.md) and [SECURITY.md](./SECURITY.md) for th
 
 ## Validation depth
 
-The current 2.1.1 candidate extends the 2.1.0 validation baseline and has passed the following gates:
+The 2.1.1 release extends the 2.1.0 validation baseline and has passed the following gates:
 
 | Layer | Release validation |
 | --- | --- |
-| Real WordPress service/integration suite | **128 / 128 checks** |
+| Real WordPress service/integration suite | **130 / 130 checks** |
 | Real Chromium + Gutenberg E2E | **42 / 42 checks** |
 | Semantic UI/tutorial coverage | **35 / 35 cases** |
 | WordPress compatibility | **6.6 + 7.1.1** |

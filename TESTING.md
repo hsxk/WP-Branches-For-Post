@@ -44,7 +44,7 @@ The release candidate must report the same version in all public package metadat
 - `README.txt` Stable tag
 - `package.json`
 
-For the released 2.1.0 build these are all `2.1.0`. During 2.1.1 development they remain unchanged until the release decision; before a 2.1.1 tag is created, all four values must be advanced together and the full release validation rerun.
+For the 2.1.1 release these values are all `2.1.1`. Any future release must advance all four values together and rerun the complete release validation before tagging.
 
 ### JavaScript and CSS
 
@@ -93,7 +93,7 @@ wp eval-file wp-content/plugins/wp-branches-for-post/tests/wp-real-2.1.php
 
 The suite exercises real WordPress posts, metadata, taxonomies, users, capabilities, REST objects and the plugin's service classes. Test data is deleted at the end.
 
-The current 2.1.1 candidate passes **128 / 128** checks across WordPress 6.6 / PHP 8.2, WordPress 7.1.1 / PHP 8.2, and WordPress 7.1.1 / PHP 8.4.
+The 2.1.1 release passes **130 / 130** checks across WordPress 6.6 / PHP 8.2, WordPress 7.1.1 / PHP 8.2, and WordPress 7.1.1 / PHP 8.4.
 
 Important covered scenarios include branch creation, forced-draft protection, three-way merge, non-conflicting original changes, rebase, real conflicts, force-merge permission checks, hierarchical URL identity preservation, rollback after injected write failures, synced-pattern detection, REST review payloads, legacy compatibility and discard behavior.
 

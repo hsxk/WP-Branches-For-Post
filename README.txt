@@ -4,7 +4,7 @@ Tags: post branch, editorial workflow, staging, revision, gutenberg
 Requires at least: 6.6
 Tested up to: 7.1
 Requires PHP: 8.2
-Stable tag: 2.1.0
+Stable tag: 2.1.1
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -276,7 +276,7 @@ Human-readable source code and build tooling are maintained at https://github.co
 * Kept branch-list counts and filtering aligned with WordPress author capabilities so users without edit_others_posts see only their own branches.
 * Prevented private original titles from being exposed in branch list states when the current user cannot read the original.
 * Localized readable Open / Closed review values through WordPress core translations.
-* Expanded real WordPress integration coverage to 128 checks and real Gutenberg browser coverage to 42 checks, while retaining the 35-case semantic UI/tutorial contract.
+* Expanded real WordPress integration coverage to 130 checks and real Gutenberg browser coverage to 42 checks, while retaining the 35-case semantic UI/tutorial contract.
 * Tightened release-tree and ZIP hygiene so development hidden files remain outside the distributable plugin.
 
 = 2.1.0 =
