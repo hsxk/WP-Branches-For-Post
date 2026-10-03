@@ -245,6 +245,29 @@ const h = require( './tutorial-helpers' );
 				timeout: 10000,
 			} );
 		}
+
+		const taxonomyReview = page
+			.locator( '.wbfp-compare__field' )
+			.filter( { has: page.getByText( 'Categories', { exact: true } ) } )
+			.first();
+		await taxonomyReview.locator( 'summary' ).click();
+		await taxonomyReview
+			.getByText( 'Tutorial category', { exact: true } )
+			.waitFor( { state: 'visible', timeout: 10000 } );
+
+		const imageReview = page
+			.locator( '.wbfp-compare__field' )
+			.filter( { has: page.getByText( 'Featured image', { exact: true } ) } )
+			.first();
+		await imageReview.locator( 'summary' ).click();
+		await imageReview
+			.locator( 'img.wbfp-compare__thumbnail' )
+			.first()
+			.waitFor( { state: 'visible', timeout: 10000 } );
+
+		if ( ( await page.getByText( 'branch metadata value', { exact: true } ).count() ) > 0 ) {
+			throw new Error( 'Arbitrary custom-meta value leaked into merge review UI.' );
+		}
 		await h.shot(
 			page,
 			'35-taxonomy-meta-featured-image.png',

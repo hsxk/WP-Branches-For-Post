@@ -238,6 +238,68 @@ async function openOriginal( page ) {
 		);
 
 		const firstBranchId = await createBranchFromCurrentOriginal( page );
+
+		// 2.1.1 branch-management UI: verify the original card and the real list-table view.
+		await openOriginal( page );
+		const originalWithNewBranch = await branchStatus( page, originalId );
+		const firstBranchCard = originalWithNewBranch.branches?.find(
+			( branch ) => branch.id === firstBranchId
+		);
+		check(
+			Boolean( firstBranchCard?.creator && firstBranchCard?.modified_human ),
+			'Original status exposes branch creator and modified display metadata'
+		);
+		check(
+			await visible(
+				page.getByText( 'Existing branches (1)', { exact: true } )
+			),
+			'Original branch panel renders the exact existing-branch count'
+		);
+		check(
+			await visible(
+				page.getByText( `Branch #${ firstBranchId }`, { exact: true } )
+			),
+			'Original branch card renders the branch ID'
+		);
+		check(
+			await visible(
+				page.getByText( firstBranchCard.modified_human, { exact: true } )
+			),
+			'Original branch card renders the human-readable modified time'
+		);
+		check(
+			await visible(
+				page.getByText( '0 branch changes · 0 conflicts', {
+					exact: true,
+				} )
+			),
+			'Original branch card renders change and conflict counts'
+		);
+
+		const listPage = await context.newPage();
+		await listPage.goto( `${ baseUrl }/wp-admin/edit.php?wbfp_view=branches`, {
+			waitUntil: 'domcontentloaded',
+		} );
+		check(
+			await visible(
+				listPage
+					.locator( '.subsubsub a.current' )
+					.filter( { hasText: 'Existing branches' } )
+			),
+			'Posts list marks the dedicated Existing branches view as current'
+		);
+		check(
+			await visible( listPage.locator( `#post-${ firstBranchId }` ) ) &&
+				! ( await visible( listPage.locator( `#post-${ originalId }` ) ) ),
+			'Dedicated Existing branches view shows the branch without mixing in the original'
+		);
+		await listPage.close();
+
+		await page.goto(
+			`${ baseUrl }/wp-admin/post.php?post=${ firstBranchId }&action=edit`,
+			{ waitUntil: 'domcontentloaded' }
+		);
+		await waitForEditor( page, firstBranchId );
 		check(
 			await visible(
 				page.getByRole( 'button', {
@@ -300,6 +362,21 @@ async function openOriginal( page ) {
 		check(
 			Boolean( reviewedStatus.review_token ),
 			'Real editor status includes a reviewed-state token'
+		);
+		check(
+			Boolean(
+				reviewedStatus.review_values?.['post.post_content']?.branch
+			),
+			'Real editor REST status exposes the reviewed branch content value'
+		);
+		const originalWithBranch = await branchStatus( page, originalId );
+		check(
+			originalWithBranch.branches?.some(
+				( branch ) =>
+					branch.id === firstBranchId &&
+					Boolean( branch.modified_human )
+			),
+			'Original status exposes branch ID and modified display metadata'
 		);
 
 		// Change the branch after review. The first merge click must not merge.

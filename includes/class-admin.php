@@ -52,6 +52,9 @@ final class Admin {
 		add_filter( 'post_row_actions', array( $this, 'row_actions' ), 10, 2 );
 		add_filter( 'page_row_actions', array( $this, 'row_actions' ), 10, 2 );
 		add_filter( 'display_post_states', array( $this, 'post_states' ), 10, 2 );
+		add_filter( 'views_edit-post', array( $this, 'branch_views' ) );
+		add_filter( 'views_edit-page', array( $this, 'branch_views' ) );
+		add_action( 'pre_get_posts', array( $this, 'filter_branch_view_query' ) );
 		add_action( 'post_submitbox_misc_actions', array( $this, 'classic_editor_actions' ) );
 		add_action( 'admin_bar_menu', array( $this, 'admin_bar' ), 100 );
 		add_action( 'admin_notices', array( $this, 'admin_notices' ) );
@@ -121,13 +124,153 @@ final class Admin {
 	 */
 	public function post_states( array $states, \WP_Post $post ): array {
 		if ( $this->branches->is_branch( $post->ID ) ) {
-			$states['wbfp_branch'] = sprintf(
+			$original_id = $this->branches->get_original_id( $post->ID );
+			$label       = sprintf(
 				/* translators: %d: original post ID. */
-				esc_html__( 'Branch of #%d', 'wp-branches-for-post' ),
-				$this->branches->get_original_id( $post->ID )
+				__( 'Branch of #%d', 'wp-branches-for-post' ),
+				$original_id
 			);
+			$can_read_original = $original_id > 0 && current_user_can( 'read_post', $original_id );
+			$original          = $can_read_original ? get_post( $original_id ) : null;
+			$title             = $original ? trim( wp_strip_all_tags( get_the_title( $original ) ) ) : '';
+			if ( '' !== $title ) {
+				$label .= ' — ' . $title;
+			}
+			$states['wbfp_branch'] = $label;
 		}
 		return $states;
+	}
+
+	/**
+	 * Add a dedicated branch view to the Posts and Pages list tables.
+	 *
+	 * @param array<string,string> $views Existing list-table views.
+	 * @return array<string,string>
+	 */
+	public function branch_views( array $views ): array {
+		$screen    = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		$post_type = $screen && ! empty( $screen->post_type ) ? (string) $screen->post_type : 'post';
+		if ( ! in_array( $post_type, array( 'post', 'page' ), true ) ) {
+			return $views;
+		}
+
+		$count = $this->count_visible_branches( $post_type );
+		if ( $count < 1 ) {
+			return $views;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only list-table filter state.
+		$current = isset( $_GET['wbfp_view'] ) && 'branches' === sanitize_key( wp_unslash( $_GET['wbfp_view'] ) );
+
+		$url = add_query_arg(
+			array_filter(
+				array(
+					'post_type' => 'post' === $post_type ? null : $post_type,
+					'wbfp_view' => 'branches',
+				)
+			),
+			admin_url( 'edit.php' )
+		);
+
+		$views['wbfp_branches'] = sprintf(
+			'<a href="%1$s"%2$s>%3$s <span class="count">(%4$d)</span></a>',
+			esc_url( $url ),
+			$current ? ' class="current" aria-current="page"' : '',
+			esc_html__( 'Existing branches', 'wp-branches-for-post' ),
+			$count
+		);
+
+		return $views;
+	}
+
+	/**
+	 * Restrict the dedicated branch list view to active branch posts.
+	 *
+	 * @param \WP_Query $query Admin list query.
+	 * @return void
+	 */
+	public function filter_branch_view_query( \WP_Query $query ): void {
+		if ( ! is_admin() || ! $query->is_main_query() ) {
+			return;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only list-table filter state.
+		$view = isset( $_GET['wbfp_view'] ) ? sanitize_key( wp_unslash( $_GET['wbfp_view'] ) ) : '';
+		if ( 'branches' !== $view ) {
+			return;
+		}
+
+		$post_type = $query->get( 'post_type' );
+		$post_type = empty( $post_type ) ? 'post' : $post_type;
+		if ( ! is_string( $post_type ) || ! in_array( $post_type, array( 'post', 'page' ), true ) ) {
+			return;
+		}
+
+		$post_type_object = get_post_type_object( $post_type );
+		if ( ! $post_type_object || ! current_user_can( $post_type_object->cap->edit_posts ) ) {
+			return;
+		}
+
+		$query->set( 'post_status', array( 'draft', 'pending', 'private', 'future' ) );
+		// Keep the list query aligned with the count shown by branch_views().
+		if ( ! current_user_can( $post_type_object->cap->edit_others_posts ) ) {
+			$query->set( 'author', get_current_user_id() );
+		}
+		// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Branch relationships are stored as post meta by design.
+		$query->set( 'meta_query', $this->branch_relationship_meta_query() );
+	}
+
+	/**
+	 * Count branch posts visible to the current user for one list table.
+	 *
+	 * @param string $post_type Post type.
+	 * @return int
+	 */
+	private function count_visible_branches( string $post_type ): int {
+		$post_type_object = get_post_type_object( $post_type );
+		if ( ! $post_type_object || ! current_user_can( $post_type_object->cap->edit_posts ) ) {
+			return 0;
+		}
+
+		$args = array(
+			'post_type'      => $post_type,
+			'post_status'    => array( 'draft', 'pending', 'private', 'future' ),
+			'posts_per_page' => 1,
+			'fields'         => 'ids',
+			'no_found_rows'  => false,
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Branch relationships are stored as post meta by design.
+			'meta_query'     => $this->branch_relationship_meta_query(),
+		);
+
+		if ( ! current_user_can( $post_type_object->cap->edit_others_posts ) ) {
+			$args['author'] = get_current_user_id();
+		}
+
+		$query = new \WP_Query( $args );
+		return (int) $query->found_posts;
+	}
+
+	/**
+	 * Build the relationship query used by the branch list view.
+	 *
+	 * @return array<int|string,mixed>
+	 */
+	private function branch_relationship_meta_query(): array {
+		return array(
+			'relation' => 'OR',
+			array(
+				'key'     => Branch_Service::META_ORIGINAL_ID,
+				'value'   => 0,
+				'compare' => '>',
+				'type'    => 'NUMERIC',
+			),
+			array(
+				'key'     => '_original_post_id',
+				'value'   => 0,
+				'compare' => '>',
+				'type'    => 'NUMERIC',
+			),
+		);
 	}
 
 	/**

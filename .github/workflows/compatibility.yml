@@ -74,7 +74,7 @@ jobs:
             --admin_email=admin@example.test
           ln -s "$GITHUB_WORKSPACE" /tmp/wordpress/wp-content/plugins/wp-branches-for-post
           wp plugin activate wp-branches-for-post --path=/tmp/wordpress
-      - name: Run 104-check real WordPress integration suite
+      - name: Run real WordPress integration suite
         run: wp eval-file "$GITHUB_WORKSPACE/tests/wp-real-2.1.php" --path=/tmp/wordpress
 
   release-zip:
@@ -116,6 +116,7 @@ jobs:
           done
           forbidden=(
             '/\.git/'
+            '/\.gitignore$'
             '/\.github/'
             '/\.wordpress-org/'
             '/node_modules/'

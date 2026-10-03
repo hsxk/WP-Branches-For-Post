@@ -278,7 +278,7 @@ async function shot( page, number ) {
 			waitUntil: 'domcontentloaded',
 		} );
 		await waitForEditor( page, originalId );
-		await page.getByText( 'Existing branches', { exact: true } ).waitFor( {
+		await page.getByText( 'Existing branches' ).waitFor( {
 			state: 'visible',
 			timeout: 10000,
 		} );
