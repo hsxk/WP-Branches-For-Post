@@ -884,6 +884,8 @@ try {
 	wbfp_check( is_string( $combined ) && str_contains( $combined, 'Alpha changed publicly' ) && str_contains( $combined, 'Delta changed in branch' ), 'Separate Gutenberg block edits auto-merge without dropping either change' );
 	wbfp_check( null === \WP_Branches_For_Post\Block_Merge::merge( $block_base, $block_orig, str_replace( 'Alpha unique', 'Alpha conflicting branch', $block_base ) ), 'Overlapping Gutenberg changes remain conflicts' );
 	wbfp_check( null === \WP_Branches_For_Post\Block_Merge::merge( 'freeform content', 'public edited freeform', 'branch edited freeform' ), 'Freeform content is never auto-merged' );
+	$moved = serialize_blocks( parse_blocks( implode( "\n\n", array( $parts[2], $parts[1], $parts[0], $parts[3] ) ) ) );
+	wbfp_check( null === \WP_Branches_For_Post\Block_Merge::merge( $block_base, $moved, $block_work ), 'Reordered baseline Gutenberg blocks are not silently merged' );
 	$duplicate_base = serialize_blocks( parse_blocks( implode( "\n\n", array( $parts[0], $parts[0], $parts[2] ) ) ) );
 	wbfp_check( null === \WP_Branches_For_Post\Block_Merge::merge( $duplicate_base, str_replace( 'Alpha unique', 'Public alpha', $duplicate_base ), str_replace( 'Charlie unique', 'Branch charlie', $duplicate_base ) ), 'Ambiguous repeated block identities refuse auto-merge' );
 
@@ -955,6 +957,11 @@ try {
 	$approval_blocked = $merges->merge( $approval_branch, false );
 	wbfp_check( is_wp_error( $approval_blocked ) && 'wbfp_approval_required' === $approval_blocked->get_error_code(), 'Approval policy blocks unreviewed direct merges' );
 	wbfp_check( true === $workflow->request_review( $approval_branch ), 'Working editor requests independent review' );
+	wp_update_post( array( 'ID' => $approval_branch, 'post_content' => 'Changed after request before review' ) );
+	$pending_change = $workflow->decide( $approval_branch, true );
+	wbfp_check( is_wp_error( $pending_change ) && 'wbfp_review_denied' === $pending_change->get_error_code(), 'Branch author still cannot approve a changed pending review' );
+	wp_set_current_user( $admin_id );
+	wbfp_check( true === $workflow->request_review( $approval_branch ), 'Submit updated review state after content changes' );
 	$self_decision = $workflow->decide( $approval_branch, true );
 	wbfp_check( is_wp_error( $self_decision ) && 'wbfp_review_denied' === $self_decision->get_error_code(), 'Branch creator cannot self-approve' );
 	$reviewer_id = wp_create_user( 'wbfp-reviewer-' . wp_generate_password( 8, false, false ), wp_generate_password( 20 ), 'wbfp-reviewer-' . wp_generate_password( 8, false, false ) . '@example.test' );
@@ -964,6 +971,7 @@ try {
 	$created_users[] = (int) $reviewer_id;
 	( new WP_User( (int) $reviewer_id ) )->set_role( 'editor' );
 	wp_set_current_user( (int) $reviewer_id );
+	// A current independent reviewer must see the latest requested content.
 	wbfp_check( true === $workflow->decide( $approval_branch, true, 'Reviewed these changes' ), 'Separate editor approves the exact requested state' );
 	wp_set_current_user( $admin_id );
 	wbfp_check( $workflow->is_approved( $approval_branch ), 'Fresh approval validates against current content' );
@@ -977,6 +985,7 @@ try {
 	wp_set_current_user( $admin_id );
 	wbfp_check( $approval_original === $merges->merge( $approval_branch, false ), 'Approved content merges without replacing original identity' );
 	wbfp_check( ! metadata_exists( 'post', $approval_original, \WP_Branches_For_Post\Workflow_Service::META_REVIEW_TOKEN ), 'Approval bookkeeping never leaks onto the original' );
+	wbfp_check( ! metadata_exists( 'post', $approval_original, \WP_Branches_For_Post\Workflow_Service::META_REQUEST_TOKEN ), 'Review request fingerprints are also excluded from the public post' );
 
 	// Scheduled merge: expire safely on competing edits, and execute a fresh approved job.
 	$scheduled_original = wbfp_make_post();
