@@ -136,6 +136,7 @@ final class Block_Merge {
 				}
 				if ( $segments ) {
 					$index = count( $segments ) - 1;
+
 					$segments[ $index ]['raw'] .= $raw;
 				} else {
 					$prefix .= $raw;
@@ -149,6 +150,7 @@ final class Block_Merge {
 				'identity' => hash( 'sha256', $raw ),
 				'raw'      => $prefix . $raw,
 			);
+
 			$prefix = '';
 		}
 		if ( count( $segments ) < 2 || count( $segments ) > 128 ) {
@@ -243,6 +245,7 @@ final class Block_Merge {
 			}
 		}
 		$anchors[] = array( $n, $m );
+
 		$edits    = array();
 		$base_pos = 0;
 		$side_pos = 0;
