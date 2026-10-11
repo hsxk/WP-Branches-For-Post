@@ -328,6 +328,16 @@ final class Workflow_Service {
 		echo '<p><a href="' . esc_url( $edit_url ) . '">' . esc_html__( 'Review changes in branch editor', 'wp-branches-for-post' ) . '</a></p>';
 		echo '<p>' . esc_html( get_the_title( $branch_id ) ) . ' → ' . esc_html( get_the_title( $original_id ) ) . '</p>';
 		echo '<p><strong>' . esc_html__( 'Review status:', 'wp-branches-for-post' ) . '</strong> ' . esc_html( $this->is_approved( $branch_id ) ? 'approved' : ( $state === 'approved' ? 'stale approval' : ( $state ?: 'not requested' ) ) ) . '</p>';
+		$creator_id = (int) get_post_meta( $branch_id, Branch_Service::META_CREATOR_USER_ID, true );
+		$reviewer_id = (int) get_post_meta( $branch_id, self::META_REVIEW_BY, true );
+		$creator = $creator_id ? get_userdata( $creator_id ) : false;
+		$reviewer = $reviewer_id ? get_userdata( $reviewer_id ) : false;
+		if ( $creator ) {
+			echo '<p><strong>' . esc_html__( 'Branch creator:', 'wp-branches-for-post' ) . '</strong> ' . esc_html( $creator->display_name ) . '</p>';
+		}
+		if ( $reviewer ) {
+			echo '<p><strong>' . esc_html__( 'Last reviewed by:', 'wp-branches-for-post' ) . '</strong> ' . esc_html( $reviewer->display_name ) . ' · ' . esc_html( (string) get_post_meta( $branch_id, self::META_REVIEWED_AT, true ) ) . ' UTC</p>';
+		}
 		$analysis = $this->branches->analyze_branch( $branch_id );
 		$review   = $analysis['analysis'] ?? array();
 		echo '<p>' . esc_html( sprintf( __( '%1$d branch changes · %2$d original changes · %3$d conflicts · %4$d auto-mergeable fields', 'wp-branches-for-post' ), count( $review['branch_changes'] ?? array() ), count( $review['original_changes'] ?? array() ), count( $review['conflicts'] ?? array() ), count( $review['auto_merged_fields'] ?? array() ) ) ) . '</p>';
@@ -344,6 +354,7 @@ final class Workflow_Service {
 		echo '<p>' . esc_html__( 'Changes to the original or branch after approval or scheduling invalidate the stored review. Scheduled merges use WP-Cron and require a working WordPress cron runner.', 'wp-branches-for-post' ) . '</p>';
 		$this->form( $branch_id, 'request', __( 'Request review', 'wp-branches-for-post' ) );
 		if ( $this->can_review( $branch_id ) && 'pending' === $state ) {
+			echo '<p class="description">' . esc_html__( 'Open Review changes in the editor and inspect Base, Original and Branch before deciding. Approval applies only to the exact requested snapshot.', 'wp-branches-for-post' ) . '</p>';
 			$this->form( $branch_id, 'approve', __( 'Approve current changes', 'wp-branches-for-post' ), true );
 			$this->form( $branch_id, 'reject', __( 'Request changes', 'wp-branches-for-post' ), true );
 		}
@@ -457,7 +468,40 @@ final class Workflow_Service {
 		}
 	}
 
+	/** Return compact workflow state to authenticated editors without exposing raw metadata. */
+	public function rest_status( \WP_REST_Request $request ) {
+		$branch_id = (int) $request['id'];
+		if ( ! $this->can_edit( $branch_id ) ) {
+			return new \WP_Error( 'wbfp_review_denied', __( 'You cannot view this workflow.', 'wp-branches-for-post' ), array( 'status' => 403 ) );
+		}
+		return rest_ensure_response(
+			array(
+				'requires_approval' => self::requires_approval( $branch_id, $this->branches->get_original_id( $branch_id ) ),
+				'state'             => (string) get_post_meta( $branch_id, self::META_STATE, true ),
+				'is_approved'       => $this->is_approved( $branch_id ),
+				'can_review'        => $this->can_review( $branch_id ),
+				'requested_at_gmt'  => (string) get_post_meta( $branch_id, self::META_REQUESTED_AT, true ),
+				'reviewed_at_gmt'   => (string) get_post_meta( $branch_id, self::META_REVIEWED_AT, true ),
+				'scheduled_at_gmt'  => (string) get_post_meta( $branch_id, self::META_SCHEDULE_AT, true ),
+				'schedule_error'    => (string) get_post_meta( $branch_id, self::META_SCHEDULE_ERROR, true ),
+				'edit_url'          => admin_url( 'tools.php?page=wbfp-workflow&branch_id=' . $branch_id ),
+			)
+		);
+	}
+
 	public function register_routes(): void {
+		register_rest_route(
+			'wbfp/v1',
+			'/branches/(?P<id>\\d+)/workflow',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'permission_callback' => function ( \WP_REST_Request $request ): bool {
+					return $this->can_edit( (int) $request['id'] );
+				},
+				'callback'            => array( $this, 'rest_status' ),
+				'args'                => array( 'id' => array( 'type' => 'integer', 'minimum' => 1, 'required' => true ) ),
+			)
+		);
 		register_rest_route(
 			'wbfp/v1',
 			'/branches/(?P<id>\\d+)/workflow',
