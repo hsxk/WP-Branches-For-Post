@@ -36,7 +36,6 @@ final class Merge_Service {
 
 	/**
 	 * Initialize the merge service.
-	 * /
 	 *
 	 * @param Branch_Service $branches Branch lifecycle service.
 	 */
@@ -51,7 +50,6 @@ final class Merge_Service {
 	 * original-only changes are preserved, and overlapping changes are blocked
 	 * unless the user explicitly force-merges. Any write failure attempts to
 	 * restore the complete pre-merge original state.
-	 * /
 	 *
 	 * @param int  $branch_id Branch post ID.
 	 * @param bool $force Whether to explicitly prefer branch values on conflicts.
@@ -226,7 +224,6 @@ final class Merge_Service {
 
 	/**
 	 * Move a branch to Trash without changing its original post.
-	 * /
 	 *
 	 * @param int $branch_id Branch post ID.
 	 *
@@ -253,7 +250,6 @@ final class Merge_Service {
 
 	/**
 	 * Validate branch/original relationship and authorization.
-	 * /
 	 *
 	 * @param int  $branch_id Branch post ID.
 	 * @param ?int $expected_original_id Optional expected original ID after hooks.
@@ -291,7 +287,6 @@ final class Merge_Service {
 
 	/**
 	 * Convert analysis state to an actionable merge error.
-	 * /
 	 *
 	 * @param array $analysis Analysis result.
 	 *
