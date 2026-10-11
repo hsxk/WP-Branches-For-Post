@@ -112,7 +112,7 @@ final class Block_Merge {
 			return null;
 		}
 		foreach ( $blocks as $block ) {
-			if ( empty( $block['blockName'] ) || in_array( $block['blockName'], array( 'core/block', 'core/template-part' ), true ) ) {
+			if ( empty( $block['blockName'] ) || self::has_shared_reference( $block ) ) {
 				return null;
 			}
 		}
@@ -121,6 +121,23 @@ final class Block_Merge {
 			return null;
 		}
 		return $blocks;
+	}
+
+	/**
+	 * Nested synchronized patterns or template parts are also global content.
+	 *
+	 * @param array<string,mixed> $block Parsed Gutenberg block.
+	 */
+	private static function has_shared_reference( array $block ): bool {
+		if ( in_array( $block['blockName'] ?? '', array( 'core/block', 'core/template-part' ), true ) ) {
+			return true;
+		}
+		foreach ( $block['innerBlocks'] ?? array() as $inner ) {
+			if ( self::has_shared_reference( $inner ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
