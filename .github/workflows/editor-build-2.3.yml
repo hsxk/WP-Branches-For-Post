@@ -28,6 +28,7 @@ jobs:
       - name: Build editor using the locked WordPress toolchain
         run: |
           npm ci --no-audit --no-fund
+          npx prettier --write src/index.js assets/css/editor.css
           npm run lint:js
           npm run lint:css
           npm run build
@@ -35,7 +36,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          git add build/
+          git add src/index.js assets/css/editor.css build/
           if git diff --cached --quiet; then
             echo "Compiled editor already matches the source."
             exit 0
