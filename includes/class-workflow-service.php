@@ -122,10 +122,11 @@ final class Workflow_Service {
 		$original = get_post( $this->branches->get_original_id( $branch_id ) );
 		$type     = $original ? get_post_type_object( $original->post_type ) : null;
 		return 'approved' === get_post_meta( $branch_id, self::META_STATE, true )
-			&& $reviewer > 0 && $reviewer !== $creator
+			&& $reviewer > 0 && $creator > 0 && $reviewer !== $creator
 			&& $original && $type && ! empty( $type->cap->edit_others_posts )
 			&& user_can( $reviewer, $type->cap->edit_others_posts )
 			&& user_can( $reviewer, 'edit_post', $original->ID )
+			&& user_can( $reviewer, 'edit_post', $branch_id )
 			&& '' !== $stored && '' !== $now && hash_equals( $stored, $now );
 	}
 
@@ -152,7 +153,7 @@ final class Workflow_Service {
 		$post        = get_post( $original_id );
 		$type        = $post ? get_post_type_object( $post->post_type ) : null;
 		$creator     = (int) get_post_meta( $branch_id, Branch_Service::META_CREATOR_USER_ID, true );
-		return $post && $type && get_current_user_id() > 0 && get_current_user_id() !== $creator
+		return $post && $type && $creator > 0 && get_current_user_id() > 0 && get_current_user_id() !== $creator
 			&& current_user_can( 'edit_post', $branch_id )
 			&& current_user_can( 'edit_post', $original_id )
 			&& ! empty( $type->cap->edit_others_posts )
@@ -171,6 +172,14 @@ final class Workflow_Service {
 		$token = $this->state_token( $branch_id );
 		if ( '' === $token ) {
 			return new \WP_Error( 'wbfp_review_unavailable', __( 'This branch cannot be reviewed until its baseline is valid.', 'wp-branches-for-post' ), array( 'status' => 409 ) );
+		}
+		$analysis = $this->branches->analyze_branch( $branch_id );
+		if ( empty( $analysis['analysis']['branch_changes'] ) ) {
+			return new \WP_Error(
+				'wbfp_review_no_changes',
+				__( 'No mergeable branch changes are currently detected.', 'wp-branches-for-post' ),
+				array( 'status' => 409 )
+			);
 		}
 		$this->cancel_event( $branch_id );
 		delete_post_meta( $branch_id, self::META_REVIEW_TOKEN );
