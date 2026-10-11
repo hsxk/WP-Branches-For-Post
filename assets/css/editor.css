@@ -208,7 +208,7 @@
 	margin-top: 16px;
 }
 
-/* Editorial workflow lives inside the existing document panel, not a second sidebar. */
+/* Editorial workflow lives in the existing document sidebar. */
 .wbfp-workflow {
 	margin-top: 14px;
 	border: 1px solid #c3c4c7;
