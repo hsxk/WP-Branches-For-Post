@@ -644,6 +644,30 @@ async function openOriginal( page ) {
 				content: '<!-- wp:paragraph --><p>Review workflow browser test edit</p><!-- /wp:paragraph -->',
 			},
 		} );
+		// 2.3: review and scheduling can be completed without leaving the
+		// existing Gutenberg Post Branch panel.
+		await page.getByRole( 'button', { name: 'Review changes', exact: true } ).click();
+		const workflowPanel = page.locator( '.wbfp-workflow' );
+		await workflowPanel.getByRole( 'button', { name: 'Review / schedule', exact: true } ).click();
+		await workflowPanel.getByRole( 'button', { name: 'Request review', exact: true } ).click();
+		await workflowPanel.getByText( 'pending', { exact: false } ).first()
+			.waitFor( { state: 'visible', timeout: 12000 } );
+		check( true, 'Gutenberg panel requests independent review without leaving the editor' );
+		check(
+			! ( await visible( workflowPanel.getByRole( 'button', { name: 'Approve current changes', exact: true } ) ) ),
+			'Gutenberg does not offer self approval to the branch creator'
+		);
+		const editorWhen = new Date( Date.now() + 2 * 60 * 60 * 1000 ).toISOString().slice( 0, 16 );
+		await workflowPanel.locator( 'input[type="datetime-local"]' ).fill( editorWhen );
+		await workflowPanel.getByRole( 'button', { name: 'Schedule merge', exact: true } ).click();
+		await workflowPanel.getByText( 'Scheduled (UTC):', { exact: false } ).first()
+			.waitFor( { state: 'visible', timeout: 12000 } );
+		check( true, 'Gutenberg schedules a safe future merge through the existing REST workflow' );
+		await workflowPanel.getByRole( 'button', { name: 'Cancel scheduled merge', exact: true } ).click();
+		await workflowPanel.getByRole( 'button', { name: 'Cancel scheduled merge', exact: true } )
+			.waitFor( { state: 'hidden', timeout: 12000 } );
+		check( true, 'Gutenberg can cancel a scheduled merge without navigating away' );
+
 		const workflowShortcut = page.locator( '#wp-admin-bar-wbfp-workflow a' );
 		await workflowShortcut.waitFor( { state: 'visible', timeout: 15000 } );
 		check( true, 'An active Gutenberg branch exposes the workflow shortcut' );
