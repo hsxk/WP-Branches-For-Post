@@ -17,7 +17,7 @@
     "node": "^22.22.2 || ^24.15.0 || >=26.0.0"
   },
   "dependencies": {
-    "@wordpress/api-fetch": "^7.55.0",
+    "@wordpress/api-fetch": "^7.56.0",
     "@wordpress/components": "^40.1.0",
     "@wordpress/data": "^10.56.0",
     "@wordpress/editor": "^15.0.0",
