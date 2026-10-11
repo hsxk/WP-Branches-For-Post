@@ -237,6 +237,8 @@ final class Merge_Service {
 			return new \WP_Error( 'wbfp_discard_failed', __( 'The branch could not be moved to Trash.', 'wp-branches-for-post' ), array( 'status' => 500 ) );
 		}
 
+		do_action( 'wbfp_after_discard', $branch_id );
+
 		return true;
 	}
 
