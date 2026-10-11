@@ -1013,9 +1013,15 @@ try {
 	wbfp_check( true === $workflow->decide( $scheduled_branch, true ), 'Independent reviewer approves scheduled proposal' );
 	wp_set_current_user( $admin_id );
 	wbfp_check( true === $workflow->schedule( $scheduled_branch, time() + HOUR_IN_SECONDS ), 'Approved branch can schedule a future merge' );
-	wbfp_check( wp_next_scheduled( \WP_Branches_For_Post\Workflow_Service::CRON_HOOK, array( $scheduled_branch ) ) > 0, 'One-time WordPress cron event was registered' );
+	wbfp_check( wp_next_scheduled( \WP_Branches_For_Post\Workflow_Service::CRON_HOOK, array( $scheduled_branch, (string) get_post_meta( $scheduled_branch, \WP_Branches_For_Post\Workflow_Service::META_SCHEDULE_EVENT_ID, true ) ) ) > 0, 'One-time WordPress cron event was registered' );
+	$scheduled_event = (string) get_post_meta( $scheduled_branch, \WP_Branches_For_Post\Workflow_Service::META_SCHEDULE_EVENT_ID, true );
+	$workflow->execute_schedule( $scheduled_branch, 'obsolete-event' );
+	wbfp_check( 'draft' === get_post_status( $scheduled_branch ), 'Obsolete cron callbacks cannot publish a branch' );
+	$workflow->execute_schedule( $scheduled_branch, $scheduled_event );
+	wbfp_check( 'draft' === get_post_status( $scheduled_branch ), 'Manual invocation before scheduled time never publishes early' );
 	wp_update_post( array( 'ID' => $scheduled_original, 'post_title' => 'Public changed before schedule' ) );
-	$workflow->execute_schedule( $scheduled_branch );
+	update_post_meta( $scheduled_branch, \WP_Branches_For_Post\Workflow_Service::META_SCHEDULE_AT, gmdate( 'Y-m-d H:i:s', time() - 1 ) );
+	$workflow->execute_schedule( $scheduled_branch, (string) get_post_meta( $scheduled_branch, \WP_Branches_For_Post\Workflow_Service::META_SCHEDULE_EVENT_ID, true ) );
 	wbfp_check( 'draft' === get_post_status( $scheduled_branch ) && 'wbfp_schedule_stale' === get_post_meta( $scheduled_branch, \WP_Branches_For_Post\Workflow_Service::META_SCHEDULE_ERROR, true ), 'Stale cron refuses to merge and records its failure' );
 	wbfp_check( 'Original content' === get_post( $scheduled_original )->post_content, 'Failed schedule preserves public content' );
 
@@ -1030,7 +1036,8 @@ try {
 	wbfp_check( true === $workflow->decide( $fresh_branch, true ), 'Approve fresh cron candidate' );
 	wp_set_current_user( $admin_id );
 	wbfp_check( true === $workflow->schedule( $fresh_branch, time() + HOUR_IN_SECONDS ), 'Schedule unmodified approved content' );
-	$workflow->execute_schedule( $fresh_branch );
+	update_post_meta( $fresh_branch, \WP_Branches_For_Post\Workflow_Service::META_SCHEDULE_AT, gmdate( 'Y-m-d H:i:s', time() - 1 ) );
+	$workflow->execute_schedule( $fresh_branch, (string) get_post_meta( $fresh_branch, \WP_Branches_For_Post\Workflow_Service::META_SCHEDULE_EVENT_ID, true ) );
 	wbfp_check( 'trash' === get_post_status( $fresh_branch ) && 'Approved cron merge content' === get_post( $fresh_original )->post_content, 'Authorized cron execution merges the approved snapshot' );
 	remove_filter( 'wbfp_require_approval', $require_approval, 10 );
 	// Non-approval sites should still reject empty scheduled merges.
@@ -1049,8 +1056,9 @@ try {
 	$created_posts[] = $discard_branch;
 	wp_update_post( array( 'ID' => $discard_branch, 'post_content' => 'Change scheduled to be discarded' ) );
 	wbfp_check( true === $workflow->schedule( $discard_branch, time() + HOUR_IN_SECONDS ), 'Schedule branch before discarding it' );
+	$discard_event_id = (string) get_post_meta( $discard_branch, \WP_Branches_For_Post\Workflow_Service::META_SCHEDULE_EVENT_ID, true );
 	wbfp_check( true === $merges->discard( $discard_branch ), 'Discard scheduled branch safely' );
-	wbfp_check( false === wp_next_scheduled( \WP_Branches_For_Post\Workflow_Service::CRON_HOOK, array( $discard_branch ) ), 'Discard cancels its pending cron event' );
+	wbfp_check( false === wp_next_scheduled( \WP_Branches_For_Post\Workflow_Service::CRON_HOOK, array( $discard_branch, $discard_event_id ) ), 'Discard cancels its pending cron event' );
 
 
 
