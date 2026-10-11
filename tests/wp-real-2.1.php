@@ -1010,6 +1010,7 @@ try {
 	$workflow_rest_request->set_param( 'id', $scheduled_branch );
 	$workflow_status = $workflow->rest_status( $workflow_rest_request )->get_data();
 	wbfp_check( 'pending' === $workflow_status['state'] && $workflow_status['requires_approval'] && ! $workflow_status['is_approved'], 'Workflow REST status exposes pending approval safely' );
+	wbfp_check( wp_timezone_string() === $workflow_status['site_timezone'], 'Workflow REST status includes authoritative site timezone for editor scheduling' );
 	wbfp_check( ! isset( $workflow_status['review_token'] ) && ! isset( $workflow_status['schedule_state_token'] ), 'Workflow REST status does not expose internal fingerprints' );
 	wp_set_current_user( (int) $reviewer_id );
 	wbfp_check( true === $workflow->decide( $scheduled_branch, true ), 'Independent reviewer approves scheduled proposal' );
