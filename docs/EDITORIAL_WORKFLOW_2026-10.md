@@ -66,6 +66,9 @@ WP-Cron is traffic-dependent unless the site runs a real cron job invoking
 `wp-cron.php`. This feature cannot promise publication at an exact wall-clock
 second on a site without reliable cron execution.
 
+An authenticated `GET /wbfp/v1/branches/{id}/workflow` returns compact review,
+approval and scheduling status without exposing internal snapshot tokens.
+
 A REST action is also available: authenticated `POST
 /wbfp/v1/branches/{id}/workflow` with `operation=request|approve|reject|schedule|cancel`;
 `schedule` accepts `when` as a `YYYY-MM-DDTHH:mm` **site-local** value.
