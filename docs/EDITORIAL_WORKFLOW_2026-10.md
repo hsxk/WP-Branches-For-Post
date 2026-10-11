@@ -97,8 +97,12 @@ preferably in the repository's quota-isolated test lab:
 4. Simulated WP-Cron execution, stale approval and revoked reviewer rights.
 5. Real Yoast SEO, Elementor and ACF integration testing, including serialized
    builder data, canonical/SEO metadata, custom post types and nested blocks.
-6. WordPress plugin-check, permissions, translation POT/PO/MO regeneration,
-   release ZIP audit, screenshots, and full compatibility matrix.
+6. WordPress plugin-check, permissions, release ZIP audit, screenshots and
+   full compatibility matrix. Confirm that existing translations and catalogs
+   remain unchanged; do not regenerate POT/PO/MO/JSON artifacts as part of a
+   bug fix or an unrelated code-quality pass. Introduce only essential new
+   translatable strings, with any catalog updates isolated for translation
+   approval rather than bundled into this development work.
 
 **This branch has not yet passed these gates in this chat.** Do not tag,
 publish or merge it based only on the code changes and added test cases.
