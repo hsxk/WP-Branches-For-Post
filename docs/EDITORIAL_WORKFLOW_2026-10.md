@@ -97,7 +97,7 @@ preferably in the repository's quota-isolated test lab:
 2. `wp eval-file .../tests/wp-real-2.1.php` against real WP/MySQL.
 3. Browser tests for block merger, editor navigation, approval and scheduling.
 4. Simulated WP-Cron execution, stale approval and revoked reviewer rights.
-5. Real Yoast SEO, Elementor and ACF integration testing, including serialized
+5. Real Yoast Duplicate Post, Yoast SEO, Elementor and ACF integration testing, including serialized
    builder data, canonical/SEO metadata, custom post types and nested blocks.
 6. WordPress plugin-check, permissions, release ZIP audit, screenshots and
    full compatibility matrix. Confirm that existing translations and catalogs
@@ -106,8 +106,9 @@ preferably in the repository's quota-isolated test lab:
    translatable strings, with any catalog updates isolated for translation
    approval rather than bundled into this development work.
 
-**This branch has not yet passed these gates in this chat.** Do not tag,
-publish or merge it based only on the code changes and added test cases.
+**Gate rule:** Review the CI, WordPress compatibility, and Gutenberg
+visual workflow results for the exact current PR head before merging, tagging
+or publishing. Earlier passing runs do not validate a newer commit.
 
 ## Pending UX/quality work
 
