@@ -39,16 +39,19 @@ final class Block_Merge {
 		$base_keys     = array_map( array( __CLASS__, 'block_hash' ), $base_blocks );
 		$original_keys = array_map( array( __CLASS__, 'block_hash' ), $original_blocks );
 		$branch_keys   = array_map( array( __CLASS__, 'block_hash' ), $branch_blocks );
+		$base_names    = array_column( $base_blocks, 'identity' );
+		$original_names = array_column( $original_blocks, 'identity' );
+		$branch_names   = array_column( $branch_blocks, 'identity' );
 
 		// Identical blocks cannot be reliably mapped to their original positions.
-		foreach ( array( $base_keys, $original_keys, $branch_keys ) as $keys ) {
+		foreach ( array( $base_names, $original_names, $branch_names ) as $keys ) {
 			if ( count( $keys ) !== count( array_unique( $keys ) ) ) {
 				return null;
 			}
 		}
 		// Moved existing blocks make positional edits ambiguous. Insertions are
 		// acceptable; reordering existing blocks is not.
-		if ( ! self::preserves_base_order( $base_keys, $original_keys ) || ! self::preserves_base_order( $base_keys, $branch_keys ) ) {
+		if ( ! self::preserves_base_order( $base_names, $original_names ) || ! self::preserves_base_order( $base_names, $branch_names ) ) {
 			return null;
 		}
 
@@ -94,33 +97,64 @@ final class Block_Merge {
 			$output[] = $block;
 		}
 
-		return serialize_blocks( $output );
+		$merged = implode( '', array_column( $output, 'raw' ) );
+		// Postconditions: the new result must still parse and serialize losslessly.
+		return null === self::blocks( $merged ) ? null : $merged;
 	}
 
 	/**
-	 * Avoid rewriting unusual freeform, malformed, huge or globally shared content.
+	 * Represent Gutenberg blocks as lossless spans. WordPress parses whitespace
+	 * between blocks as null-name pseudo-blocks; attach those spans to a
+	 * neighboring block instead of treating ordinary newlines as conflicts.
+	 * Non-whitespace freeform markup still fails closed.
 	 *
-	 * @param string $content Saved Gutenberg content.
-	 * @return array<int,array<string,mixed>>|null
+	 * @param string $content Saved Gutenberg markup.
+	 * @return array<int,array{identity:string,raw:string}>|null
 	 */
 	private static function blocks( string $content ): ?array {
 		if ( strlen( $content ) > 400000 ) {
 			return null;
 		}
-		$blocks = parse_blocks( $content );
-		if ( ! is_array( $blocks ) || count( $blocks ) < 2 || count( $blocks ) > 128 ) {
+		$parsed = parse_blocks( $content );
+		if ( ! is_array( $parsed ) || count( $parsed ) > 256 || serialize_blocks( $parsed ) !== $content ) {
 			return null;
 		}
-		foreach ( $blocks as $block ) {
-			if ( empty( $block['blockName'] ) || self::has_shared_reference( $block ) ) {
+
+		$segments = array();
+		$prefix   = '';
+		foreach ( $parsed as $block ) {
+			if ( ! is_array( $block ) ) {
 				return null;
 			}
+			$raw = serialize_block( $block );
+			if ( empty( $block['blockName'] ) ) {
+				if ( 1 !== preg_match( '/^\\s*$/u', $raw ) ) {
+					return null;
+				}
+				if ( $segments ) {
+					$index = count( $segments ) - 1;
+					$segments[ $index ]['raw'] .= $raw;
+				} else {
+					$prefix .= $raw;
+				}
+				continue;
+			}
+			if ( self::has_shared_reference( $block ) ) {
+				return null;
+			}
+			$segments[] = array(
+				'identity' => hash( 'sha256', $raw ),
+				'raw'      => $prefix . $raw,
+			);
+			$prefix = '';
 		}
-		// Decline if the parser/serializer cannot faithfully round-trip the input.
-		if ( trim( serialize_blocks( $blocks ) ) !== trim( $content ) ) {
+		if ( count( $segments ) < 2 || count( $segments ) > 128 ) {
 			return null;
 		}
-		return $blocks;
+		if ( implode( '', array_column( $segments, 'raw' ) ) !== $content ) {
+			return null;
+		}
+		return $segments;
 	}
 
 	/**
@@ -161,9 +195,9 @@ final class Block_Merge {
 		return true;
 	}
 
-	/** @param array<string,mixed> $block Block. */
+	/** @param array{identity:string,raw:string} $block Lossless top-level span. */
 	private static function block_hash( array $block ): string {
-		return hash( 'sha256', serialize_block( $block ) );
+		return hash( 'sha256', $block['raw'] );
 	}
 
 	/**
@@ -171,7 +205,7 @@ final class Block_Merge {
 	 *
 	 * @param string[]                      $base Base block identities.
 	 * @param string[]                      $side Side block identities.
-	 * @param array<int,array<string,mixed>> $blocks Parsed side blocks.
+	 * @param array<int,array{identity:string,raw:string}> $blocks Parsed side spans.
 	 * @return array<int,array<string,mixed>>
 	 */
 	private static function edits( array $base, array $side, array $blocks ): array {
