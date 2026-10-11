@@ -18,7 +18,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class Block_Merge {
 	/**
 	 * Return merged content only when both sides' edits are unambiguous.
-	 * /
 	 *
 	 * @param string $base Content at branch creation.
 	 * @param string $original Current public original.
@@ -109,7 +108,6 @@ final class Block_Merge {
 	 * between blocks as null-name pseudo-blocks; attach those spans to a
 	 * neighboring block instead of treating ordinary newlines as conflicts.
 	 * Non-whitespace freeform markup still fails closed.
-	 * /
 	 *
 	 * @param string $content Saved Gutenberg markup.
 	 *
@@ -163,7 +161,6 @@ final class Block_Merge {
 
 	/**
 	 * Nested synchronized patterns or template parts are also global content.
-	 * /
 	 *
 	 * @param array $block Parsed Gutenberg block.
 	 */
@@ -181,7 +178,6 @@ final class Block_Merge {
 
 	/**
 	 * Reject variants that reorder any surviving baseline blocks.
-	 * /
 	 *
 	 * @param array $base Base block hashes.
 	 * @param array $side Side block hashes.
@@ -212,7 +208,6 @@ final class Block_Merge {
 
 	/**
 	 * Find minimal changed ranges using longest common subsequence anchors.
-	 * /
 	 *
 	 * @param array $base Base block identities.
 	 * @param array $side Side block identities.
@@ -268,7 +263,6 @@ final class Block_Merge {
 
 	/**
 	 * Treat simultaneous inserts and inserts on an edited boundary as conflicts.
-	 * /
 	 *
 	 * @param array $a Original edit.
 	 * @param array $b Branch edit.
