@@ -280,7 +280,10 @@ function BranchPanel() {
 			if ( operation === 'schedule' ) {
 				resultMessage = `${ __( 'Scheduled (UTC):', 'wp-branches-for-post' ) } ${ nextWorkflow.scheduled_at_gmt || '' }`;
 			} else if ( operation === 'cancel' ) {
-				resultMessage = __( 'Cancel scheduled merge', 'wp-branches-for-post' );
+				resultMessage = __(
+					'Cancel scheduled merge',
+					'wp-branches-for-post'
+				);
 			}
 			setWorkflowMessage( resultMessage );
 			if ( nextWorkflow.state !== 'pending' ) {
@@ -818,13 +821,20 @@ function BranchPanel() {
 							' ',
 							workflow.is_approved
 								? __( 'Ready', 'wp-branches-for-post' )
-								: workflow.state || __( 'No mergeable branch changes are currently detected.', 'wp-branches-for-post' )
+								: workflow.state ||
+										__(
+											'No mergeable branch changes are currently detected.',
+											'wp-branches-for-post'
+										)
 						),
 						workflow.scheduled_at_gmt &&
 							el(
 								'span',
 								null,
-								__( 'Scheduled (UTC):', 'wp-branches-for-post' ),
+								__(
+									'Scheduled (UTC):',
+									'wp-branches-for-post'
+								),
 								' ',
 								workflow.scheduled_at_gmt
 							)
@@ -832,22 +842,39 @@ function BranchPanel() {
 				workflowOpen &&
 					el(
 						'div',
-						{ id: 'wbfp-workflow-details', className: 'wbfp-workflow__details' },
+						{
+							id: 'wbfp-workflow-details',
+							className: 'wbfp-workflow__details',
+						},
 						workflowMessage &&
-							el( Notice, { status: 'success', isDismissible: false }, workflowMessage ),
+							el(
+								Notice,
+								{ status: 'success', isDismissible: false },
+								workflowMessage
+							),
 						workflow?.schedule_error &&
-							el( Notice, { status: 'warning', isDismissible: false }, workflow.schedule_error ),
+							el(
+								Notice,
+								{ status: 'warning', isDismissible: false },
+								workflow.schedule_error
+							),
 						workflow?.requires_approval &&
 							! workflow.is_approved &&
 							el(
 								Notice,
 								{ status: 'warning', isDismissible: false },
-								__( 'This branch needs approval for its current contents before it can be merged.', 'wp-branches-for-post' )
+								__(
+									'This branch needs approval for its current contents before it can be merged.',
+									'wp-branches-for-post'
+								)
 							),
 						el(
 							'p',
 							{ className: 'wbfp-meta' },
-							__( 'Open Review changes in the editor and inspect Base, Original and Branch before deciding. Approval applies only to the exact requested snapshot.', 'wp-branches-for-post' )
+							__(
+								'Open Review changes in the editor and inspect Base, Original and Branch before deciding. Approval applies only to the exact requested snapshot.',
+								'wp-branches-for-post'
+							)
 						),
 						! reviewOpen &&
 							el(
@@ -867,62 +894,103 @@ function BranchPanel() {
 								{
 									variant: 'secondary',
 									onClick: () => workflowAction( 'request' ),
-									disabled: busy || editor.dirty || editor.saving ||
-										! hasBranchChanges || ! workflow ||
+									disabled:
+										busy ||
+										editor.dirty ||
+										editor.saving ||
+										! hasBranchChanges ||
+										! workflow ||
 										workflow?.state === 'pending',
 								},
 								__( 'Request review', 'wp-branches-for-post' )
 							),
-							workflow?.can_review && workflow?.state === 'pending' &&
+							workflow?.can_review &&
+								workflow?.state === 'pending' &&
 								el(
 									Fragment,
 									null,
 									el(
 										'label',
 										{ className: 'wbfp-workflow__label' },
-										__( 'Review note', 'wp-branches-for-post' ),
+										__(
+											'Review note',
+											'wp-branches-for-post'
+										),
 										el( 'textarea', {
 											value: reviewNote,
 											rows: 2,
-											onChange: ( event ) => setReviewNote( event.target.value ),
-											disabled: busy || editor.saving || editor.dirty,
+											onChange: ( event ) =>
+												setReviewNote(
+													event.target.value
+												),
+											disabled:
+												busy ||
+												editor.saving ||
+												editor.dirty,
 										} )
 									),
 									el(
 										'div',
-										{ className: 'wbfp-workflow__action-row' },
+										{
+											className:
+												'wbfp-workflow__action-row',
+										},
 										el(
 											Button,
 											{
 												variant: 'primary',
-												onClick: () => workflowAction( 'approve' ),
-												disabled: busy || editor.dirty || editor.saving ||
-													hardConflict || ! hasBranchChanges,
+												onClick: () =>
+													workflowAction( 'approve' ),
+												disabled:
+													busy ||
+													editor.dirty ||
+													editor.saving ||
+													hardConflict ||
+													! hasBranchChanges,
 											},
-											__( 'Approve current changes', 'wp-branches-for-post' )
+											__(
+												'Approve current changes',
+												'wp-branches-for-post'
+											)
 										),
 										el(
 											Button,
 											{
 												variant: 'secondary',
-												onClick: () => workflowAction( 'reject' ),
-												disabled: busy || editor.dirty || editor.saving,
+												onClick: () =>
+													workflowAction( 'reject' ),
+												disabled:
+													busy ||
+													editor.dirty ||
+													editor.saving,
 											},
-											__( 'Request changes', 'wp-branches-for-post' )
+											__(
+												'Request changes',
+												'wp-branches-for-post'
+											)
 										)
 									)
 								),
 							el(
 								'label',
 								{ className: 'wbfp-workflow__label' },
-								__( 'Site-local date and time', 'wp-branches-for-post' ),
+								__(
+									'Site-local date and time',
+									'wp-branches-for-post'
+								),
 								workflow?.site_timezone &&
-									el( 'span', { className: 'wbfp-meta' }, workflow.site_timezone ),
+									el(
+										'span',
+										{ className: 'wbfp-meta' },
+										workflow.site_timezone
+									),
 								el( 'input', {
 									type: 'datetime-local',
 									value: scheduleTime,
-									onChange: ( event ) => setScheduleTime( event.target.value ),
-									disabled: busy || editor.saving || editor.dirty,
+									onChange: ( event ) =>
+										setScheduleTime( event.target.value ),
+									disabled:
+										busy || editor.saving || editor.dirty,
 								} )
 							),
 							el(
@@ -932,30 +1000,50 @@ function BranchPanel() {
 									Button,
 									{
 										variant: 'secondary',
-										onClick: () => workflowAction( 'schedule' ),
-										disabled: busy || editor.saving || editor.dirty ||
-											! workflow || ! scheduleTime || hardConflict ||
+										onClick: () =>
+											workflowAction( 'schedule' ),
+										disabled:
+											busy ||
+											editor.saving ||
+											editor.dirty ||
+											! workflow ||
+											! scheduleTime ||
+											hardConflict ||
 											! hasBranchChanges ||
-											( workflow?.requires_approval && ! workflow?.is_approved ),
+											( workflow?.requires_approval &&
+												! workflow?.is_approved ),
 									},
-									__( 'Schedule merge', 'wp-branches-for-post' )
+									__(
+										'Schedule merge',
+										'wp-branches-for-post'
+									)
 								),
 								workflow?.scheduled_at_gmt &&
 									el(
 										Button,
 										{
 											variant: 'tertiary',
-											onClick: () => workflowAction( 'cancel' ),
-											disabled: busy || editor.saving || editor.dirty,
+											onClick: () =>
+												workflowAction( 'cancel' ),
+											disabled:
+												busy ||
+												editor.saving ||
+												editor.dirty,
 										},
-										__( 'Cancel scheduled merge', 'wp-branches-for-post' )
+										__(
+											'Cancel scheduled merge',
+											'wp-branches-for-post'
+										)
 									)
 							)
 						),
 						el(
 							'a',
 							{ href: workflow?.edit_url || '#' },
-							__( 'Branch review & schedule', 'wp-branches-for-post' )
+							__(
+								'Branch review & schedule',
+								'wp-branches-for-post'
+							)
 						)
 					)
 			),

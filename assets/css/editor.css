@@ -296,6 +296,7 @@
 }
 
 @media (max-width: 480px) {
+
 	.wbfp-workflow {
 		padding: 8px;
 	}
@@ -310,6 +311,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
+
 	.wbfp-workflow {
 		border-color: #757575;
 	}
