@@ -50,7 +50,9 @@ Classic Editor actions and REST merges all pass through the same gate.
 From Tools → Branch Workflow for an editable branch, choose a future site-local
 date and time (from one minute to one year ahead).
 
-- A WP-Cron *single* event stores the current state fingerprint and actor.
+- A WP-Cron *single* event stores the current state fingerprint, actor and
+  per-schedule random event ID. Obsolete callbacks and invocations before
+  the actual due time cannot execute a newer or premature merge.
 - The original stays published; the branch stays a draft.
 - On execution, the original and branch must still match the scheduled state.
   The actor's original/branch edit capabilities and any configured approval
