@@ -30,7 +30,7 @@ This plugin models the problem explicitly:
 
 The result is an editorial workflow closer to source control, while still using normal WordPress posts, permissions, metadata, taxonomies, and editors.
 
-## What 2.1.1 can do
+## What WP Branches For Post can do
 
 - Create an isolated draft branch from published, private, or scheduled content.
 - Review **Base / Original / Branch** before merging.
@@ -214,7 +214,12 @@ The repository also contains real-WordPress and browser suites used by GitHub Ac
 
 ## Release engineering
 
-A version tag is not enough to publish this plugin.
+A version tag is not enough to publish this plugin. After a reviewed release
+PR is squash-merged to `master`, create `release/v2.2.0` from the exact
+merged master commit. The release-branch workflow reruns all release gates and,
+if green, publishes the WordPress.org SVN tag and creates the GitHub release
+`v2.2.0` pointing to that exact commit. This avoids unvalidated deployment
+from a direct `master` commit and does not require manually editing a tag.
 
 The release workflow calls the same quality, compatibility, and browser/visual workflows used on pull requests, verifies that the tag matches the plugin header, constant, `README.txt` stable tag, and package version, audits the generated ZIP, runs Plugin Check, and only then permits the WordPress.org deployment job.
 
