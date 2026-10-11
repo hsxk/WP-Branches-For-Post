@@ -1004,6 +1004,11 @@ try {
 	$created_posts[] = $scheduled_branch;
 	wp_update_post( array( 'ID' => $scheduled_branch, 'post_content' => 'Scheduled branch proposal' ) );
 	wbfp_check( true === $workflow->request_review( $scheduled_branch ), 'Request review for scheduled proposal' );
+	$workflow_rest_request = new WP_REST_Request( 'GET', '/wbfp/v1/branches/' . $scheduled_branch . '/workflow' );
+	$workflow_rest_request->set_param( 'id', $scheduled_branch );
+	$workflow_status = $workflow->rest_status( $workflow_rest_request )->get_data();
+	wbfp_check( 'pending' === $workflow_status['state'] && $workflow_status['requires_approval'] && ! $workflow_status['is_approved'], 'Workflow REST status exposes pending approval safely' );
+	wbfp_check( ! isset( $workflow_status['review_token'] ) && ! isset( $workflow_status['schedule_state_token'] ), 'Workflow REST status does not expose internal fingerprints' );
 	wp_set_current_user( (int) $reviewer_id );
 	wbfp_check( true === $workflow->decide( $scheduled_branch, true ), 'Independent reviewer approves scheduled proposal' );
 	wp_set_current_user( $admin_id );
@@ -1028,6 +1033,26 @@ try {
 	$workflow->execute_schedule( $fresh_branch );
 	wbfp_check( 'trash' === get_post_status( $fresh_branch ) && 'Approved cron merge content' === get_post( $fresh_original )->post_content, 'Authorized cron execution merges the approved snapshot' );
 	remove_filter( 'wbfp_require_approval', $require_approval, 10 );
+	// Non-approval sites should still reject empty scheduled merges.
+	$empty_original = wbfp_make_post();
+	$empty_branch = $branches->create( $empty_original );
+	wbfp_check( ! is_wp_error( $empty_branch ), 'Create an untouched branch for schedule guard test' );
+	$empty_branch = (int) $empty_branch;
+	$created_posts[] = $empty_branch;
+	$empty_schedule = $workflow->schedule( $empty_branch, time() + HOUR_IN_SECONDS );
+	wbfp_check( is_wp_error( $empty_schedule ) && 'wbfp_schedule_no_changes' === $empty_schedule->get_error_code(), 'Empty branch cannot be scheduled' );
+
+	$discard_original = wbfp_make_post();
+	$discard_branch = $branches->create( $discard_original );
+	wbfp_check( ! is_wp_error( $discard_branch ), 'Create branch for scheduled discard cleanup' );
+	$discard_branch = (int) $discard_branch;
+	$created_posts[] = $discard_branch;
+	wp_update_post( array( 'ID' => $discard_branch, 'post_content' => 'Change scheduled to be discarded' ) );
+	wbfp_check( true === $workflow->schedule( $discard_branch, time() + HOUR_IN_SECONDS ), 'Schedule branch before discarding it' );
+	wbfp_check( true === $merges->discard( $discard_branch ), 'Discard scheduled branch safely' );
+	wbfp_check( false === wp_next_scheduled( \WP_Branches_For_Post\Workflow_Service::CRON_HOOK, array( $discard_branch ) ), 'Discard cancels its pending cron event' );
+
+
 
 	echo "\nREAL WORDPRESS RESULT: {$GLOBALS['wbfp_checks']} / {$GLOBALS['wbfp_checks']} checks passed.\n";
 } finally {
