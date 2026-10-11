@@ -276,13 +276,13 @@ function BranchPanel() {
 				refreshWorkflow(),
 				refreshStatus(),
 			] );
-			setWorkflowMessage(
-				operation === 'schedule'
-					? `${ __( 'Scheduled (UTC):', 'wp-branches-for-post' ) } ${ nextWorkflow.scheduled_at_gmt || '' }`
-					: operation === 'cancel'
-						? __( 'Cancel scheduled merge', 'wp-branches-for-post' )
-						: `${ __( 'Review status:', 'wp-branches-for-post' ) } ${ nextWorkflow.state || '' }`
-			);
+			let resultMessage = `${ __( 'Review status:', 'wp-branches-for-post' ) } ${ nextWorkflow.state || '' }`;
+			if ( operation === 'schedule' ) {
+				resultMessage = `${ __( 'Scheduled (UTC):', 'wp-branches-for-post' ) } ${ nextWorkflow.scheduled_at_gmt || '' }`;
+			} else if ( operation === 'cancel' ) {
+				resultMessage = __( 'Cancel scheduled merge', 'wp-branches-for-post' );
+			}
+			setWorkflowMessage( resultMessage );
 			if ( nextWorkflow.state !== 'pending' ) {
 				setReviewNote( '' );
 			}
