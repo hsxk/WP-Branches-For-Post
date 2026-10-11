@@ -15,22 +15,33 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Workflow metadata is kept on the working draft, never on the public original.
  */
 final class Workflow_Service {
-	public const META_STATE         = '_wbfp_workflow_state';
-	public const META_REQUEST_BY    = '_wbfp_review_requested_by';
-	public const META_REQUEST_TOKEN = '_wbfp_review_requested_state_token';
-	public const META_REVIEW_BY     = '_wbfp_reviewed_by';
-	public const META_REVIEWED_AT  = '_wbfp_reviewed_at_gmt';
-	public const META_REQUESTED_AT = '_wbfp_review_requested_at_gmt';
-	public const META_REVIEW_TOKEN  = '_wbfp_approved_state_token';
-	public const META_REVIEW_NOTE   = '_wbfp_review_feedback';
-	public const META_SCHEDULE_AT   = '_wbfp_schedule_at_gmt';
-	public const META_SCHEDULE_BY   = '_wbfp_schedule_by';
-	public const META_SCHEDULE_TOKEN = '_wbfp_schedule_state_token';
+	public const META_STATE             = '_wbfp_workflow_state';
+	public const META_REQUEST_BY        = '_wbfp_review_requested_by';
+	public const META_REQUEST_TOKEN     = '_wbfp_review_requested_state_token';
+	public const META_REVIEW_BY         = '_wbfp_reviewed_by';
+	public const META_REVIEWED_AT       = '_wbfp_reviewed_at_gmt';
+	public const META_REQUESTED_AT      = '_wbfp_review_requested_at_gmt';
+	public const META_REVIEW_TOKEN      = '_wbfp_approved_state_token';
+	public const META_REVIEW_NOTE       = '_wbfp_review_feedback';
+	public const META_SCHEDULE_AT       = '_wbfp_schedule_at_gmt';
+	public const META_SCHEDULE_BY       = '_wbfp_schedule_by';
+	public const META_SCHEDULE_TOKEN    = '_wbfp_schedule_state_token';
 	public const META_SCHEDULE_EVENT_ID = '_wbfp_schedule_event_id';
-	public const META_SCHEDULE_ERROR = '_wbfp_schedule_error';
-	public const CRON_HOOK           = 'wbfp_run_scheduled_merge';
+	public const META_SCHEDULE_ERROR    = '_wbfp_schedule_error';
+	public const CRON_HOOK              = 'wbfp_run_scheduled_merge';
 
+	/**
+	 * Branch relationship service.
+	 *
+	 * @var Branch_Service
+	 */
 	private Branch_Service $branches;
+
+	/**
+	 * Reviewed merge executor.
+	 *
+	 * @var Merge_Service
+	 */
 	private Merge_Service $merges;
 
 	/**
@@ -104,8 +115,8 @@ final class Workflow_Service {
 	 * @param int $branch_id branch id.
 	 */
 	public function is_approved( int $branch_id ): bool {
-		$stored = (string) get_post_meta( $branch_id, self::META_REVIEW_TOKEN, true );
-		$now    = $this->state_token( $branch_id );
+		$stored   = (string) get_post_meta( $branch_id, self::META_REVIEW_TOKEN, true );
+		$now      = $this->state_token( $branch_id );
 		$reviewer = (int) get_post_meta( $branch_id, self::META_REVIEW_BY, true );
 		$creator  = (int) get_post_meta( $branch_id, Branch_Service::META_CREATOR_USER_ID, true );
 		$original = get_post( $this->branches->get_original_id( $branch_id ) );
@@ -242,7 +253,7 @@ final class Workflow_Service {
 		}
 		$this->cancel_event( $branch_id );
 		$event_id = wp_generate_uuid4();
-		$result = wp_schedule_single_event( $timestamp, self::CRON_HOOK, array( $branch_id, $event_id ), true );
+		$result   = wp_schedule_single_event( $timestamp, self::CRON_HOOK, array( $branch_id, $event_id ), true );
 		if ( is_wp_error( $result ) || ! $result ) {
 			return new \WP_Error( 'wbfp_schedule_failed', __( 'WordPress could not schedule the merge.', 'wp-branches-for-post' ), array( 'status' => 500 ) );
 		}
@@ -404,7 +415,15 @@ final class Workflow_Service {
 	 * Site owner can turn on independent approval without writing custom code.
 	 */
 	public function register_settings(): void {
-		register_setting( 'wbfp_workflow_settings', 'wbfp_require_approval', array( 'type' => 'boolean', 'sanitize_callback' => 'rest_sanitize_boolean', 'default' => false ) );
+		register_setting(
+			'wbfp_workflow_settings',
+			'wbfp_require_approval',
+			array(
+				'type'              => 'boolean',
+				'sanitize_callback' => 'rest_sanitize_boolean',
+				'default'           => false,
+			)
+		);
 	}
 
 	/**
@@ -418,6 +437,7 @@ final class Workflow_Service {
 	 * Render the safe workflow management screen.
 	 */
 	public function admin_page(): void {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only branch selector; all mutations require a separate POST nonce.
 		$branch_id = isset( $_GET['branch_id'] ) ? absint( wp_unslash( $_GET['branch_id'] ) ) : 0;
 		if ( ! $branch_id || ! $this->can_edit( $branch_id ) ) {
 			echo '<div class="wrap"><h1>' . esc_html__( 'Branch Workflow', 'wp-branches-for-post' ) . '</h1><p>' . esc_html__( 'Open an editable working branch and follow its Workflow link to request review or schedule a merge.', 'wp-branches-for-post' ) . '</p>';
@@ -436,11 +456,12 @@ final class Workflow_Service {
 		echo '<div class="wrap"><h1>' . esc_html__( 'Branch Workflow', 'wp-branches-for-post' ) . '</h1>';
 		echo '<p><a href="' . esc_url( $edit_url ) . '">' . esc_html__( 'Review changes in branch editor', 'wp-branches-for-post' ) . '</a></p>';
 		echo '<p>' . esc_html( get_the_title( $branch_id ) ) . ' → ' . esc_html( get_the_title( $original_id ) ) . '</p>';
-		echo '<p><strong>' . esc_html__( 'Review status:', 'wp-branches-for-post' ) . '</strong> ' . esc_html( $this->is_approved( $branch_id ) ? 'approved' : ( $state === 'approved' ? 'stale approval' : ( $state ?: 'not requested' ) ) ) . '</p>';
-		$creator_id = (int) get_post_meta( $branch_id, Branch_Service::META_CREATOR_USER_ID, true );
+		$display_state = $this->is_approved( $branch_id ) ? 'approved' : ( 'approved' === $state ? 'stale approval' : ( '' !== $state ? $state : 'not requested' ) );
+		echo '<p><strong>' . esc_html__( 'Review status:', 'wp-branches-for-post' ) . '</strong> ' . esc_html( $display_state ) . '</p>';
+		$creator_id  = (int) get_post_meta( $branch_id, Branch_Service::META_CREATOR_USER_ID, true );
 		$reviewer_id = (int) get_post_meta( $branch_id, self::META_REVIEW_BY, true );
-		$creator = $creator_id ? get_userdata( $creator_id ) : false;
-		$reviewer = $reviewer_id ? get_userdata( $reviewer_id ) : false;
+		$creator     = $creator_id ? get_userdata( $creator_id ) : false;
+		$reviewer    = $reviewer_id ? get_userdata( $reviewer_id ) : false;
 		if ( $creator ) {
 			echo '<p><strong>' . esc_html__( 'Branch creator:', 'wp-branches-for-post' ) . '</strong> ' . esc_html( $creator->display_name ) . '</p>';
 		}
@@ -449,6 +470,7 @@ final class Workflow_Service {
 		}
 		$analysis = $this->branches->analyze_branch( $branch_id );
 		$review   = $analysis['analysis'] ?? array();
+		// translators: 1: branch changes, 2: original changes, 3: conflicts, 4: auto-mergeable fields.
 		echo '<p>' . esc_html( sprintf( __( '%1$d branch changes · %2$d original changes · %3$d conflicts · %4$d auto-mergeable fields', 'wp-branches-for-post' ), count( $review['branch_changes'] ?? array() ), count( $review['original_changes'] ?? array() ), count( $review['conflicts'] ?? array() ), count( $review['auto_merged_fields'] ?? array() ) ) ) . '</p>';
 		if ( $note ) {
 			echo '<p>' . esc_html( $note ) . '</p>';
@@ -492,6 +514,7 @@ final class Workflow_Service {
 				'post_type'      => array_values( get_post_types( array( 'show_ui' => true ), 'names' ) ),
 				'post_status'    => 'draft',
 				'posts_per_page' => 50,
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- The pending queue is intentionally bounded.
 				'meta_key'       => self::META_REQUESTED_AT,
 				'orderby'        => 'meta_value',
 				'order'          => 'DESC',
@@ -559,9 +582,10 @@ final class Workflow_Service {
 	public function admin_action(): void {
 		$branch_id = isset( $_POST['branch_id'] ) ? absint( wp_unslash( $_POST['branch_id'] ) ) : 0;
 		check_admin_referer( 'wbfp_workflow_' . $branch_id );
-		$op   = isset( $_POST['operation'] ) ? sanitize_key( wp_unslash( $_POST['operation'] ) ) : '';
-		$note = isset( $_POST['note'] ) ? (string) wp_unslash( $_POST['note'] ) : '';
-		$result = $this->operate( $branch_id, $op, $note, isset( $_POST['when'] ) ? (string) wp_unslash( $_POST['when'] ) : '' );
+		$op     = isset( $_POST['operation'] ) ? sanitize_key( wp_unslash( $_POST['operation'] ) ) : '';
+		$note   = isset( $_POST['note'] ) ? sanitize_textarea_field( wp_unslash( $_POST['note'] ) ) : '';
+		$when   = isset( $_POST['when'] ) ? sanitize_text_field( wp_unslash( $_POST['when'] ) ) : '';
+		$result = $this->operate( $branch_id, $op, $note, $when );
 		if ( is_wp_error( $result ) ) {
 			wp_die( esc_html( $result->get_error_message() ), esc_html__( 'Workflow action blocked', 'wp-branches-for-post' ), array( 'response' => (int) ( $result->get_error_data()['status'] ?? 400 ) ) );
 		}
@@ -636,7 +660,13 @@ final class Workflow_Service {
 					return $this->can_edit( (int) $request['id'] );
 				},
 				'callback'            => array( $this, 'rest_status' ),
-				'args'                => array( 'id' => array( 'type' => 'integer', 'minimum' => 1, 'required' => true ) ),
+				'args'                => array(
+					'id' => array(
+						'type'     => 'integer',
+						'minimum'  => 1,
+						'required' => true,
+					),
+				),
 			)
 		);
 		register_rest_route(
@@ -654,13 +684,32 @@ final class Workflow_Service {
 						(string) $request->get_param( 'note' ),
 						(string) $request->get_param( 'when' )
 					);
-					return is_wp_error( $result ) ? $result : rest_ensure_response( array( 'success' => true, 'approved' => $this->is_approved( (int) $request['id'] ) ) );
+					return is_wp_error( $result ) ? $result : rest_ensure_response(
+						array(
+							'success'  => true,
+							'approved' => $this->is_approved( (int) $request['id'] ),
+						)
+					);
 				},
 				'args'                => array(
-					'id'        => array( 'type' => 'integer', 'minimum' => 1, 'required' => true ),
-					'operation' => array( 'type' => 'string', 'required' => true, 'enum' => array( 'request', 'approve', 'reject', 'schedule', 'cancel' ) ),
-					'note'      => array( 'type' => 'string', 'default' => '' ),
-					'when'      => array( 'type' => 'string', 'default' => '' ),
+					'id'        => array(
+						'type'     => 'integer',
+						'minimum'  => 1,
+						'required' => true,
+					),
+					'operation' => array(
+						'type'     => 'string',
+						'required' => true,
+						'enum'     => array( 'request', 'approve', 'reject', 'schedule', 'cancel' ),
+					),
+					'note'      => array(
+						'type'    => 'string',
+						'default' => '',
+					),
+					'when'      => array(
+						'type'    => 'string',
+						'default' => '',
+					),
 				),
 			)
 		);
