@@ -869,6 +869,62 @@ try {
 	$cpt_original_terms = wp_get_object_terms( $cpt_original, 'wbfp_topic', array( 'fields' => 'ids' ) );
 	wbfp_check( empty( $cpt_original_terms ), 'Clearing a custom taxonomy on the branch clears it on merge' );
 
+
+	// Block-aware merge: preserve independent Gutenberg edits; refuse ambiguous work.
+	$parts = array(
+		'<!-- wp:paragraph --><p>Alpha unique</p><!-- /wp:paragraph -->',
+		'<!-- wp:paragraph --><p>Bravo unique</p><!-- /wp:paragraph -->',
+		'<!-- wp:paragraph --><p>Charlie unique</p><!-- /wp:paragraph -->',
+		'<!-- wp:paragraph --><p>Delta unique</p><!-- /wp:paragraph -->',
+	);
+	$block_base = serialize_blocks( parse_blocks( implode( "\n\n", $parts ) ) );
+	$block_orig = str_replace( 'Alpha unique', 'Alpha changed publicly', $block_base );
+	$block_work = str_replace( 'Delta unique', 'Delta changed in branch', $block_base );
+	$combined   = \WP_Branches_For_Post\Block_Merge::merge( $block_base, $block_orig, $block_work );
+	wbfp_check( is_string( $combined ) && str_contains( $combined, 'Alpha changed publicly' ) && str_contains( $combined, 'Delta changed in branch' ), 'Separate Gutenberg block edits auto-merge without dropping either change' );
+	wbfp_check( null === \WP_Branches_For_Post\Block_Merge::merge( $block_base, $block_orig, str_replace( 'Alpha unique', 'Alpha conflicting branch', $block_base ) ), 'Overlapping Gutenberg changes remain conflicts' );
+	wbfp_check( null === \WP_Branches_For_Post\Block_Merge::merge( 'freeform content', 'public edited freeform', 'branch edited freeform' ), 'Freeform content is never auto-merged' );
+	$duplicate_base = serialize_blocks( parse_blocks( implode( "\n\n", array( $parts[0], $parts[0], $parts[2] ) ) ) );
+	wbfp_check( null === \WP_Branches_For_Post\Block_Merge::merge( $duplicate_base, str_replace( 'Alpha unique', 'Public alpha', $duplicate_base ), str_replace( 'Charlie unique', 'Branch charlie', $duplicate_base ) ), 'Ambiguous repeated block identities refuse auto-merge' );
+
+	$block_original_id = wbfp_make_post( array( 'post_content' => $block_base ) );
+	$block_branch_id   = $branches->create( $block_original_id );
+	wbfp_check( ! is_wp_error( $block_branch_id ), 'Create a branch for block-aware merge integration' );
+	$block_branch_id = (int) $block_branch_id;
+	$created_posts[] = $block_branch_id;
+	wp_update_post( array( 'ID' => $block_original_id, 'post_content' => $block_orig ) );
+	wp_update_post( array( 'ID' => $block_branch_id, 'post_content' => $block_work ) );
+	$block_analysis = $branches->analyze_branch( $block_branch_id );
+	wbfp_check( empty( $block_analysis['analysis']['conflicts'] ) && in_array( 'post.post_content', $block_analysis['analysis']['auto_merged_fields'] ?? array(), true ), 'Branch review identifies independently edited post_content as auto-mergeable' );
+	wbfp_check( $block_original_id === $merges->merge( $block_branch_id, false ), 'Block-aware merge succeeds without force' );
+	$block_saved = get_post( $block_original_id )->post_content;
+	wbfp_check( str_contains( $block_saved, 'Alpha changed publicly' ) && str_contains( $block_saved, 'Delta changed in branch' ), 'Merged WordPress post contains both independent block changes' );
+
+	$rebase_block_original = wbfp_make_post( array( 'post_content' => $block_base ) );
+	$rebase_block_branch = $branches->create( $rebase_block_original );
+	wbfp_check( ! is_wp_error( $rebase_block_branch ), 'Create block-aware rebase branch' );
+	$rebase_block_branch = (int) $rebase_block_branch;
+	$created_posts[] = $rebase_block_branch;
+	wp_update_post( array( 'ID' => $rebase_block_original, 'post_content' => $block_orig ) );
+	wp_update_post( array( 'ID' => $rebase_block_branch, 'post_content' => $block_work ) );
+	wbfp_check( $rebase_block_branch === $branches->rebase( $rebase_block_branch ), 'Independent Gutenberg changes can be rebased safely' );
+	$block_rebased = get_post( $rebase_block_branch )->post_content;
+	wbfp_check( str_contains( $block_rebased, 'Alpha changed publicly' ) && str_contains( $block_rebased, 'Delta changed in branch' ), 'Rebased Gutenberg content preserves both versions' );
+
+	// Third-party SEO metadata is synchronized as ordinary post meta.
+	$seo_original = wbfp_make_post();
+	update_post_meta( $seo_original, '_yoast_wpseo_title', 'SEO baseline title' );
+	update_post_meta( $seo_original, '_yoast_wpseo_metadesc', 'SEO baseline description' );
+	$seo_branch = $branches->create( $seo_original );
+	wbfp_check( ! is_wp_error( $seo_branch ), 'Create branch with Yoast SEO post metadata' );
+	$seo_branch = (int) $seo_branch;
+	$created_posts[] = $seo_branch;
+	wbfp_check( 'SEO baseline title' === get_post_meta( $seo_branch, '_yoast_wpseo_title', true ), 'Yoast SEO title is copied to the branch' );
+	update_post_meta( $seo_branch, '_yoast_wpseo_title', 'SEO branch title' );
+	update_post_meta( $seo_original, '_yoast_wpseo_metadesc', 'SEO updated original description' );
+	wbfp_check( $seo_original === $merges->merge( $seo_branch, false ), 'Disjoint Yoast SEO metadata edits merge cleanly' );
+	wbfp_check( 'SEO branch title' === get_post_meta( $seo_original, '_yoast_wpseo_title', true ) && 'SEO updated original description' === get_post_meta( $seo_original, '_yoast_wpseo_metadesc', true ), 'Yoast SEO field-level merge preserves both edits' );
+
 	echo "\nREAL WORDPRESS RESULT: {$GLOBALS['wbfp_checks']} / {$GLOBALS['wbfp_checks']} checks passed.\n";
 } finally {
 	wp_set_current_user( $admin_id );
