@@ -518,6 +518,7 @@ async function openOriginal( page ) {
 			} )
 			.click();
 		await page
+			.locator( '.wbfp-review-group--danger' )
 			.getByText( 'Conflicts', { exact: true } )
 			.waitFor( { state: 'visible', timeout: 15000 } );
 		const forceButton = page.getByRole( 'button', {
