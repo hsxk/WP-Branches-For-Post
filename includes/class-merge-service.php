@@ -22,6 +22,13 @@ final class Merge_Service {
 	 */
 	private Branch_Service $branches;
 
+	/** Optional policy service injected by the plugin bootstrap. */
+	private ?Workflow_Service $workflow = null;
+
+	public function set_workflow( Workflow_Service $workflow ): void {
+		$this->workflow = $workflow;
+	}
+
 	/**
 	 * Initialize the merge service.
 	 *
@@ -53,6 +60,11 @@ final class Merge_Service {
 		$original    = $validated['original'];
 		$original_id = $validated['original_id'];
 
+		$gate = $this->workflow ? $this->workflow->merge_gate( $branch_id, $original_id ) : null;
+		if ( $gate ) {
+			return $gate;
+		}
+
 		if ( $force && ! $this->branches->can_force_merge( $branch_id, $original_id ) ) {
 			return new \WP_Error(
 				'wbfp_cannot_force_merge',
@@ -81,6 +93,11 @@ final class Merge_Service {
 		}
 		$branch   = $validated['branch'];
 		$original = $validated['original'];
+
+		$gate = $this->workflow ? $this->workflow->merge_gate( $branch_id, $original_id ) : null;
+		if ( $gate ) {
+			return $gate;
+		}
 
 		$analysis = $this->branches->analyze_branch( $branch_id );
 		if ( ! $force && in_array( $analysis['state'] ?? '', array( Branch_Service::CONFLICT_CONFLICT, Branch_Service::CONFLICT_CHANGED, Branch_Service::CONFLICT_UNKNOWN, Branch_Service::CONFLICT_MISSING ), true ) ) {
