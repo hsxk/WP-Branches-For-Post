@@ -26,6 +26,7 @@ final class Workflow_Service {
 	public const META_SCHEDULE_AT   = '_wbfp_schedule_at_gmt';
 	public const META_SCHEDULE_BY   = '_wbfp_schedule_by';
 	public const META_SCHEDULE_TOKEN = '_wbfp_schedule_state_token';
+	public const META_SCHEDULE_EVENT_ID = '_wbfp_schedule_event_id';
 	public const META_SCHEDULE_ERROR = '_wbfp_schedule_error';
 	public const CRON_HOOK           = 'wbfp_run_scheduled_merge';
 
@@ -39,7 +40,7 @@ final class Workflow_Service {
 
 	/** Register admin workflow and secure automated execution. */
 	public function register_hooks(): void {
-		add_action( self::CRON_HOOK, array( $this, 'execute_schedule' ), 10, 1 );
+		add_action( self::CRON_HOOK, array( $this, 'execute_schedule' ), 10, 2 );
 		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 		add_action( 'admin_post_wbfp_workflow', array( $this, 'admin_action' ) );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
@@ -197,13 +198,15 @@ final class Workflow_Service {
 			return new \WP_Error( 'wbfp_schedule_invalid_state', __( 'The current content state could not be verified.', 'wp-branches-for-post' ), array( 'status' => 409 ) );
 		}
 		$this->cancel_event( $branch_id );
-		$result = wp_schedule_single_event( $timestamp, self::CRON_HOOK, array( $branch_id ), true );
+		$event_id = wp_generate_uuid4();
+		$result = wp_schedule_single_event( $timestamp, self::CRON_HOOK, array( $branch_id, $event_id ), true );
 		if ( is_wp_error( $result ) || ! $result ) {
 			return new \WP_Error( 'wbfp_schedule_failed', __( 'WordPress could not schedule the merge.', 'wp-branches-for-post' ), array( 'status' => 500 ) );
 		}
 		update_post_meta( $branch_id, self::META_SCHEDULE_AT, gmdate( 'Y-m-d H:i:s', $timestamp ) );
 		update_post_meta( $branch_id, self::META_SCHEDULE_BY, get_current_user_id() );
 		update_post_meta( $branch_id, self::META_SCHEDULE_TOKEN, $token );
+		update_post_meta( $branch_id, self::META_SCHEDULE_EVENT_ID, $event_id );
 		delete_post_meta( $branch_id, self::META_SCHEDULE_ERROR );
 		return true;
 	}
@@ -216,8 +219,19 @@ final class Workflow_Service {
 		return true;
 	}
 
-	/** Cron never forces a conflict, never bypasses capabilities, and rejects changed content. */
-	public function execute_schedule( int $branch_id ): void {
+	/**
+	 * Execute only the exact queued event once it is due. The random event
+	 * identity prevents a stale callback from executing a newer reschedule.
+	 * Never force conflicts or bypass role/approval checks.
+	 *
+	 * @param int    $branch_id Branch post.
+	 * @param string $event_id  Unique ID passed through the cron event.
+	 */
+	public function execute_schedule( int $branch_id, string $event_id = '' ): void {
+		$expected_event = (string) get_post_meta( $branch_id, self::META_SCHEDULE_EVENT_ID, true );
+		if ( '' === $event_id || '' === $expected_event || ! hash_equals( $expected_event, $event_id ) ) {
+			return;
+		}
 		$actor = (int) get_post_meta( $branch_id, self::META_SCHEDULE_BY, true );
 		$token = (string) get_post_meta( $branch_id, self::META_SCHEDULE_TOKEN, true );
 		$time  = (string) get_post_meta( $branch_id, self::META_SCHEDULE_AT, true );
@@ -225,8 +239,12 @@ final class Workflow_Service {
 		wp_set_current_user( $actor );
 		try {
 			$now = $this->state_token( $branch_id );
-			if ( ! $actor || ! $time || '' === $token || '' === $now || ! hash_equals( $token, $now ) ) {
+			$due = '' !== $time ? strtotime( $time . ' UTC' ) : false;
+			if ( ! $actor || '' === $token || '' === $now || ! hash_equals( $token, $now ) ) {
 				$error = 'wbfp_schedule_stale';
+			} elseif ( false === $due || $due > time() ) {
+				// An old or manually invoked callback must not publish early.
+				return;
 			} elseif ( ! $this->can_edit( $branch_id ) ) {
 				$error = 'wbfp_schedule_permission_changed';
 			} else {
@@ -238,9 +256,9 @@ final class Workflow_Service {
 			if ( '' !== $error ) {
 				update_post_meta( $branch_id, self::META_SCHEDULE_ERROR, $error );
 			}
+			// Only completed/failed jobs clear their scheduled state.
+			$this->cancel_event( $branch_id );
 		} finally {
-			$this->clear_schedule_meta( $branch_id );
-			wp_clear_scheduled_hook( self::CRON_HOOK, array( $branch_id ) );
 			wp_set_current_user( $prior );
 		}
 	}
@@ -265,10 +283,17 @@ final class Workflow_Service {
 		delete_post_meta( $branch_id, self::META_SCHEDULE_AT );
 		delete_post_meta( $branch_id, self::META_SCHEDULE_BY );
 		delete_post_meta( $branch_id, self::META_SCHEDULE_TOKEN );
+		delete_post_meta( $branch_id, self::META_SCHEDULE_EVENT_ID );
 	}
 
 	private function cancel_event( int $branch_id ): void {
-		wp_clear_scheduled_hook( self::CRON_HOOK, array( $branch_id ) );
+		$event_id = (string) get_post_meta( $branch_id, self::META_SCHEDULE_EVENT_ID, true );
+		if ( '' !== $event_id ) {
+			wp_clear_scheduled_hook( self::CRON_HOOK, array( $branch_id, $event_id ) );
+		} else {
+			// Clean up any pre-release single-argument event when upgrading.
+			wp_clear_scheduled_hook( self::CRON_HOOK, array( $branch_id ) );
+		}
 		$this->clear_schedule_meta( $branch_id );
 	}
 
