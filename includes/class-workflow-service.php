@@ -312,6 +312,7 @@ final class Workflow_Service {
 		$branch_id = isset( $_GET['branch_id'] ) ? absint( wp_unslash( $_GET['branch_id'] ) ) : 0;
 		if ( ! $branch_id || ! $this->can_edit( $branch_id ) ) {
 			echo '<div class="wrap"><h1>' . esc_html__( 'Branch Workflow', 'wp-branches-for-post' ) . '</h1><p>' . esc_html__( 'Open an editable working branch and follow its Workflow link to request review or schedule a merge.', 'wp-branches-for-post' ) . '</p>';
+			$this->pending_review_queue();
 			if ( current_user_can( 'manage_options' ) ) {
 				$this->settings_form();
 			}
@@ -360,6 +361,42 @@ final class Workflow_Service {
 			$this->settings_form();
 		}
 		echo '</div>';
+	}
+
+	/** Show a permission-filtered queue instead of requiring reviewers to know a branch ID. */
+	private function pending_review_queue(): void {
+		$query = new \WP_Query(
+			array(
+				'post_type'      => 'any',
+				'post_status'    => 'draft',
+				'posts_per_page' => 50,
+				'orderby'        => 'modified',
+				'order'          => 'DESC',
+				'no_found_rows'  => true,
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- A bounded editorial queue needs its workflow state.
+				'meta_query'     => array(
+					array(
+						'key'     => self::META_STATE,
+						'value'   => 'pending',
+						'compare' => '=',
+					),
+				),
+			)
+		);
+		echo '<h2>' . esc_html__( 'Pending editorial reviews', 'wp-branches-for-post' ) . '</h2><ul class="ul-disc">';
+		$visible = 0;
+		foreach ( $query->posts as $candidate ) {
+			if ( ! $this->can_review( $candidate->ID ) ) {
+				continue;
+			}
+			++$visible;
+			$url = admin_url( 'tools.php?page=wbfp-workflow&branch_id=' . $candidate->ID );
+			echo '<li><a href="' . esc_url( $url ) . '">' . esc_html( get_the_title( $candidate->ID ) ) . '</a> <span class="description">' . esc_html( $candidate->post_modified ) . '</span></li>';
+		}
+		if ( ! $visible ) {
+			echo '<li>' . esc_html__( 'No reviews requiring your approval in the most recent 50 submissions.', 'wp-branches-for-post' ) . '</li>';
+		}
+		echo '</ul>';
 	}
 
 	/** Shared settings form, also accessible without a selected branch. */
