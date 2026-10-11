@@ -637,6 +637,13 @@ async function openOriginal( page ) {
 		// Scenario 5: review/schedule management is discoverable in the real
 		// Gutenberg browser and does not require custom JavaScript bundles.
 		const workflowBranchId = await createBranchFromCurrentOriginal( page );
+		await apiFetch( page, {
+			path: `/wp/v2/posts/${ workflowBranchId }`,
+			method: 'POST',
+			data: {
+				content: '<!-- wp:paragraph --><p>Review workflow browser test edit</p><!-- /wp:paragraph -->',
+			},
+		} );
 		const workflowShortcut = page.locator( '#wp-admin-bar-wbfp-workflow a' );
 		await workflowShortcut.waitFor( { state: 'visible', timeout: 15000 } );
 		check( true, 'An active Gutenberg branch exposes the workflow shortcut' );
