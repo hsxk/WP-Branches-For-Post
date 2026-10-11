@@ -4,11 +4,21 @@ Tags: post branch, editorial workflow, staging, revision, gutenberg
 Requires at least: 6.6
 Tested up to: 7.1
 Requires PHP: 8.2
-Stable tag: 2.1.1
+Stable tag: 2.2.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
 Create a safe working branch for published WordPress content, review exactly what changed, and merge it back without replacing the public post.
+
+== What's new in 2.2.0 ==
+
+* Merge independent Gutenberg top-level block edits while safely rejecting ambiguous or overlapping changes.
+* Request independent editorial approval; administrators may require approval for every branch merge.
+* Schedule safe merges for a future site-local time, with renewed permission, approval and conflict checks at execution.
+* Find pending editorial reviews under Tools > Branch Workflow; use the branch admin-bar and post-list shortcuts.
+* Safely synchronize independent Yoast SEO, Elementor and ACF metadata changes.
+
+Review and scheduled merge behavior use the same original-preserving merge service as manual actions. Scheduled merges depend on WP-Cron and may run later than the selected time on low-traffic sites. New workflow labels are available in English until their translations are separately reviewed; existing translations are unaffected.
 
 == Description ==
 
@@ -188,6 +198,24 @@ No separate settings page is required for the normal workflow.
 
 == Frequently Asked Questions ==
 
+= How do I request review and approval? =
+
+Open a working branch and choose Branch review & schedule from the admin bar, or go to Tools > Branch Workflow. Request review after saving meaningful changes. Another authorized editor can inspect the Base / Original / Branch comparison and approve or request changes. The branch creator cannot approve their own proposal.
+
+= Is independent approval mandatory for all sites? =
+
+No. This policy is off by default to preserve existing workflows. Administrators may enable it under Tools > Branch Workflow; when enabled, even a direct or forced merge requires an approval matching the current branch state. Editing either the original or the branch invalidates that approval.
+
+= Can I schedule a merge for later? =
+
+Yes. Choose a future site-local time in Branch Workflow. At execution, the plugin rechecks the original and branch, permissions, approval and conflicts. It never force-merges on a schedule and will not overwrite a stale version. WP-Cron is traffic-dependent, so use a reliable server cron runner if timeliness matters.
+
+= Can it combine changes made to different Gutenberg blocks? =
+
+Yes, when both sides edited independent, unambiguous top-level blocks and the saved markup can be preserved without loss. Shared/synced patterns, HTML freeform content, ambiguous blocks and overlapping edits still require manual review; unsafe changes are not silently merged.
+
+
+
 = Is a branch public? =
 
 No. A branch is an isolated working draft. A normal WordPress publish attempt is forced back to draft. Use the plugin's merge action when the work is ready.
@@ -266,6 +294,16 @@ The Block Editor source is in `src/index.js` and is built with `@wordpress/scrip
 Human-readable source code and build tooling are maintained at https://github.com/hsxk/WP-Branches-For-Post/.
 
 == Changelog ==
+
+= 2.2.0 =
+* Added conservative, lossless Gutenberg top-level block-aware three-way merge and rebase for independent edits.
+* Added optional two-person editorial approval, pending review requests, reviewer capability enforcement, staleness invalidation and a review queue.
+* Added future scheduled safe merges using WP-Cron with unique job IDs, due-time checks, capability revalidation, no forced conflicts and cancellation.
+* Added workflow administration, REST endpoints, contextual errors, editor/admin-bar and post-list shortcuts.
+* Expanded compatibility testing for Yoast Duplicate Post, Yoast SEO, Advanced Custom Fields and Elementor.
+* Expanded real WordPress and Gutenberg browser regression checks, security validation, and 35-case visual evidence.
+* Preserved existing translation catalogs and changed CI to validate approved translations without regenerating catalogs on unrelated code changes.
+
 
 = 2.1.1 =
 * Improved merge review with readable Base / Original / Branch values for menu order, comment status, ping status and password state.
