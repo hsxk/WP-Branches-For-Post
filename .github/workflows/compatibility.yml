@@ -3,8 +3,6 @@ name: Compatibility and Release Package
 on:
   pull_request:
     branches: [master]
-  push:
-    branches: [master]
   workflow_dispatch:
   workflow_call:
 
