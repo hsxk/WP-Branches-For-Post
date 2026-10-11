@@ -11,7 +11,7 @@ well-formed Gutenberg document with unambiguous top-level block identities.
 - Both branches must contain normal serializable block markup.
 - The baseline must have at least two and at most 128 top-level blocks.
 - Documents above 400 KiB, duplicated block identities, reordered blocks,
-  shared-pattern/template-part references and freeform HTML fail closed.
+  nested or top-level shared-pattern/template-part references and freeform HTML fail closed.
 - Non-overlapping edits can be merged, including independent insertions;
   simultaneous changes to the same range and ambiguous boundaries conflict.
 - It does **not** claim a general semantic or character-level diff.
@@ -28,6 +28,8 @@ the editor's admin bar, or **Review / schedule** in its post-list row action.
 The same screen is accessible under **Tools → Branch Workflow**.
 
 - Request review as a branch editor.
+- Independent reviewers can find pending requests in the permission-filtered
+  **Tools → Branch Workflow** queue (up to the 50 latest submissions).
 - A *different* editor with the original post's edit permission and the post
   type's `edit_others_posts` capability may approve or reject.
 - Reviewers should open the branch editor's existing **Review changes** panel
@@ -54,6 +56,7 @@ date and time (from one minute to one year ahead).
   The actor's original/branch edit capabilities and any configured approval
   requirement are checked again.
 - Normal 3-way merge is used, **never force merge**.
+- Empty branches, conflicting changes and trashed originals cannot be scheduled.
 - On mismatch or failure, no scheduled overwrite occurs, and the branch
   retains a private `_wbfp_schedule_error` code.
 - Resubmission, cancellation, a successful merge or branch discard clears the
