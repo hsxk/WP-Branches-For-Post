@@ -37,10 +37,10 @@ final class Block_Merge {
 			return null;
 		}
 
-		$base_keys     = array_map( array( __CLASS__, 'block_hash' ), $base_blocks );
-		$original_keys = array_map( array( __CLASS__, 'block_hash' ), $original_blocks );
-		$branch_keys   = array_map( array( __CLASS__, 'block_hash' ), $branch_blocks );
-		$base_names    = array_column( $base_blocks, 'identity' );
+		$base_keys      = array_map( array( __CLASS__, 'block_hash' ), $base_blocks );
+		$original_keys  = array_map( array( __CLASS__, 'block_hash' ), $original_blocks );
+		$branch_keys    = array_map( array( __CLASS__, 'block_hash' ), $branch_blocks );
+		$base_names     = array_column( $base_blocks, 'identity' );
 		$original_names = array_column( $original_blocks, 'identity' );
 		$branch_names   = array_column( $branch_blocks, 'identity' );
 
@@ -79,7 +79,8 @@ final class Block_Merge {
 		usort(
 			$edits,
 			static function ( array $left, array $right ): int {
-				return ( $left['start'] <=> $right['start'] ) ?: ( $left['end'] <=> $right['end'] );
+				$start_compare = $left['start'] <=> $right['start'];
+				return 0 !== $start_compare ? $start_compare : ( $left['end'] <=> $right['end'] );
 			}
 		);
 
@@ -216,8 +217,8 @@ final class Block_Merge {
 	 * @return array<int,array<string,mixed>>
 	 */
 	private static function edits( array $base, array $side, array $blocks ): array {
-		$n = count( $base );
-		$m = count( $side );
+		$n  = count( $base );
+		$m  = count( $side );
 		$dp = array_fill( 0, $n + 1, array_fill( 0, $m + 1, 0 ) );
 		for ( $i = $n - 1; $i >= 0; --$i ) {
 			for ( $j = $m - 1; $j >= 0; --$j ) {
@@ -242,9 +243,9 @@ final class Block_Merge {
 			}
 		}
 		$anchors[] = array( $n, $m );
-		$edits     = array();
-		$base_pos  = 0;
-		$side_pos  = 0;
+		$edits    = array();
+		$base_pos = 0;
+		$side_pos = 0;
 		foreach ( $anchors as $anchor ) {
 			if ( $anchor[0] > $base_pos || $anchor[1] > $side_pos ) {
 				$edits[] = array(
