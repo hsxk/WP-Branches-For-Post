@@ -11,7 +11,7 @@
 
 WP Branches For Post lets editors create an isolated working branch from an existing WordPress post, page, or supported custom post type, edit without changing the public original, review the difference against a saved baseline, and merge safely when the work is ready.
 
-Version **2.1.1** builds on the three-way editorial workflow with clearer merge review values, stronger branch management, tighter privacy boundaries, and broader release validation.
+Version **2.2.0** adds conservative Gutenberg block-aware merging, independent editorial approval, scheduled safe merges, and team review workflows on top of the 2.1 three-way merge foundation.
 
 <p align="center">
   <img src=".wordpress-org/screenshot-3.png" alt="WP Branches For Post three-way merge review" width="920">
@@ -46,10 +46,9 @@ The result is an editorial workflow closer to source control, while still using 
 - Warn when synchronized patterns can affect content outside the branch.
 - Fail conservatively for legacy, unknown, or missing-original states.
 
-## Editorial workflow candidate (not yet part of the 2.1.1 release)
+## Editorial workflows in 2.2.0
 
-The development branch `feat/editorial-workflow-hardening-20261012`
-extends the existing branching model without changing the public original:
+Version 2.2.0 extends the existing branching model without changing the public original:
 
 - **Safer concurrent Gutenberg editing:** independent top-level block changes can
   auto-merge if the saved markup is lossless and the edit ranges are unambiguous.
@@ -70,11 +69,10 @@ extends the existing branching model without changing the public original:
   submissions. Gutenberg's existing review panel remains the place to inspect
   the full three-way field comparison.
 
-The feature branch's release readiness is tracked in
-[PR #25](https://github.com/hsxk/WP-Branches-For-Post/pull/25). Do not
-publish it as version 2.1.1 or claim the current WordPress.org release includes
-these unreleased features. Existing approved translation catalogs are preserved;
-new workflow messages fall back to English until separately approved.
+The source and release validation history are tracked in
+[PR #25](https://github.com/hsxk/WP-Branches-For-Post/pull/25).
+The 2.2.0 release does **not** modify or regenerate existing approved translation
+catalogs. New workflow messages fall back to English until separately approved.
 
 ## Merge model
 
