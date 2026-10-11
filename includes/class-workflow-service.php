@@ -378,10 +378,11 @@ final class Workflow_Service {
 	private function pending_review_queue(): void {
 		$query = new \WP_Query(
 			array(
-				'post_type'      => 'any',
+				'post_type'      => array_values( get_post_types( array( 'show_ui' => true ), 'names' ) ),
 				'post_status'    => 'draft',
 				'posts_per_page' => 50,
-				'orderby'        => 'modified',
+				'meta_key'       => self::META_REQUESTED_AT,
+				'orderby'        => 'meta_value',
 				'order'          => 'DESC',
 				'no_found_rows'  => true,
 				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- A bounded editorial queue needs its workflow state.
