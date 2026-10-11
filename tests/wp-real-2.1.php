@@ -970,11 +970,20 @@ try {
 	}
 	$created_users[] = (int) $reviewer_id;
 	( new WP_User( (int) $reviewer_id ) )->set_role( 'editor' );
+	wp_update_post( array( 'ID' => $approval_original, 'post_excerpt' => 'Changed while review was pending' ) );
 	wp_set_current_user( (int) $reviewer_id );
-	// A current independent reviewer must see the latest requested content.
+	$stale_pending = $workflow->decide( $approval_branch, true );
+	wbfp_check( is_wp_error( $stale_pending ) && 'wbfp_review_state_changed' === $stale_pending->get_error_code(), 'A requested review becomes stale after concurrent edits' );
+	wp_set_current_user( $admin_id );
+	wbfp_check( true === $workflow->request_review( $approval_branch ), 'Resubmit review after original changes' );
+	wp_set_current_user( (int) $reviewer_id );
 	wbfp_check( true === $workflow->decide( $approval_branch, true, 'Reviewed these changes' ), 'Separate editor approves the exact requested state' );
 	wp_set_current_user( $admin_id );
 	wbfp_check( $workflow->is_approved( $approval_branch ), 'Fresh approval validates against current content' );
+	( new WP_User( (int) $reviewer_id ) )->set_role( 'subscriber' );
+	wbfp_check( ! $workflow->is_approved( $approval_branch ), 'Revoking reviewer permission invalidates approval' );
+	( new WP_User( (int) $reviewer_id ) )->set_role( 'editor' );
+	wbfp_check( $workflow->is_approved( $approval_branch ), 'Restored reviewer permission allows the unchanged approval' );
 	wp_update_post( array( 'ID' => $approval_branch, 'post_content' => 'Altered after approval' ) );
 	wbfp_check( ! $workflow->is_approved( $approval_branch ), 'Changing branch content invalidates previous approval' );
 	$stale_merge = $merges->merge( $approval_branch, false );
