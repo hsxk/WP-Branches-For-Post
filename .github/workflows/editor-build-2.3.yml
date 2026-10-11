@@ -28,7 +28,8 @@ jobs:
       - name: Build editor using the locked WordPress toolchain
         run: |
           npm ci --no-audit --no-fund
-          npx prettier --write src/index.js assets/css/editor.css
+          npx wp-scripts lint-js --fix src/index.js
+          npx wp-scripts lint-style --fix assets/css/editor.css
           npm run lint:js
           npm run lint:css
           npm run build
