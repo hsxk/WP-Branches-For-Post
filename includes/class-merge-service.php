@@ -25,12 +25,18 @@ final class Merge_Service {
 	/** Optional policy service injected by the plugin bootstrap. */
 	private ?Workflow_Service $workflow = null;
 
+	/**
+	 * Inject the editorial policy used by every merge.
+	 *
+	 * @param Workflow_Service $workflow workflow.
+	 */
 	public function set_workflow( Workflow_Service $workflow ): void {
 		$this->workflow = $workflow;
 	}
 
 	/**
 	 * Initialize the merge service.
+	 * /
 	 *
 	 * @param Branch_Service $branches Branch lifecycle service.
 	 */
@@ -41,14 +47,15 @@ final class Merge_Service {
 
 	/**
 	 * Merge a branch into its original post.
-	 *
 	 * Version-2.1 branches use a three-way merge: branch-only changes are applied,
 	 * original-only changes are preserved, and overlapping changes are blocked
 	 * unless the user explicitly force-merges. Any write failure attempts to
 	 * restore the complete pre-merge original state.
+	 * /
 	 *
 	 * @param int  $branch_id Branch post ID.
-	 * @param bool $force     Whether to explicitly prefer branch values on conflicts.
+	 * @param bool $force Whether to explicitly prefer branch values on conflicts.
+	 *
 	 * @return int|\WP_Error Original post ID on success.
 	 */
 	public function merge( int $branch_id, bool $force = false ) {
@@ -219,8 +226,10 @@ final class Merge_Service {
 
 	/**
 	 * Move a branch to Trash without changing its original post.
+	 * /
 	 *
 	 * @param int $branch_id Branch post ID.
+	 *
 	 * @return true|\WP_Error
 	 */
 	public function discard( int $branch_id ) {
@@ -244,9 +253,11 @@ final class Merge_Service {
 
 	/**
 	 * Validate branch/original relationship and authorization.
+	 * /
 	 *
-	 * @param int      $branch_id            Branch post ID.
-	 * @param int|null $expected_original_id Optional expected original ID after hooks.
+	 * @param int  $branch_id Branch post ID.
+	 * @param ?int $expected_original_id Optional expected original ID after hooks.
+	 *
 	 * @return array<string,mixed>|\WP_Error
 	 */
 	private function validate_relationship( int $branch_id, ?int $expected_original_id = null ) {
@@ -280,8 +291,10 @@ final class Merge_Service {
 
 	/**
 	 * Convert analysis state to an actionable merge error.
+	 * /
 	 *
-	 * @param array<string,mixed> $analysis Analysis result.
+	 * @param array $analysis Analysis result.
+	 *
 	 * @return \WP_Error
 	 */
 	private function conflict_error( array $analysis ): \WP_Error {
