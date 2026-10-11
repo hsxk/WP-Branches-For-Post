@@ -10,6 +10,14 @@ License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
 Create a safe working branch for published WordPress content, review exactly what changed, and merge it back without replacing the public post.
 
+== Description ==
+
+WP Branches For Post adds a Git-like editorial workflow to WordPress.
+
+When a published page or post needs a larger edit, you do not have to change the live content directly. Create a private working branch, edit it in the normal WordPress editor, review the differences, and merge only when you are ready. The public original keeps its post ID, URL and publication identity throughout the workflow.
+
+Version 2.2 adds independent editorial approvals, scheduled merges, and conservative Gutenberg top-level block merge on top of the safe three-way merge model from 2.1.
+
 == What's new in 2.2.0 ==
 
 * Merge independent Gutenberg top-level block edits while safely rejecting ambiguous or overlapping changes.
@@ -19,14 +27,6 @@ Create a safe working branch for published WordPress content, review exactly wha
 * Safely synchronize independent Yoast SEO, Elementor and ACF metadata changes.
 
 Review and scheduled merge behavior use the same original-preserving merge service as manual actions. Scheduled merges depend on WP-Cron and may run later than the selected time on low-traffic sites. New workflow labels are available in English until their translations are separately reviewed; existing translations are unaffected.
-
-== Description ==
-
-WP Branches For Post adds a Git-like editorial workflow to WordPress.
-
-When a published page or post needs a larger edit, you do not have to change the live content directly. Create a private working branch, edit it in the normal WordPress editor, review the differences, and merge only when you are ready. The public original keeps its post ID, URL and publication identity throughout the workflow.
-
-Version 2.1 adds a three-way merge review. The plugin remembers the original state at branch creation, compares the current original with the current branch, separates non-conflicting work from real conflicts, and helps you update or merge without silently overwriting newer changes.
 
 = The workflow at a glance =
 
