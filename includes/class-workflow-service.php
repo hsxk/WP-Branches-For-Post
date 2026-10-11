@@ -17,6 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class Workflow_Service {
 	public const META_STATE         = '_wbfp_workflow_state';
 	public const META_REQUEST_BY    = '_wbfp_review_requested_by';
+	public const META_REQUEST_TOKEN = '_wbfp_review_requested_state_token';
 	public const META_REVIEW_BY     = '_wbfp_reviewed_by';
 	public const META_REVIEW_TOKEN  = '_wbfp_approved_state_token';
 	public const META_REVIEW_NOTE   = '_wbfp_review_feedback';
@@ -42,6 +43,9 @@ final class Workflow_Service {
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 		add_action( 'wbfp_after_merge', array( $this, 'on_branch_merged' ), 10, 1 );
+		add_filter( 'post_row_actions', array( $this, 'row_action' ), 20, 2 );
+		add_filter( 'page_row_actions', array( $this, 'row_action' ), 20, 2 );
+		add_action( 'admin_bar_menu', array( $this, 'admin_bar' ), 100 );
 	}
 
 	/** Optional site-wide enforcement; extensions may impose stricter policy. */
@@ -115,6 +119,7 @@ final class Workflow_Service {
 		delete_post_meta( $branch_id, self::META_REVIEW_TOKEN );
 		update_post_meta( $branch_id, self::META_STATE, 'pending' );
 		update_post_meta( $branch_id, self::META_REQUEST_BY, get_current_user_id() );
+		update_post_meta( $branch_id, self::META_REQUEST_TOKEN, $token );
 		update_post_meta( $branch_id, self::META_REVIEW_NOTE, '' );
 		return true;
 	}
@@ -131,6 +136,10 @@ final class Workflow_Service {
 		if ( '' === $token ) {
 			return new \WP_Error( 'wbfp_review_unavailable', __( 'The branch review state could not be verified.', 'wp-branches-for-post' ), array( 'status' => 409 ) );
 		}
+		$requested = (string) get_post_meta( $branch_id, self::META_REQUEST_TOKEN, true );
+		if ( '' === $requested || ! hash_equals( $requested, $token ) ) {
+			return new \WP_Error( 'wbfp_review_state_changed', __( 'The branch changed after review was requested. Submit it for review again.', 'wp-branches-for-post' ), array( 'status' => 409 ) );
+		}
 		if ( $approve ) {
 			$analysis = $this->branches->analyze_branch( $branch_id );
 			if ( ! in_array( $analysis['state'] ?? '', array( Branch_Service::CONFLICT_CLEAN, Branch_Service::CONFLICT_REBASE, Branch_Service::CONFLICT_INFORMATIONAL ), true ) ) {
@@ -143,7 +152,7 @@ final class Workflow_Service {
 		}
 		update_post_meta( $branch_id, self::META_STATE, $approve ? 'approved' : 'rejected' );
 		update_post_meta( $branch_id, self::META_REVIEW_BY, get_current_user_id() );
-		update_post_meta( $branch_id, self::META_REVIEW_NOTE, mb_substr( sanitize_textarea_field( $note ), 0, 2000 ) );
+		update_post_meta( $branch_id, self::META_REVIEW_NOTE, wp_html_excerpt( sanitize_textarea_field( $note ), 2000, '' ) );
 		return true;
 	}
 
@@ -215,6 +224,7 @@ final class Workflow_Service {
 			}
 		} finally {
 			$this->clear_schedule_meta( $branch_id );
+			wp_clear_scheduled_hook( self::CRON_HOOK, array( $branch_id ) );
 			wp_set_current_user( $prior );
 		}
 	}
@@ -245,6 +255,33 @@ final class Workflow_Service {
 		$this->clear_schedule_meta( $branch_id );
 	}
 
+	/** Make the workflow discoverable on every supported post list. */
+	public function row_action( array $actions, \WP_Post $post ): array {
+		if ( $this->can_edit( $post->ID ) ) {
+			$actions['wbfp_workflow'] = '<a href="' . esc_url( admin_url( 'tools.php?page=wbfp-workflow&branch_id=' . $post->ID ) ) . '">' . esc_html__( 'Review / schedule', 'wp-branches-for-post' ) . '</a>';
+		}
+		return $actions;
+	}
+
+	/** Add a direct entry to the workflow while editing a draft branch. */
+	public function admin_bar( \WP_Admin_Bar $bar ): void {
+		if ( ! is_admin() || ! function_exists( 'get_current_screen' ) ) {
+			return;
+		}
+		$screen = get_current_screen();
+		global $post;
+		if ( ! $screen || 'post' !== $screen->base || ! $post instanceof \WP_Post || ! $this->can_edit( $post->ID ) ) {
+			return;
+		}
+		$bar->add_node(
+			array(
+				'id'    => 'wbfp-workflow',
+				'title' => __( 'Branch review & schedule', 'wp-branches-for-post' ),
+				'href'  => admin_url( 'tools.php?page=wbfp-workflow&branch_id=' . $post->ID ),
+			)
+		);
+	}
+
 	/** Site owner can turn on independent approval without writing custom code. */
 	public function register_settings(): void {
 		register_setting( 'wbfp_workflow_settings', 'wbfp_require_approval', array( 'type' => 'boolean', 'sanitize_callback' => 'rest_sanitize_boolean', 'default' => false ) );
@@ -257,7 +294,11 @@ final class Workflow_Service {
 	public function admin_page(): void {
 		$branch_id = isset( $_GET['branch_id'] ) ? absint( wp_unslash( $_GET['branch_id'] ) ) : 0;
 		if ( ! $branch_id || ! $this->can_edit( $branch_id ) ) {
-			echo '<div class="wrap"><h1>' . esc_html__( 'Branch Workflow', 'wp-branches-for-post' ) . '</h1><p>' . esc_html__( 'Open an editable working branch and follow its Workflow link to request review or schedule a merge.', 'wp-branches-for-post' ) . '</p></div>';
+			echo '<div class="wrap"><h1>' . esc_html__( 'Branch Workflow', 'wp-branches-for-post' ) . '</h1><p>' . esc_html__( 'Open an editable working branch and follow its Workflow link to request review or schedule a merge.', 'wp-branches-for-post' ) . '</p>';
+			if ( current_user_can( 'manage_options' ) ) {
+				$this->settings_form();
+			}
+			echo '</div>';
 			return;
 		}
 		$original_id = $this->branches->get_original_id( $branch_id );
@@ -296,13 +337,19 @@ final class Workflow_Service {
 			$this->form( $branch_id, 'cancel', __( 'Cancel scheduled merge', 'wp-branches-for-post' ) );
 		}
 		if ( current_user_can( 'manage_options' ) ) {
-			echo '<hr><h2>' . esc_html__( 'Site-wide approval policy', 'wp-branches-for-post' ) . '</h2><form method="post" action="' . esc_url( admin_url( 'options.php' ) ) . '">';
-			settings_fields( 'wbfp_workflow_settings' );
-			echo '<label><input type="checkbox" name="wbfp_require_approval" value="1" ' . checked( (bool) get_option( 'wbfp_require_approval', false ), true, false ) . '> ' . esc_html__( 'Require independent approval before every branch merge', 'wp-branches-for-post' ) . '</label>';
-			submit_button();
-			echo '</form>';
+			$this->settings_form();
 		}
 		echo '</div>';
+	}
+
+	/** Shared settings form, also accessible without a selected branch. */
+	private function settings_form(): void {
+		echo '<hr><h2>' . esc_html__( 'Site-wide approval policy', 'wp-branches-for-post' ) . '</h2><form method="post" action="' . esc_url( admin_url( 'options.php' ) ) . '">';
+		settings_fields( 'wbfp_workflow_settings' );
+		echo '<input type="hidden" name="wbfp_require_approval" value="0">';
+		echo '<label><input type="checkbox" name="wbfp_require_approval" value="1" ' . checked( (bool) get_option( 'wbfp_require_approval', false ), true, false ) . '> ' . esc_html__( 'Require independent approval before every branch merge', 'wp-branches-for-post' ) . '</label>';
+		submit_button();
+		echo '</form>';
 	}
 
 	/** @param int $branch_id Branch ID. @param string $operation Action. @param string $label Button. @param bool $feedback Whether to show a note input. */
