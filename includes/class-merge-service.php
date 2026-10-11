@@ -22,7 +22,11 @@ final class Merge_Service {
 	 */
 	private Branch_Service $branches;
 
-	/** Optional policy service injected by the plugin bootstrap. */
+	/**
+	 * Optional policy service injected by the plugin bootstrap.
+	 *
+	 * @var Workflow_Service|null
+	 */
 	private ?Workflow_Service $workflow = null;
 
 	/**
