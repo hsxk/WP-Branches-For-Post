@@ -46,6 +46,11 @@ final class Block_Merge {
 				return null;
 			}
 		}
+		// Moved existing blocks make positional edits ambiguous. Insertions are
+		// acceptable; reordering existing blocks is not.
+		if ( ! self::preserves_base_order( $base_keys, $original_keys ) || ! self::preserves_base_order( $base_keys, $branch_keys ) ) {
+			return null;
+		}
 
 		$original_edits = self::edits( $base_keys, $original_keys, $original_blocks );
 		$branch_edits   = self::edits( $base_keys, $branch_keys, $branch_blocks );
@@ -116,6 +121,27 @@ final class Block_Merge {
 			return null;
 		}
 		return $blocks;
+	}
+
+	/**
+	 * Reject variants that reorder any surviving baseline blocks.
+	 *
+	 * @param string[] $base Base block hashes.
+	 * @param string[] $side Side block hashes.
+	 */
+	private static function preserves_base_order( array $base, array $side ): bool {
+		$positions = array_flip( $base );
+		$previous  = -1;
+		foreach ( $side as $token ) {
+			if ( ! array_key_exists( $token, $positions ) ) {
+				continue;
+			}
+			if ( $positions[ $token ] <= $previous ) {
+				return false;
+			}
+			$previous = $positions[ $token ];
+		}
+		return true;
 	}
 
 	/** @param array<string,mixed> $block Block. */
