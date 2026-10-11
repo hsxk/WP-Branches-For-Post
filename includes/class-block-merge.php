@@ -18,10 +18,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class Block_Merge {
 	/**
 	 * Return merged content only when both sides' edits are unambiguous.
+	 * /
 	 *
-	 * @param string $base     Content at branch creation.
+	 * @param string $base Content at branch creation.
 	 * @param string $original Current public original.
-	 * @param string $branch   Current working branch.
+	 * @param string $branch Current working branch.
+	 *
 	 * @return string|null Null signals that the field must remain a conflict.
 	 */
 	public static function merge( string $base, string $original, string $branch ): ?string {
@@ -107,8 +109,10 @@ final class Block_Merge {
 	 * between blocks as null-name pseudo-blocks; attach those spans to a
 	 * neighboring block instead of treating ordinary newlines as conflicts.
 	 * Non-whitespace freeform markup still fails closed.
+	 * /
 	 *
 	 * @param string $content Saved Gutenberg markup.
+	 *
 	 * @return array<int,array{identity:string,raw:string}>|null
 	 */
 	private static function blocks( string $content ): ?array {
@@ -159,8 +163,9 @@ final class Block_Merge {
 
 	/**
 	 * Nested synchronized patterns or template parts are also global content.
+	 * /
 	 *
-	 * @param array<string,mixed> $block Parsed Gutenberg block.
+	 * @param array $block Parsed Gutenberg block.
 	 */
 	private static function has_shared_reference( array $block ): bool {
 		if ( in_array( $block['blockName'] ?? '', array( 'core/block', 'core/template-part' ), true ) ) {
@@ -176,9 +181,10 @@ final class Block_Merge {
 
 	/**
 	 * Reject variants that reorder any surviving baseline blocks.
+	 * /
 	 *
-	 * @param string[] $base Base block hashes.
-	 * @param string[] $side Side block hashes.
+	 * @param array $base Base block hashes.
+	 * @param array $side Side block hashes.
 	 */
 	private static function preserves_base_order( array $base, array $side ): bool {
 		$positions = array_flip( $base );
@@ -195,17 +201,23 @@ final class Block_Merge {
 		return true;
 	}
 
-	/** @param array{identity:string,raw:string} $block Lossless top-level span. */
+	/**
+	 * Hash a lossless top-level Gutenberg span.
+	 *
+	 * @param array $block Lossless top-level span.
+	 */
 	private static function block_hash( array $block ): string {
 		return hash( 'sha256', $block['raw'] );
 	}
 
 	/**
 	 * Find minimal changed ranges using longest common subsequence anchors.
+	 * /
 	 *
-	 * @param string[]                      $base Base block identities.
-	 * @param string[]                      $side Side block identities.
-	 * @param array<int,array{identity:string,raw:string}> $blocks Parsed side spans.
+	 * @param array $base Base block identities.
+	 * @param array $side Side block identities.
+	 * @param array $blocks Parsed side spans.
+	 *
 	 * @return array<int,array<string,mixed>>
 	 */
 	private static function edits( array $base, array $side, array $blocks ): array {
@@ -256,9 +268,10 @@ final class Block_Merge {
 
 	/**
 	 * Treat simultaneous inserts and inserts on an edited boundary as conflicts.
+	 * /
 	 *
-	 * @param array<string,mixed> $a Original edit.
-	 * @param array<string,mixed> $b Branch edit.
+	 * @param array $a Original edit.
+	 * @param array $b Branch edit.
 	 */
 	private static function overlaps( array $a, array $b ): bool {
 		if ( $a['start'] === $a['end'] ) {
