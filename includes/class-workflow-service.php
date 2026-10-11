@@ -33,12 +33,20 @@ final class Workflow_Service {
 	private Branch_Service $branches;
 	private Merge_Service $merges;
 
+	/**
+	 * Initialize editorial workflow services.
+	 *
+	 * @param Branch_Service $branches branches.
+	 * @param Merge_Service  $merges merges.
+	 */
 	public function __construct( Branch_Service $branches, Merge_Service $merges ) {
 		$this->branches = $branches;
 		$this->merges   = $merges;
 	}
 
-	/** Register admin workflow and secure automated execution. */
+	/**
+	 * Register admin workflow and secure automated execution.
+	 */
 	public function register_hooks(): void {
 		add_action( self::CRON_HOOK, array( $this, 'execute_schedule' ), 10, 2 );
 		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
@@ -52,12 +60,21 @@ final class Workflow_Service {
 		add_action( 'admin_bar_menu', array( $this, 'admin_bar' ), 100 );
 	}
 
-	/** Optional site-wide enforcement; extensions may impose stricter policy. */
+	/**
+	 * Optional site-wide enforcement; extensions may impose stricter policy.
+	 *
+	 * @param int $branch_id branch id.
+	 * @param int $original_id original id.
+	 */
 	public static function requires_approval( int $branch_id, int $original_id ): bool {
 		return (bool) apply_filters( 'wbfp_require_approval', (bool) get_option( 'wbfp_require_approval', false ), $branch_id, $original_id );
 	}
 
-	/** Current fingerprint changes on content, identity, baseline, or relationship edits. */
+	/**
+	 * Current fingerprint changes on content, identity, baseline, or relationship edits.
+	 *
+	 * @param int $branch_id branch id.
+	 */
 	public function state_token( int $branch_id ): string {
 		if ( ! $this->branches->is_branch( $branch_id ) || ! get_post( $branch_id ) ) {
 			return '';
@@ -81,7 +98,11 @@ final class Workflow_Service {
 		return hash( 'sha256', wp_json_encode( $payload ) );
 	}
 
-	/** Approval must match the *current* content, not just an old status flag. */
+	/**
+	 * Approval must match the *current* content, not just an old status flag.
+	 *
+	 * @param int $branch_id branch id.
+	 */
 	public function is_approved( int $branch_id ): bool {
 		$stored = (string) get_post_meta( $branch_id, self::META_REVIEW_TOKEN, true );
 		$now    = $this->state_token( $branch_id );
@@ -97,7 +118,12 @@ final class Workflow_Service {
 			&& '' !== $stored && '' !== $now && hash_equals( $stored, $now );
 	}
 
-	/** A direct merge must never silently bypass an enabled approval policy. */
+	/**
+	 * A direct merge must never silently bypass an enabled approval policy.
+	 *
+	 * @param int $branch_id branch id.
+	 * @param int $original_id original id.
+	 */
 	public function merge_gate( int $branch_id, int $original_id ): ?\WP_Error {
 		if ( self::requires_approval( $branch_id, $original_id ) && ! $this->is_approved( $branch_id ) ) {
 			return new \WP_Error( 'wbfp_approval_required', __( 'This branch needs approval for its current contents before it can be merged.', 'wp-branches-for-post' ), array( 'status' => 409 ) );
@@ -105,7 +131,11 @@ final class Workflow_Service {
 		return null;
 	}
 
-	/** Only someone with independent editorial authority can approve. */
+	/**
+	 * Only someone with independent editorial authority can approve.
+	 *
+	 * @param int $branch_id branch id.
+	 */
 	public function can_review( int $branch_id ): bool {
 		$original_id = $this->branches->get_original_id( $branch_id );
 		$post        = get_post( $original_id );
@@ -118,7 +148,11 @@ final class Workflow_Service {
 			&& current_user_can( $type->cap->edit_others_posts );
 	}
 
-	/** Any branch editor can ask an independent reviewer to inspect changes. */
+	/**
+	 * Any branch editor can ask an independent reviewer to inspect changes.
+	 *
+	 * @param int $branch_id branch id.
+	 */
 	public function request_review( int $branch_id ) {
 		if ( ! $this->can_edit( $branch_id ) ) {
 			return new \WP_Error( 'wbfp_review_denied', __( 'You cannot request review for this branch.', 'wp-branches-for-post' ), array( 'status' => 403 ) );
@@ -137,7 +171,13 @@ final class Workflow_Service {
 		return true;
 	}
 
-	/** Approvals are scoped to the exact reviewed state. */
+	/**
+	 * Approvals are scoped to the exact reviewed state.
+	 *
+	 * @param int    $branch_id branch id.
+	 * @param bool   $approve approve.
+	 * @param string $note note.
+	 */
 	public function decide( int $branch_id, bool $approve, string $note = '' ) {
 		if ( ! $this->can_review( $branch_id ) ) {
 			return new \WP_Error( 'wbfp_review_denied', __( 'An independent authorized editor must review this branch.', 'wp-branches-for-post' ), array( 'status' => 403 ) );
@@ -173,6 +213,10 @@ final class Workflow_Service {
 	/**
 	 * Schedule using an absolute Unix timestamp, never the branch post_status.
 	 * The original remains published until a separately authorized cron merge.
+	 * /
+	 *
+	 * @param int $branch_id branch id.
+	 * @param int $timestamp timestamp.
 	 */
 	public function schedule( int $branch_id, int $timestamp ) {
 		if ( ! $this->can_edit( $branch_id ) ) {
@@ -211,6 +255,11 @@ final class Workflow_Service {
 		return true;
 	}
 
+	/**
+	 * Cancel the pending branch merge.
+	 *
+	 * @param int $branch_id branch id.
+	 */
 	public function cancel( int $branch_id ) {
 		if ( ! $this->can_edit( $branch_id ) ) {
 			return new \WP_Error( 'wbfp_schedule_denied', __( 'You cannot cancel this scheduled merge.', 'wp-branches-for-post' ), array( 'status' => 403 ) );
@@ -223,9 +272,10 @@ final class Workflow_Service {
 	 * Execute only the exact queued event once it is due. The random event
 	 * identity prevents a stale callback from executing a newer reschedule.
 	 * Never force conflicts or bypass role/approval checks.
+	 * /
 	 *
 	 * @param int    $branch_id Branch post.
-	 * @param string $event_id  Unique ID passed through the cron event.
+	 * @param string $event_id Unique ID passed through the cron event.
 	 */
 	public function execute_schedule( int $branch_id, string $event_id = '' ): void {
 		$expected_event = (string) get_post_meta( $branch_id, self::META_SCHEDULE_EVENT_ID, true );
@@ -263,11 +313,20 @@ final class Workflow_Service {
 		}
 	}
 
+	/**
+	 * Clear a branch's pending schedule when its lifecycle ends.
+	 *
+	 * @param int $branch_id branch id.
+	 */
 	public function on_branch_merged( int $branch_id ): void {
 		$this->cancel_event( $branch_id );
 	}
 
-	/** Editor capability on both sides is required even when a workflow URL is known. */
+	/**
+	 * Editor capability on both sides is required even when a workflow URL is known.
+	 *
+	 * @param int $branch_id branch id.
+	 */
 	private function can_edit( int $branch_id ): bool {
 		$original_id = $this->branches->get_original_id( $branch_id );
 		$branch      = get_post( $branch_id );
@@ -279,6 +338,11 @@ final class Workflow_Service {
 			&& current_user_can( 'edit_post', $branch_id ) && current_user_can( 'edit_post', $original_id );
 	}
 
+	/**
+	 * Remove the private schedule metadata.
+	 *
+	 * @param int $branch_id branch id.
+	 */
 	private function clear_schedule_meta( int $branch_id ): void {
 		delete_post_meta( $branch_id, self::META_SCHEDULE_AT );
 		delete_post_meta( $branch_id, self::META_SCHEDULE_BY );
@@ -286,6 +350,11 @@ final class Workflow_Service {
 		delete_post_meta( $branch_id, self::META_SCHEDULE_EVENT_ID );
 	}
 
+	/**
+	 * Cancel the exact pending scheduled event.
+	 *
+	 * @param int $branch_id branch id.
+	 */
 	private function cancel_event( int $branch_id ): void {
 		$event_id = (string) get_post_meta( $branch_id, self::META_SCHEDULE_EVENT_ID, true );
 		if ( '' !== $event_id ) {
@@ -297,7 +366,12 @@ final class Workflow_Service {
 		$this->clear_schedule_meta( $branch_id );
 	}
 
-	/** Make the workflow discoverable on every supported post list. */
+	/**
+	 * Make the workflow discoverable on every supported post list.
+	 *
+	 * @param array    $actions actions.
+	 * @param \WP_Post $post post.
+	 */
 	public function row_action( array $actions, \WP_Post $post ): array {
 		if ( $this->can_edit( $post->ID ) ) {
 			$actions['wbfp_workflow'] = '<a href="' . esc_url( admin_url( 'tools.php?page=wbfp-workflow&branch_id=' . $post->ID ) ) . '">' . esc_html__( 'Review / schedule', 'wp-branches-for-post' ) . '</a>';
@@ -305,7 +379,11 @@ final class Workflow_Service {
 		return $actions;
 	}
 
-	/** Add a direct entry to the workflow while editing a draft branch. */
+	/**
+	 * Add a direct entry to the workflow while editing a draft branch.
+	 *
+	 * @param \WP_Admin_Bar $bar bar.
+	 */
 	public function admin_bar( \WP_Admin_Bar $bar ): void {
 		if ( ! is_admin() || ! function_exists( 'get_current_screen' ) ) {
 			return;
@@ -324,15 +402,23 @@ final class Workflow_Service {
 		);
 	}
 
-	/** Site owner can turn on independent approval without writing custom code. */
+	/**
+	 * Site owner can turn on independent approval without writing custom code.
+	 */
 	public function register_settings(): void {
 		register_setting( 'wbfp_workflow_settings', 'wbfp_require_approval', array( 'type' => 'boolean', 'sanitize_callback' => 'rest_sanitize_boolean', 'default' => false ) );
 	}
 
+	/**
+	 * Register the workflow Tools screen.
+	 */
 	public function admin_menu(): void {
 		add_submenu_page( 'tools.php', __( 'Post Branch Workflow', 'wp-branches-for-post' ), __( 'Branch Workflow', 'wp-branches-for-post' ), 'read', 'wbfp-workflow', array( $this, 'admin_page' ) );
 	}
 
+	/**
+	 * Render the safe workflow management screen.
+	 */
 	public function admin_page(): void {
 		$branch_id = isset( $_GET['branch_id'] ) ? absint( wp_unslash( $_GET['branch_id'] ) ) : 0;
 		if ( ! $branch_id || ! $this->can_edit( $branch_id ) ) {
@@ -399,7 +485,9 @@ final class Workflow_Service {
 		echo '</div>';
 	}
 
-	/** Show a permission-filtered queue instead of requiring reviewers to know a branch ID. */
+	/**
+	 * Show a permission-filtered queue instead of requiring reviewers to know a branch ID.
+	 */
 	private function pending_review_queue(): void {
 		$query = new \WP_Query(
 			array(
@@ -436,7 +524,9 @@ final class Workflow_Service {
 		echo '</ul>';
 	}
 
-	/** Shared settings form, also accessible without a selected branch. */
+	/**
+	 * Shared settings form, also accessible without a selected branch.
+	 */
 	private function settings_form(): void {
 		echo '<hr><h2>' . esc_html__( 'Site-wide approval policy', 'wp-branches-for-post' ) . '</h2><form method="post" action="' . esc_url( admin_url( 'options.php' ) ) . '">';
 		settings_fields( 'wbfp_workflow_settings' );
@@ -446,7 +536,14 @@ final class Workflow_Service {
 		echo '</form>';
 	}
 
-	/** @param int $branch_id Branch ID. @param string $operation Action. @param string $label Button. @param bool $feedback Whether to show a note input. */
+	/**
+	 * Render a nonce-protected editorial workflow action form.
+	 *
+	 * @param int    $branch_id Branch ID. @param string $operation Action. @param string $label Button. @param bool $feedback Whether to show a note input.
+	 * @param string $operation operation.
+	 * @param string $label label.
+	 * @param bool   $feedback feedback.
+	 */
 	private function form( int $branch_id, string $operation, string $label, bool $feedback = false ): void {
 		echo '<form method="post" style="margin:12px 0" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
 		wp_nonce_field( 'wbfp_workflow_' . $branch_id );
@@ -458,7 +555,9 @@ final class Workflow_Service {
 		echo '</form>';
 	}
 
-	/** CSRF-protected action shared by Classic Editor and Block Editor. */
+	/**
+	 * CSRF-protected action shared by Classic Editor and Block Editor.
+	 */
 	public function admin_action(): void {
 		$branch_id = isset( $_POST['branch_id'] ) ? absint( wp_unslash( $_POST['branch_id'] ) ) : 0;
 		check_admin_referer( 'wbfp_workflow_' . $branch_id );
@@ -472,7 +571,14 @@ final class Workflow_Service {
 		exit;
 	}
 
-	/** Reuse the same service validation for forms and REST requests. */
+	/**
+	 * Reuse the same service validation for forms and REST requests.
+	 *
+	 * @param int    $branch_id branch id.
+	 * @param string $action action.
+	 * @param string $note note.
+	 * @param string $when when.
+	 */
 	private function operate( int $branch_id, string $action, string $note = '', string $when = '' ) {
 		switch ( $action ) {
 			case 'request':
@@ -494,7 +600,11 @@ final class Workflow_Service {
 		}
 	}
 
-	/** Return compact workflow state to authenticated editors without exposing raw metadata. */
+	/**
+	 * Return compact workflow state to authenticated editors without exposing raw metadata.
+	 *
+	 * @param \WP_REST_Request $request request.
+	 */
 	public function rest_status( \WP_REST_Request $request ) {
 		$branch_id = (int) $request['id'];
 		if ( ! $this->can_edit( $branch_id ) ) {
@@ -515,6 +625,9 @@ final class Workflow_Service {
 		);
 	}
 
+	/**
+	 * Register the authenticated WordPress REST routes.
+	 */
 	public function register_routes(): void {
 		register_rest_route(
 			'wbfp/v1',
