@@ -144,13 +144,31 @@ async function visible( locator ) {
 }
 
 async function login( page ) {
-	await page.goto( baseUrl + '/wp-login.php', { waitUntil: 'domcontentloaded' } );
-	await page.locator( '#user_login' ).fill( username );
-	await page.locator( '#user_pass' ).fill( password );
-	await Promise.all( [
-		page.waitForURL( /\/wp-admin\//, { timeout: 15000 } ),
-		page.locator( '#wp-submit' ).click(),
-	] );
+	for ( let attempt = 0; attempt < 2; attempt++ ) {
+		await page.goto( baseUrl + '/wp-login.php', {
+			waitUntil: 'domcontentloaded',
+		} );
+		await page.locator( '#user_login' ).fill( username );
+		await page.locator( '#user_pass' ).fill( password );
+		await page.locator( '#wp-submit' ).click();
+
+		const authenticated = await page
+			.waitForURL( /\/wp-admin\//, {
+				timeout: 10000,
+				waitUntil: 'domcontentloaded',
+			} )
+			.then( function () { return true; } )
+			.catch( function () { return false; } );
+		if ( authenticated ) {
+			return;
+		}
+		const error = await page
+			.locator( '#login_error' )
+			.innerText()
+			.catch( function () { return ''; } );
+		console.warn( 'Tutorial login retry', attempt + 1, page.url(), error );
+	}
+	throw new Error( 'Tutorial screenshot authentication failed at ' + page.url() );
 }
 
 async function closeEditorModal( page ) {
