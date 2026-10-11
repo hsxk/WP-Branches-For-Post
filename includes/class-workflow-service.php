@@ -213,7 +213,6 @@ final class Workflow_Service {
 	/**
 	 * Schedule using an absolute Unix timestamp, never the branch post_status.
 	 * The original remains published until a separately authorized cron merge.
-	 * /
 	 *
 	 * @param int $branch_id branch id.
 	 * @param int $timestamp timestamp.
@@ -272,7 +271,6 @@ final class Workflow_Service {
 	 * Execute only the exact queued event once it is due. The random event
 	 * identity prevents a stale callback from executing a newer reschedule.
 	 * Never force conflicts or bypass role/approval checks.
-	 * /
 	 *
 	 * @param int    $branch_id Branch post.
 	 * @param string $event_id Unique ID passed through the cron event.
