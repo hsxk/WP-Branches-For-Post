@@ -460,10 +460,15 @@ final class Sync_Service {
 		$branch_changes   = self::changed_paths( $base, $branch );
 		$shared           = array_intersect( $original_changes, $branch_changes );
 		$conflicts        = array();
+		$auto_merged      = array();
 
 		foreach ( $shared as $path ) {
 			if ( self::normalize_for_hash( self::path_value( $original, $path ) ) !== self::normalize_for_hash( self::path_value( $branch, $path ) ) ) {
-				$conflicts[] = $path;
+				if ( 'post.post_content' === $path && null !== self::merged_block_content( $base, $original, $branch ) ) {
+					$auto_merged[] = $path;
+				} else {
+					$conflicts[] = $path;
+				}
 			}
 		}
 
@@ -471,8 +476,25 @@ final class Sync_Service {
 			'original_changes'      => array_values( $original_changes ),
 			'branch_changes'        => array_values( $branch_changes ),
 			'conflicts'             => array_values( $conflicts ),
+			'auto_merged_fields'    => $auto_merged,
 			'informational_changes' => self::changed_identity_paths( $base, $original ),
 			'can_rebase'            => ! empty( $original_changes ) && empty( $conflicts ),
+		);
+	}
+
+	/**
+	 * Attempt a lossless block-aware merge for simultaneous post_content edits.
+	 * Only Gutenberg content with unambiguous top-level edit ranges qualifies.
+	 *
+	 * @param array<string,mixed> $base Original baseline.
+	 * @param array<string,mixed> $original Current original.
+	 * @param array<string,mixed> $branch Working branch.
+	 */
+	private static function merged_block_content( array $base, array $original, array $branch ): ?string {
+		return Block_Merge::merge(
+			(string) self::path_value( $base, 'post.post_content' ),
+			(string) self::path_value( $original, 'post.post_content' ),
+			(string) self::path_value( $branch, 'post.post_content' )
 		);
 	}
 
@@ -497,7 +519,11 @@ final class Sync_Service {
 
 		$result = $original;
 		foreach ( $analysis['branch_changes'] as $path ) {
-			self::set_path_value( $result, $path, self::path_value( $branch, $path ) );
+			if ( in_array( $path, $analysis['auto_merged_fields'], true ) ) {
+				self::set_path_value( $result, $path, self::merged_block_content( $base, $original, $branch ) );
+			} else {
+				self::set_path_value( $result, $path, self::path_value( $branch, $path ) );
+			}
 		}
 		$result['identity'] = $original['identity'] ?? array();
 
@@ -524,6 +550,10 @@ final class Sync_Service {
 
 		$result = $branch;
 		foreach ( $analysis['original_changes'] as $path ) {
+			if ( in_array( $path, $analysis['auto_merged_fields'], true ) ) {
+				self::set_path_value( $result, $path, self::merged_block_content( $base, $original, $branch ) );
+				continue;
+			}
 			if ( in_array( $path, $analysis['branch_changes'], true ) ) {
 				continue;
 			}
