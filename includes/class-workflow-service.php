@@ -19,6 +19,8 @@ final class Workflow_Service {
 	public const META_REQUEST_BY    = '_wbfp_review_requested_by';
 	public const META_REQUEST_TOKEN = '_wbfp_review_requested_state_token';
 	public const META_REVIEW_BY     = '_wbfp_reviewed_by';
+	public const META_REVIEWED_AT  = '_wbfp_reviewed_at_gmt';
+	public const META_REQUESTED_AT = '_wbfp_review_requested_at_gmt';
 	public const META_REVIEW_TOKEN  = '_wbfp_approved_state_token';
 	public const META_REVIEW_NOTE   = '_wbfp_review_feedback';
 	public const META_SCHEDULE_AT   = '_wbfp_schedule_at_gmt';
@@ -43,6 +45,7 @@ final class Workflow_Service {
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 		add_action( 'wbfp_after_merge', array( $this, 'on_branch_merged' ), 10, 1 );
+		add_action( 'wbfp_after_discard', array( $this, 'on_branch_merged' ), 10, 1 );
 		add_filter( 'post_row_actions', array( $this, 'row_action' ), 20, 2 );
 		add_filter( 'page_row_actions', array( $this, 'row_action' ), 20, 2 );
 		add_action( 'admin_bar_menu', array( $this, 'admin_bar' ), 100 );
@@ -81,7 +84,15 @@ final class Workflow_Service {
 	public function is_approved( int $branch_id ): bool {
 		$stored = (string) get_post_meta( $branch_id, self::META_REVIEW_TOKEN, true );
 		$now    = $this->state_token( $branch_id );
+		$reviewer = (int) get_post_meta( $branch_id, self::META_REVIEW_BY, true );
+		$creator  = (int) get_post_meta( $branch_id, Branch_Service::META_CREATOR_USER_ID, true );
+		$original = get_post( $this->branches->get_original_id( $branch_id ) );
+		$type     = $original ? get_post_type_object( $original->post_type ) : null;
 		return 'approved' === get_post_meta( $branch_id, self::META_STATE, true )
+			&& $reviewer > 0 && $reviewer !== $creator
+			&& $original && $type && ! empty( $type->cap->edit_others_posts )
+			&& user_can( $reviewer, $type->cap->edit_others_posts )
+			&& user_can( $reviewer, 'edit_post', $original->ID )
 			&& '' !== $stored && '' !== $now && hash_equals( $stored, $now );
 	}
 
@@ -119,6 +130,7 @@ final class Workflow_Service {
 		delete_post_meta( $branch_id, self::META_REVIEW_TOKEN );
 		update_post_meta( $branch_id, self::META_STATE, 'pending' );
 		update_post_meta( $branch_id, self::META_REQUEST_BY, get_current_user_id() );
+		update_post_meta( $branch_id, self::META_REQUESTED_AT, current_time( 'mysql', true ) );
 		update_post_meta( $branch_id, self::META_REQUEST_TOKEN, $token );
 		update_post_meta( $branch_id, self::META_REVIEW_NOTE, '' );
 		return true;
@@ -152,6 +164,7 @@ final class Workflow_Service {
 		}
 		update_post_meta( $branch_id, self::META_STATE, $approve ? 'approved' : 'rejected' );
 		update_post_meta( $branch_id, self::META_REVIEW_BY, get_current_user_id() );
+		update_post_meta( $branch_id, self::META_REVIEWED_AT, current_time( 'mysql', true ) );
 		update_post_meta( $branch_id, self::META_REVIEW_NOTE, wp_html_excerpt( sanitize_textarea_field( $note ), 2000, '' ) );
 		return true;
 	}
@@ -307,9 +320,12 @@ final class Workflow_Service {
 		$note        = (string) get_post_meta( $branch_id, self::META_REVIEW_NOTE, true );
 		$edit_url    = get_edit_post_link( $branch_id, 'raw' );
 		echo '<div class="wrap"><h1>' . esc_html__( 'Branch Workflow', 'wp-branches-for-post' ) . '</h1>';
-		echo '<p><a href="' . esc_url( $edit_url ) . '">' . esc_html__( 'Back to branch editor', 'wp-branches-for-post' ) . '</a></p>';
+		echo '<p><a href="' . esc_url( $edit_url ) . '">' . esc_html__( 'Review changes in branch editor', 'wp-branches-for-post' ) . '</a></p>';
 		echo '<p>' . esc_html( get_the_title( $branch_id ) ) . ' → ' . esc_html( get_the_title( $original_id ) ) . '</p>';
 		echo '<p><strong>' . esc_html__( 'Review status:', 'wp-branches-for-post' ) . '</strong> ' . esc_html( $this->is_approved( $branch_id ) ? 'approved' : ( $state === 'approved' ? 'stale approval' : ( $state ?: 'not requested' ) ) ) . '</p>';
+		$analysis = $this->branches->analyze_branch( $branch_id );
+		$review   = $analysis['analysis'] ?? array();
+		echo '<p>' . esc_html( sprintf( __( '%1$d branch changes · %2$d original changes · %3$d conflicts · %4$d auto-mergeable fields', 'wp-branches-for-post' ), count( $review['branch_changes'] ?? array() ), count( $review['original_changes'] ?? array() ), count( $review['conflicts'] ?? array() ), count( $review['auto_merged_fields'] ?? array() ) ) ) . '</p>';
 		if ( $note ) {
 			echo '<p>' . esc_html( $note ) . '</p>';
 		}
