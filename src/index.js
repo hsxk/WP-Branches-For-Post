@@ -245,7 +245,7 @@ function BranchPanel() {
 		if ( ! editor.postId || editor.dirty || editor.saving || busy ) {
 			setError(
 				__(
-					'Save or discard the current edits to the original before creating a branch. This prevents unpublished editor changes from being mistaken for the branch baseline.',
+					'Save changes before requesting review or scheduling a merge.',
 					'wp-branches-for-post'
 				)
 			);
@@ -278,8 +278,10 @@ function BranchPanel() {
 			] );
 			setWorkflowMessage(
 				operation === 'schedule'
-					? __( 'Scheduled (UTC):', 'wp-branches-for-post' )
-					: __( 'Review status:', 'wp-branches-for-post' )
+					? `${ __( 'Scheduled (UTC):', 'wp-branches-for-post' ) } ${ nextWorkflow.scheduled_at_gmt || '' }`
+					: operation === 'cancel'
+						? __( 'Cancel scheduled merge', 'wp-branches-for-post' )
+						: `${ __( 'Review status:', 'wp-branches-for-post' ) } ${ nextWorkflow.state || '' }`
 			);
 			if ( nextWorkflow.state !== 'pending' ) {
 				setReviewNote( '' );
@@ -866,7 +868,7 @@ function BranchPanel() {
 									variant: 'secondary',
 									onClick: () => workflowAction( 'request' ),
 									disabled: busy || editor.dirty || editor.saving ||
-										! hasBranchChanges || hardConflict || ! workflow ||
+										! hasBranchChanges || ! workflow ||
 										workflow?.state === 'pending',
 								},
 								__( 'Request review', 'wp-branches-for-post' )
