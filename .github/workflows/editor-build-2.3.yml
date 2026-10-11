@@ -45,4 +45,5 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git commit -m "build: update Gutenberg 2.3 editor assets"
+          git pull --rebase origin feat/gutenberg-editorial-workflow-2.3
           git push origin HEAD:feat/gutenberg-editorial-workflow-2.3
