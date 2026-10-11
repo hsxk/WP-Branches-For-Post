@@ -646,7 +646,7 @@ async function openOriginal( page ) {
 		check( true, 'The branch workflow management page opens from the editor' );
 
 		await page.getByRole( 'button', { name: 'Request review', exact: true } ).click();
-		await page.getByText( 'pending', { exact: true } ).first().waitFor( { state: 'visible', timeout: 12000 } );
+		await page.locator( 'p' ).filter( { hasText: 'Review status: pending' } ).first().waitFor( { state: 'visible', timeout: 12000 } );
 		check( true, 'Requesting editorial review persists its pending status' );
 		check(
 			! ( await visible( page.getByRole( 'button', { name: 'Approve current changes', exact: true } ) ) ),
@@ -656,12 +656,12 @@ async function openOriginal( page ) {
 		const when = new Date( Date.now() + 90 * 60 * 1000 ).toISOString().slice( 0, 16 );
 		await page.locator( 'input[name="when"]' ).fill( when );
 		await page.getByRole( 'button', { name: 'Schedule merge', exact: true } ).click();
-		await page.getByText( 'Scheduled (UTC):', { exact: true } ).waitFor( { state: 'visible', timeout: 12000 } );
+		await page.locator( 'p' ).filter( { hasText: 'Scheduled (UTC):' } ).first().waitFor( { state: 'visible', timeout: 12000 } );
 		check( true, 'An approved-policy-off branch can schedule a verified future merge' );
 		await page.getByRole( 'button', { name: 'Cancel scheduled merge', exact: true } ).click();
 		await page.getByRole( 'heading', { name: 'Branch Workflow' } ).waitFor( { state: 'visible', timeout: 12000 } );
 		check(
-			! ( await visible( page.getByText( 'Scheduled (UTC):', { exact: true } ) ) ),
+			! ( await visible( page.locator( 'p' ).filter( { hasText: 'Scheduled (UTC):' } ) ) ),
 			'Canceling scheduled work removes the visible schedule'
 		);
 
