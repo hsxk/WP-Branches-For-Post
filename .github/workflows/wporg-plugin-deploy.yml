@@ -1,37 +1,39 @@
 name: Deploy to WordPress.org
 
 on:
+  # GitHub's create event works for refs created through the GitHub API.
+  # The five job guards reject unrelated branches and newly created tags.
+  create:
   push:
     tags:
       - 'v*.*.*'
-    branches:
-      # Release branches are cut from the merged, already reviewed master HEAD.
-      # GitHub App branch creation can trigger this without manually pushing
-      # a Git tag; GitHub Actions GITHUB_TOKEN tag pushes cannot chain workflows.
-      - 'release/v*.*.*'
 
 permissions: {}
 
 jobs:
   quality-gate:
+    if: github.event_name != 'create' || startsWith(github.ref, 'refs/heads/release/v')
     name: Quality gate
     permissions:
       contents: read
     uses: ./.github/workflows/ci.yml
 
   compatibility-gate:
+    if: github.event_name != 'create' || startsWith(github.ref, 'refs/heads/release/v')
     name: Compatibility gate
     permissions:
       contents: read
     uses: ./.github/workflows/compatibility.yml
 
   visual-gate:
+    if: github.event_name != 'create' || startsWith(github.ref, 'refs/heads/release/v')
     name: Browser and visual gate
     permissions:
       contents: read
     uses: ./.github/workflows/visual-regression.yml
 
   validate-release:
+    if: github.event_name != 'create' || startsWith(github.ref, 'refs/heads/release/v')
     name: Validate release tag
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -119,6 +121,7 @@ jobs:
             plugin_repo
 
   deploy:
+    if: github.event_name != 'create' || startsWith(github.ref, 'refs/heads/release/v')
     name: Publish release
     needs: [validate-release, quality-gate, compatibility-gate, visual-gate]
     runs-on: ubuntu-latest
