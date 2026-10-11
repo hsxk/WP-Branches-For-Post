@@ -46,6 +46,36 @@ The result is an editorial workflow closer to source control, while still using 
 - Warn when synchronized patterns can affect content outside the branch.
 - Fail conservatively for legacy, unknown, or missing-original states.
 
+## Editorial workflow candidate (not yet part of the 2.1.1 release)
+
+The development branch `feat/editorial-workflow-hardening-20261012`
+extends the existing branching model without changing the public original:
+
+- **Safer concurrent Gutenberg editing:** independent top-level block changes can
+  auto-merge if the saved markup is lossless and the edit ranges are unambiguous.
+  Overlapping edits, freeform content, moved or repeated blocks, and shared
+  patterns still require conflict review rather than guessing.
+- **Independent editorial review:** choose **Branch review & schedule** from an
+  active branch's admin bar or **Tools → Branch Workflow**. Submit changes for
+  review; a different authorized editor can approve or request changes.
+  Approval is tied to the exact saved content and automatically invalidates
+  when either post changes or reviewer permission is revoked.
+- **Optional approval gate:** site administrators can require independent
+  approval before merges. The setting is off by default for compatibility.
+- **Safe scheduled merges:** schedule with a site-local date and time. WP-Cron
+  checks the exact queued job, due time, permissions, approval and current
+  content fingerprint. It never force-merges or overwrites a changed state.
+  Reliable execution depends on a working WordPress cron runner.
+- **Review visibility:** a permission-filtered queue under Tools lists pending
+  submissions. Gutenberg's existing review panel remains the place to inspect
+  the full three-way field comparison.
+
+The feature branch's release readiness is tracked in
+[PR #25](https://github.com/hsxk/WP-Branches-For-Post/pull/25). Do not
+publish it as version 2.1.1 or claim the current WordPress.org release includes
+these unreleased features. Existing approved translation catalogs are preserved;
+new workflow messages fall back to English until separately approved.
+
 ## Merge model
 
 ```mermaid
