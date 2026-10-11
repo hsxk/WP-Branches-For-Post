@@ -660,6 +660,13 @@ async function openOriginal( page ) {
 			'The branch author does not see a self-approval control'
 		);
 
+		const invalidWhen = new Date( Date.now() - 5 * 60 * 1000 ).toISOString().slice( 0, 16 );
+		await page.locator( 'input[name="when"]' ).fill( invalidWhen );
+		await page.getByRole( 'button', { name: 'Schedule merge', exact: true } ).click();
+		await page.locator( '.notice-error' ).filter( { hasText: 'Choose a future time within the next year.' } )
+			.waitFor( { state: 'visible', timeout: 12000 } );
+		check( true, 'An invalid scheduled merge displays an inline error without leaving the workflow page' );
+
 		const when = new Date( Date.now() + 90 * 60 * 1000 ).toISOString().slice( 0, 16 );
 		await page.locator( 'input[name="when"]' ).fill( when );
 		await page.getByRole( 'button', { name: 'Schedule merge', exact: true } ).click();
