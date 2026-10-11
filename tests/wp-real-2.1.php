@@ -949,8 +949,10 @@ try {
 	wbfp_check( ! is_wp_error( $approval_branch ), 'Create candidate for required team review' );
 	$approval_branch = (int) $approval_branch;
 	$created_posts[] = $approval_branch;
-	wp_update_post( array( 'ID' => $approval_branch, 'post_content' => 'Proposed approved change' ) );
 	$workflow = new \WP_Branches_For_Post\Workflow_Service( $branches, $merges );
+	$empty_review = $workflow->request_review( $approval_branch );
+	wbfp_check( is_wp_error( $empty_review ) && 'wbfp_review_no_changes' === $empty_review->get_error_code(), 'Unmodified branches cannot create pointless approval requests' );
+	wp_update_post( array( 'ID' => $approval_branch, 'post_content' => 'Proposed approved change' ) );
 	$merges->set_workflow( $workflow );
 	$require_approval = static function () { return true; };
 	add_filter( 'wbfp_require_approval', $require_approval, 10, 3 );
