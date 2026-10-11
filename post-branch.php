@@ -30,6 +30,7 @@ require_once WBFP_DIR . 'includes/class-sync-service.php';
 require_once WBFP_DIR . 'includes/class-branch-service.php';
 require_once WBFP_DIR . 'includes/class-merge-service.php';
 require_once WBFP_DIR . 'includes/class-rest-controller.php';
+require_once WBFP_DIR . 'includes/class-workflow-service.php';
 require_once WBFP_DIR . 'includes/class-admin.php';
 require_once WBFP_DIR . 'includes/class-plugin.php';
 
