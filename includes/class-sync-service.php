@@ -42,6 +42,7 @@ final class Sync_Service {
 			'_wbfp_schedule_at_gmt',
 			'_wbfp_schedule_by',
 			'_wbfp_schedule_state_token',
+			'_wbfp_schedule_event_id',
 			'_wbfp_schedule_error',
 			'_original_post_id',
 			'_creator_name',
