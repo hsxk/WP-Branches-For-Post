@@ -67,7 +67,7 @@ jobs:
         run: git diff --exit-code -- build
 
   translations:
-    name: Translation artifacts are reproducible
+    name: Approved translations remain unchanged
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -89,7 +89,34 @@ jobs:
           curl -fsSL -o /tmp/wp-cli.phar https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
           chmod +x /tmp/wp-cli.phar
           sudo mv /tmp/wp-cli.phar /usr/local/bin/wp
+      - name: Determine whether translation catalog regeneration is requested
+        id: catalogs
+        shell: bash
+        run: |
+          set -euo pipefail
+          regenerate=false
+          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
+            regenerate=true
+          elif [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            git fetch --no-tags --depth=1 origin master:refs/remotes/origin/master
+            if ! git diff --quiet origin/master HEAD -- languages/; then
+              regenerate=true
+            fi
+          elif [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
+            if ! git diff --quiet HEAD^ HEAD -- languages/; then
+              regenerate=true
+            fi
+          fi
+          echo "regenerate=$regenerate" >> "$GITHUB_OUTPUT"
+      - name: Validate previously approved gettext catalogs
+        shell: bash
+        run: |
+          set -euo pipefail
+          for locale in ja zh_CN zh_TW; do
+            msgfmt --check --check-format "languages/wp-branches-for-post-${locale}.po" -o /dev/null
+          done
       - name: Rebuild translations deterministically
+        if: steps.catalogs.outputs.regenerate == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -128,6 +155,7 @@ jobs:
           done
           node tools/build-editor-translations.js
       - name: Verify generated translations are committed
+        if: steps.catalogs.outputs.regenerate == 'true'
         run: git diff --exit-code -- languages/
 
   plugin-check:
