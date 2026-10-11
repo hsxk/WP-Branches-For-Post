@@ -189,6 +189,9 @@ final class Workflow_Service {
 		if ( ! in_array( $analysis['state'] ?? '', array( Branch_Service::CONFLICT_CLEAN, Branch_Service::CONFLICT_REBASE, Branch_Service::CONFLICT_INFORMATIONAL ), true ) ) {
 			return new \WP_Error( 'wbfp_schedule_conflict', __( 'Review and resolve conflicts before scheduling a merge.', 'wp-branches-for-post' ), array( 'status' => 409 ) );
 		}
+		if ( empty( $analysis['analysis']['branch_changes'] ) ) {
+			return new \WP_Error( 'wbfp_schedule_no_changes', __( 'Make changes to the branch before scheduling a merge.', 'wp-branches-for-post' ), array( 'status' => 409 ) );
+		}
 		$token = $this->state_token( $branch_id );
 		if ( '' === $token ) {
 			return new \WP_Error( 'wbfp_schedule_invalid_state', __( 'The current content state could not be verified.', 'wp-branches-for-post' ), array( 'status' => 409 ) );
@@ -253,6 +256,7 @@ final class Workflow_Service {
 		$original    = get_post( $original_id );
 		return $this->branches->is_branch( $branch_id )
 			&& $branch && $original && 'draft' === $branch->post_status
+			&& ! in_array( $original->post_status, array( 'trash', 'auto-draft' ), true )
 			&& $branch->post_type === $original->post_type
 			&& current_user_can( 'edit_post', $branch_id ) && current_user_can( 'edit_post', $original_id );
 	}
