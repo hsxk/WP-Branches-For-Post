@@ -35,6 +35,8 @@ final class Sync_Service {
 			'_wbfp_review_requested_by',
 			'_wbfp_review_requested_state_token',
 			'_wbfp_reviewed_by',
+			'_wbfp_reviewed_at_gmt',
+			'_wbfp_review_requested_at_gmt',
 			'_wbfp_approved_state_token',
 			'_wbfp_review_feedback',
 			'_wbfp_schedule_at_gmt',
