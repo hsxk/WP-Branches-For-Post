@@ -1,6 +1,9 @@
 name: Deploy to WordPress.org
 
 on:
+  # GitHub's create event works for refs created through the GitHub API.
+  # The five job guards reject unrelated branches and newly created tags.
+  create:
   push:
     tags:
       - 'v*.*.*'
@@ -9,24 +12,28 @@ permissions: {}
 
 jobs:
   quality-gate:
+    if: github.event_name != 'create' || startsWith(github.ref, 'refs/heads/release/v')
     name: Quality gate
     permissions:
       contents: read
     uses: ./.github/workflows/ci.yml
 
   compatibility-gate:
+    if: github.event_name != 'create' || startsWith(github.ref, 'refs/heads/release/v')
     name: Compatibility gate
     permissions:
       contents: read
     uses: ./.github/workflows/compatibility.yml
 
   visual-gate:
+    if: github.event_name != 'create' || startsWith(github.ref, 'refs/heads/release/v')
     name: Browser and visual gate
     permissions:
       contents: read
     uses: ./.github/workflows/visual-regression.yml
 
   validate-release:
+    if: github.event_name != 'create' || startsWith(github.ref, 'refs/heads/release/v')
     name: Validate release tag
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -48,14 +55,25 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          version="${GITHUB_REF_NAME#v}"
-          test "$GITHUB_REF_NAME" = "v${version}"
+          case "$GITHUB_REF" in
+            refs/tags/v*) version="${GITHUB_REF_NAME#v}" ;;
+            refs/heads/release/v*) version="${GITHUB_REF_NAME#release/v}" ;;
+            *) echo "Unsupported release source: $GITHUB_REF"; exit 1 ;;
+          esac
+          [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          test "$GITHUB_REF" = "refs/tags/v${version}" || test "$GITHUB_REF" = "refs/heads/release/v${version}"
           grep -Eq "^[[:space:]]*\* Version:[[:space:]]+${version}$" post-branch.php
           grep -Fq "define( 'WBFP_VERSION', '${version}' );" post-branch.php
           grep -Eq "^Stable tag:[[:space:]]+${version}$" README.txt
           test "$(node -p "require('./package.json').version")" = "$version"
           git fetch origin master
           git merge-base --is-ancestor "$GITHUB_SHA" origin/master
+          if [[ "$GITHUB_REF" == refs/heads/release/v* ]]; then
+            # Refuse to republish a version whose immutable release tag exists.
+            if git ls-remote --tags origin "refs/tags/v${version}" | grep -q .; then
+              echo "Release tag v${version} already exists."; exit 1
+            fi
+          fi
       - name: PHP syntax
         run: find . -name '*.php' -not -path './vendor/*' -print0 | xargs -0 -n1 php -l
       - name: Install Composer dependencies
@@ -103,6 +121,7 @@ jobs:
             plugin_repo
 
   deploy:
+    if: github.event_name != 'create' || startsWith(github.ref, 'refs/heads/release/v')
     name: Publish release
     needs: [validate-release, quality-gate, compatibility-gate, visual-gate]
     runs-on: ubuntu-latest
@@ -111,6 +130,18 @@ jobs:
       packages: read
     steps:
       - uses: actions/checkout@v7
+      - name: Resolve tagged or release-branch version
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "$GITHUB_REF" in
+            refs/tags/v*) version="${GITHUB_REF_NAME#v}" ;;
+            refs/heads/release/v*) version="${GITHUB_REF_NAME#release/v}" ;;
+            *) exit 1 ;;
+          esac
+          [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          echo "version=$version" >> "$GITHUB_OUTPUT"
       - name: WordPress Plugin Deploy
         id: deploy
         uses: 10up/action-wordpress-plugin-deploy@stable
@@ -118,6 +149,7 @@ jobs:
           generate-zip: true
         env:
           SLUG: wp-branches-for-post
+          VERSION: ${{ steps.version.outputs.version }}
           SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
           SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
       - name: Upload GitHub release asset
@@ -126,3 +158,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           files: ${{ steps.deploy.outputs.zip-path }}
+          fail_on_unmatched_files: true
+          tag_name: v${{ steps.version.outputs.version }}
+          target_commitish: ${{ github.sha }}
+          name: WP Branches For Post ${{ steps.version.outputs.version }}
+          body_path: docs/release-${{ steps.version.outputs.version }}.md

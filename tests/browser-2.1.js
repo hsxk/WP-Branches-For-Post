@@ -633,6 +633,61 @@ async function openOriginal( page ) {
 			'Discarded branch disappears from the active branch list'
 		);
 
+
+		// Scenario 5: review/schedule management is discoverable in the real
+		// Gutenberg browser and does not require custom JavaScript bundles.
+		const workflowBranchId = await createBranchFromCurrentOriginal( page );
+		await apiFetch( page, {
+			path: `/wp/v2/posts/${ workflowBranchId }`,
+			method: 'POST',
+			data: {
+				content: '<!-- wp:paragraph --><p>Review workflow browser test edit</p><!-- /wp:paragraph -->',
+			},
+		} );
+		const workflowShortcut = page.locator( '#wp-admin-bar-wbfp-workflow a' );
+		await workflowShortcut.waitFor( { state: 'visible', timeout: 15000 } );
+		check( true, 'An active Gutenberg branch exposes the workflow shortcut' );
+		await workflowShortcut.click();
+		await page.waitForURL( new RegExp( `tools\\.php\\?page=wbfp-workflow&branch_id=${ workflowBranchId }` ) );
+		await page.getByRole( 'heading', { name: 'Branch Workflow' } ).waitFor( { state: 'visible' } );
+		check( true, 'The branch workflow management page opens from the editor' );
+
+		await page.getByRole( 'button', { name: 'Request review', exact: true } ).click();
+		await page.locator( 'p' ).filter( { hasText: 'Review status: pending' } ).first().waitFor( { state: 'visible', timeout: 12000 } );
+		check( true, 'Requesting editorial review persists its pending status' );
+		check(
+			! ( await visible( page.getByRole( 'button', { name: 'Approve current changes', exact: true } ) ) ),
+			'The branch author does not see a self-approval control'
+		);
+
+		const invalidWhen = new Date( Date.now() - 5 * 60 * 1000 ).toISOString().slice( 0, 16 );
+		await page.locator( 'input[name="when"]' ).fill( invalidWhen );
+		await page.getByRole( 'button', { name: 'Schedule merge', exact: true } ).click();
+		await page.locator( '.notice-error' ).filter( { hasText: 'Choose a future time within the next year.' } )
+			.waitFor( { state: 'visible', timeout: 12000 } );
+		check( true, 'An invalid scheduled merge displays an inline error without leaving the workflow page' );
+
+		const when = new Date( Date.now() + 90 * 60 * 1000 ).toISOString().slice( 0, 16 );
+		await page.locator( 'input[name="when"]' ).fill( when );
+		await page.getByRole( 'button', { name: 'Schedule merge', exact: true } ).click();
+		await page.locator( 'p' ).filter( { hasText: 'Scheduled (UTC):' } ).first().waitFor( { state: 'visible', timeout: 12000 } );
+		check( true, 'An approved-policy-off branch can schedule a verified future merge' );
+		await page.getByRole( 'button', { name: 'Cancel scheduled merge', exact: true } ).click();
+		await page.getByRole( 'heading', { name: 'Branch Workflow' } ).waitFor( { state: 'visible', timeout: 12000 } );
+		check(
+			! ( await visible( page.locator( 'p' ).filter( { hasText: 'Scheduled (UTC):' } ) ) ),
+			'Canceling scheduled work removes the visible schedule'
+		);
+
+		await page.getByRole( 'link', { name: 'Review changes in branch editor' } ).click();
+		await waitForEditor( page, workflowBranchId );
+		await page.getByRole( 'button', { name: 'Discard branch', exact: true } ).click();
+		await page.getByRole( 'button', { name: 'Move to Trash', exact: true } ).click();
+		await page.waitForURL(
+			new RegExp( `/wp-admin/post\\.php\\?post=${ originalId }&action=edit` ),
+			{ timeout: 20000 }
+		);
+
 		console.log(
 			`BROWSER WORDPRESS RESULT: ${ checks } / ${ checks } checks passed.`
 		);

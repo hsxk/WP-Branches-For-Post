@@ -869,6 +869,201 @@ try {
 	$cpt_original_terms = wp_get_object_terms( $cpt_original, 'wbfp_topic', array( 'fields' => 'ids' ) );
 	wbfp_check( empty( $cpt_original_terms ), 'Clearing a custom taxonomy on the branch clears it on merge' );
 
+
+	// Block-aware merge: preserve independent Gutenberg edits; refuse ambiguous work.
+	$parts = array(
+		'<!-- wp:paragraph --><p>Alpha unique</p><!-- /wp:paragraph -->',
+		'<!-- wp:paragraph --><p>Bravo unique</p><!-- /wp:paragraph -->',
+		'<!-- wp:paragraph --><p>Charlie unique</p><!-- /wp:paragraph -->',
+		'<!-- wp:paragraph --><p>Delta unique</p><!-- /wp:paragraph -->',
+	);
+	$block_base = serialize_blocks( parse_blocks( implode( "\n\n", $parts ) ) );
+	$block_orig = str_replace( 'Alpha unique', 'Alpha changed publicly', $block_base );
+	$block_work = str_replace( 'Delta unique', 'Delta changed in branch', $block_base );
+	$combined   = \WP_Branches_For_Post\Block_Merge::merge( $block_base, $block_orig, $block_work );
+	wbfp_check( is_string( $combined ) && str_contains( $combined, 'Alpha changed publicly' ) && str_contains( $combined, 'Delta changed in branch' ), 'Separate Gutenberg block edits auto-merge without dropping either change' );
+	wbfp_check( null === \WP_Branches_For_Post\Block_Merge::merge( $block_base, $block_orig, str_replace( 'Alpha unique', 'Alpha conflicting branch', $block_base ) ), 'Overlapping Gutenberg changes remain conflicts' );
+	wbfp_check( null === \WP_Branches_For_Post\Block_Merge::merge( 'freeform content', 'public edited freeform', 'branch edited freeform' ), 'Freeform content is never auto-merged' );
+	$moved = serialize_blocks( parse_blocks( implode( "\n\n", array( $parts[2], $parts[1], $parts[0], $parts[3] ) ) ) );
+	wbfp_check( null === \WP_Branches_For_Post\Block_Merge::merge( $block_base, $moved, $block_work ), 'Reordered baseline Gutenberg blocks are not silently merged' );
+	$duplicate_base = serialize_blocks( parse_blocks( implode( "\n\n", array( $parts[0], $parts[0], $parts[2] ) ) ) );
+	wbfp_check( null === \WP_Branches_For_Post\Block_Merge::merge( $duplicate_base, str_replace( 'Alpha unique', 'Public alpha', $duplicate_base ), str_replace( 'Charlie unique', 'Branch charlie', $duplicate_base ) ), 'Ambiguous repeated block identities refuse auto-merge' );
+
+	$block_original_id = wbfp_make_post( array( 'post_content' => $block_base ) );
+	$block_branch_id   = $branches->create( $block_original_id );
+	wbfp_check( ! is_wp_error( $block_branch_id ), 'Create a branch for block-aware merge integration' );
+	$block_branch_id = (int) $block_branch_id;
+	$created_posts[] = $block_branch_id;
+	wp_update_post( array( 'ID' => $block_original_id, 'post_content' => $block_orig ) );
+	wp_update_post( array( 'ID' => $block_branch_id, 'post_content' => $block_work ) );
+	$block_analysis = $branches->analyze_branch( $block_branch_id );
+	wbfp_check( empty( $block_analysis['analysis']['conflicts'] ) && in_array( 'post.post_content', $block_analysis['analysis']['auto_merged_fields'] ?? array(), true ), 'Branch review identifies independently edited post_content as auto-mergeable' );
+	wbfp_check( $block_original_id === $merges->merge( $block_branch_id, false ), 'Block-aware merge succeeds without force' );
+	$block_saved = get_post( $block_original_id )->post_content;
+	wbfp_check( str_contains( $block_saved, 'Alpha changed publicly' ) && str_contains( $block_saved, 'Delta changed in branch' ), 'Merged WordPress post contains both independent block changes' );
+
+	$rebase_block_original = wbfp_make_post( array( 'post_content' => $block_base ) );
+	$rebase_block_branch = $branches->create( $rebase_block_original );
+	wbfp_check( ! is_wp_error( $rebase_block_branch ), 'Create block-aware rebase branch' );
+	$rebase_block_branch = (int) $rebase_block_branch;
+	$created_posts[] = $rebase_block_branch;
+	wp_update_post( array( 'ID' => $rebase_block_original, 'post_content' => $block_orig ) );
+	wp_update_post( array( 'ID' => $rebase_block_branch, 'post_content' => $block_work ) );
+	wbfp_check( $rebase_block_branch === $branches->rebase( $rebase_block_branch ), 'Independent Gutenberg changes can be rebased safely' );
+	$block_rebased = get_post( $rebase_block_branch )->post_content;
+	wbfp_check( str_contains( $block_rebased, 'Alpha changed publicly' ) && str_contains( $block_rebased, 'Delta changed in branch' ), 'Rebased Gutenberg content preserves both versions' );
+
+	// Third-party SEO metadata is synchronized as ordinary post meta.
+	$seo_original = wbfp_make_post();
+	update_post_meta( $seo_original, '_yoast_wpseo_title', 'SEO baseline title' );
+	update_post_meta( $seo_original, '_yoast_wpseo_metadesc', 'SEO baseline description' );
+	$seo_branch = $branches->create( $seo_original );
+	wbfp_check( ! is_wp_error( $seo_branch ), 'Create branch with Yoast SEO post metadata' );
+	$seo_branch = (int) $seo_branch;
+	$created_posts[] = $seo_branch;
+	wbfp_check( 'SEO baseline title' === get_post_meta( $seo_branch, '_yoast_wpseo_title', true ), 'Yoast SEO title is copied to the branch' );
+	update_post_meta( $seo_branch, '_yoast_wpseo_title', 'SEO branch title' );
+	update_post_meta( $seo_original, '_yoast_wpseo_metadesc', 'SEO updated original description' );
+	wbfp_check( $seo_original === $merges->merge( $seo_branch, false ), 'Disjoint Yoast SEO metadata edits merge cleanly' );
+	wbfp_check( 'SEO branch title' === get_post_meta( $seo_original, '_yoast_wpseo_title', true ) && 'SEO updated original description' === get_post_meta( $seo_original, '_yoast_wpseo_metadesc', true ), 'Yoast SEO field-level merge preserves both edits' );
+
+
+	// Third-party builder/ACF storage compatibility: field-level merge of serialized metadata.
+	$builder_original = wbfp_make_post();
+	update_post_meta( $builder_original, '_elementor_data', '[{"id":"builder-one","elType":"widget"}]' );
+	update_post_meta( $builder_original, 'acf_intro', 'Base ACF value' );
+	update_post_meta( $builder_original, '_acf_intro', 'field_wbfp_test' );
+	$builder_branch = $branches->create( $builder_original );
+	wbfp_check( ! is_wp_error( $builder_branch ), 'Create post branch with builder and ACF metadata' );
+	$builder_branch = (int) $builder_branch;
+	$created_posts[] = $builder_branch;
+	wbfp_check( get_post_meta( $builder_original, '_elementor_data', true ) === get_post_meta( $builder_branch, '_elementor_data', true ), 'Page-builder JSON data is copied byte-for-byte' );
+	update_post_meta( $builder_original, 'acf_intro', 'Public ACF edit' );
+	update_post_meta( $builder_branch, '_elementor_data', '[{"id":"builder-two","elType":"widget"}]' );
+	wbfp_check( $builder_original === $merges->merge( $builder_branch, false ), 'Independent builder and ACF metadata merge' );
+	wbfp_check( 'Public ACF edit' === get_post_meta( $builder_original, 'acf_intro', true ) && str_contains( (string) get_post_meta( $builder_original, '_elementor_data', true ), 'builder-two' ), 'Builder and ACF changes both survive' );
+
+	// Team review: independent approver, exact snapshot binding and optional policy gate.
+	$approval_original = wbfp_make_post();
+	$approval_branch = $branches->create( $approval_original );
+	wbfp_check( ! is_wp_error( $approval_branch ), 'Create candidate for required team review' );
+	$approval_branch = (int) $approval_branch;
+	$created_posts[] = $approval_branch;
+	$workflow = new \WP_Branches_For_Post\Workflow_Service( $branches, $merges );
+	$empty_review = $workflow->request_review( $approval_branch );
+	wbfp_check( is_wp_error( $empty_review ) && 'wbfp_review_no_changes' === $empty_review->get_error_code(), 'Unmodified branches cannot create pointless approval requests' );
+	wp_update_post( array( 'ID' => $approval_branch, 'post_content' => 'Proposed approved change' ) );
+	$merges->set_workflow( $workflow );
+	$require_approval = static function () { return true; };
+	add_filter( 'wbfp_require_approval', $require_approval, 10, 3 );
+	$approval_blocked = $merges->merge( $approval_branch, false );
+	wbfp_check( is_wp_error( $approval_blocked ) && 'wbfp_approval_required' === $approval_blocked->get_error_code(), 'Approval policy blocks unreviewed direct merges' );
+	wbfp_check( true === $workflow->request_review( $approval_branch ), 'Working editor requests independent review' );
+	wp_update_post( array( 'ID' => $approval_branch, 'post_content' => 'Changed after request before review' ) );
+	$pending_change = $workflow->decide( $approval_branch, true );
+	wbfp_check( is_wp_error( $pending_change ) && 'wbfp_review_denied' === $pending_change->get_error_code(), 'Branch author still cannot approve a changed pending review' );
+	wp_set_current_user( $admin_id );
+	wbfp_check( true === $workflow->request_review( $approval_branch ), 'Submit updated review state after content changes' );
+	$self_decision = $workflow->decide( $approval_branch, true );
+	wbfp_check( is_wp_error( $self_decision ) && 'wbfp_review_denied' === $self_decision->get_error_code(), 'Branch creator cannot self-approve' );
+	$reviewer_id = wp_create_user( 'wbfp-reviewer-' . wp_generate_password( 8, false, false ), wp_generate_password( 20 ), 'wbfp-reviewer-' . wp_generate_password( 8, false, false ) . '@example.test' );
+	if ( is_wp_error( $reviewer_id ) ) {
+		throw new RuntimeException( $reviewer_id->get_error_message() );
+	}
+	$created_users[] = (int) $reviewer_id;
+	( new WP_User( (int) $reviewer_id ) )->set_role( 'editor' );
+	wp_update_post( array( 'ID' => $approval_original, 'post_excerpt' => 'Changed while review was pending' ) );
+	wp_set_current_user( (int) $reviewer_id );
+	$stale_pending = $workflow->decide( $approval_branch, true );
+	wbfp_check( is_wp_error( $stale_pending ) && 'wbfp_review_state_changed' === $stale_pending->get_error_code(), 'A requested review becomes stale after concurrent edits' );
+	wp_set_current_user( $admin_id );
+	wbfp_check( true === $workflow->request_review( $approval_branch ), 'Resubmit review after original changes' );
+	wp_set_current_user( (int) $reviewer_id );
+	wbfp_check( true === $workflow->decide( $approval_branch, true, 'Reviewed these changes' ), 'Separate editor approves the exact requested state' );
+	wp_set_current_user( $admin_id );
+	wbfp_check( $workflow->is_approved( $approval_branch ), 'Fresh approval validates against current content' );
+	( new WP_User( (int) $reviewer_id ) )->set_role( 'subscriber' );
+	wbfp_check( ! $workflow->is_approved( $approval_branch ), 'Revoking reviewer permission invalidates approval' );
+	( new WP_User( (int) $reviewer_id ) )->set_role( 'editor' );
+	wbfp_check( $workflow->is_approved( $approval_branch ), 'Restored reviewer permission allows the unchanged approval' );
+	wp_update_post( array( 'ID' => $approval_branch, 'post_content' => 'Altered after approval' ) );
+	wbfp_check( ! $workflow->is_approved( $approval_branch ), 'Changing branch content invalidates previous approval' );
+	$stale_merge = $merges->merge( $approval_branch, false );
+	wbfp_check( is_wp_error( $stale_merge ) && 'wbfp_approval_required' === $stale_merge->get_error_code(), 'Outdated approval cannot be bypassed by direct merge' );
+	wbfp_check( true === $workflow->request_review( $approval_branch ), 'Updated content can be resubmitted' );
+	wp_set_current_user( (int) $reviewer_id );
+	wbfp_check( true === $workflow->decide( $approval_branch, true ), 'Independent reviewer accepts resubmitted content' );
+	wp_set_current_user( $admin_id );
+	wbfp_check( $approval_original === $merges->merge( $approval_branch, false ), 'Approved content merges without replacing original identity' );
+	wbfp_check( ! metadata_exists( 'post', $approval_original, \WP_Branches_For_Post\Workflow_Service::META_REVIEW_TOKEN ), 'Approval bookkeeping never leaks onto the original' );
+	wbfp_check( ! metadata_exists( 'post', $approval_original, \WP_Branches_For_Post\Workflow_Service::META_REQUEST_TOKEN ), 'Review request fingerprints are also excluded from the public post' );
+
+	// Scheduled merge: expire safely on competing edits, and execute a fresh approved job.
+	$scheduled_original = wbfp_make_post();
+	$scheduled_branch = $branches->create( $scheduled_original );
+	wbfp_check( ! is_wp_error( $scheduled_branch ), 'Create scheduling candidate' );
+	$scheduled_branch = (int) $scheduled_branch;
+	$created_posts[] = $scheduled_branch;
+	wp_update_post( array( 'ID' => $scheduled_branch, 'post_content' => 'Scheduled branch proposal' ) );
+	wbfp_check( true === $workflow->request_review( $scheduled_branch ), 'Request review for scheduled proposal' );
+	$workflow_rest_request = new WP_REST_Request( 'GET', '/wbfp/v1/branches/' . $scheduled_branch . '/workflow' );
+	$workflow_rest_request->set_param( 'id', $scheduled_branch );
+	$workflow_status = $workflow->rest_status( $workflow_rest_request )->get_data();
+	wbfp_check( 'pending' === $workflow_status['state'] && $workflow_status['requires_approval'] && ! $workflow_status['is_approved'], 'Workflow REST status exposes pending approval safely' );
+	wbfp_check( ! isset( $workflow_status['review_token'] ) && ! isset( $workflow_status['schedule_state_token'] ), 'Workflow REST status does not expose internal fingerprints' );
+	wp_set_current_user( (int) $reviewer_id );
+	wbfp_check( true === $workflow->decide( $scheduled_branch, true ), 'Independent reviewer approves scheduled proposal' );
+	wp_set_current_user( $admin_id );
+	wbfp_check( true === $workflow->schedule( $scheduled_branch, time() + HOUR_IN_SECONDS ), 'Approved branch can schedule a future merge' );
+	wbfp_check( wp_next_scheduled( \WP_Branches_For_Post\Workflow_Service::CRON_HOOK, array( $scheduled_branch, (string) get_post_meta( $scheduled_branch, \WP_Branches_For_Post\Workflow_Service::META_SCHEDULE_EVENT_ID, true ) ) ) > 0, 'One-time WordPress cron event was registered' );
+	$scheduled_event = (string) get_post_meta( $scheduled_branch, \WP_Branches_For_Post\Workflow_Service::META_SCHEDULE_EVENT_ID, true );
+	$workflow->execute_schedule( $scheduled_branch, 'obsolete-event' );
+	wbfp_check( 'draft' === get_post_status( $scheduled_branch ), 'Obsolete cron callbacks cannot publish a branch' );
+	$workflow->execute_schedule( $scheduled_branch, $scheduled_event );
+	wbfp_check( 'draft' === get_post_status( $scheduled_branch ), 'Manual invocation before scheduled time never publishes early' );
+	wp_update_post( array( 'ID' => $scheduled_original, 'post_title' => 'Public changed before schedule' ) );
+	update_post_meta( $scheduled_branch, \WP_Branches_For_Post\Workflow_Service::META_SCHEDULE_AT, gmdate( 'Y-m-d H:i:s', time() - 1 ) );
+	$workflow->execute_schedule( $scheduled_branch, (string) get_post_meta( $scheduled_branch, \WP_Branches_For_Post\Workflow_Service::META_SCHEDULE_EVENT_ID, true ) );
+	wbfp_check( 'draft' === get_post_status( $scheduled_branch ) && 'wbfp_schedule_stale' === get_post_meta( $scheduled_branch, \WP_Branches_For_Post\Workflow_Service::META_SCHEDULE_ERROR, true ), 'Stale cron refuses to merge and records its failure' );
+	wbfp_check( 'Original content' === get_post( $scheduled_original )->post_content, 'Failed schedule preserves public content' );
+
+	$fresh_original = wbfp_make_post();
+	$fresh_branch = $branches->create( $fresh_original );
+	wbfp_check( ! is_wp_error( $fresh_branch ), 'Create fresh scheduled merge candidate' );
+	$fresh_branch = (int) $fresh_branch;
+	$created_posts[] = $fresh_branch;
+	wp_update_post( array( 'ID' => $fresh_branch, 'post_content' => 'Approved cron merge content' ) );
+	wbfp_check( true === $workflow->request_review( $fresh_branch ), 'Request review for fresh cron candidate' );
+	wp_set_current_user( (int) $reviewer_id );
+	wbfp_check( true === $workflow->decide( $fresh_branch, true ), 'Approve fresh cron candidate' );
+	wp_set_current_user( $admin_id );
+	wbfp_check( true === $workflow->schedule( $fresh_branch, time() + HOUR_IN_SECONDS ), 'Schedule unmodified approved content' );
+	update_post_meta( $fresh_branch, \WP_Branches_For_Post\Workflow_Service::META_SCHEDULE_AT, gmdate( 'Y-m-d H:i:s', time() - 1 ) );
+	$workflow->execute_schedule( $fresh_branch, (string) get_post_meta( $fresh_branch, \WP_Branches_For_Post\Workflow_Service::META_SCHEDULE_EVENT_ID, true ) );
+	wbfp_check( 'trash' === get_post_status( $fresh_branch ) && 'Approved cron merge content' === get_post( $fresh_original )->post_content, 'Authorized cron execution merges the approved snapshot' );
+	remove_filter( 'wbfp_require_approval', $require_approval, 10 );
+	// Non-approval sites should still reject empty scheduled merges.
+	$empty_original = wbfp_make_post();
+	$empty_branch = $branches->create( $empty_original );
+	wbfp_check( ! is_wp_error( $empty_branch ), 'Create an untouched branch for schedule guard test' );
+	$empty_branch = (int) $empty_branch;
+	$created_posts[] = $empty_branch;
+	$empty_schedule = $workflow->schedule( $empty_branch, time() + HOUR_IN_SECONDS );
+	wbfp_check( is_wp_error( $empty_schedule ) && 'wbfp_schedule_no_changes' === $empty_schedule->get_error_code(), 'Empty branch cannot be scheduled' );
+
+	$discard_original = wbfp_make_post();
+	$discard_branch = $branches->create( $discard_original );
+	wbfp_check( ! is_wp_error( $discard_branch ), 'Create branch for scheduled discard cleanup' );
+	$discard_branch = (int) $discard_branch;
+	$created_posts[] = $discard_branch;
+	wp_update_post( array( 'ID' => $discard_branch, 'post_content' => 'Change scheduled to be discarded' ) );
+	wbfp_check( true === $workflow->schedule( $discard_branch, time() + HOUR_IN_SECONDS ), 'Schedule branch before discarding it' );
+	$discard_event_id = (string) get_post_meta( $discard_branch, \WP_Branches_For_Post\Workflow_Service::META_SCHEDULE_EVENT_ID, true );
+	wbfp_check( true === $merges->discard( $discard_branch ), 'Discard scheduled branch safely' );
+	wbfp_check( false === wp_next_scheduled( \WP_Branches_For_Post\Workflow_Service::CRON_HOOK, array( $discard_branch, $discard_event_id ) ), 'Discard cancels its pending cron event' );
+
+
+
 	echo "\nREAL WORDPRESS RESULT: {$GLOBALS['wbfp_checks']} / {$GLOBALS['wbfp_checks']} checks passed.\n";
 } finally {
 	wp_set_current_user( $admin_id );

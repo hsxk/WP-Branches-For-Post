@@ -128,13 +128,25 @@ async function shot( page, number ) {
 	const page = await context.newPage();
 
 	try {
-		await page.goto( `${ baseUrl }/wp-login.php`, { waitUntil: 'domcontentloaded' } );
-		await page.locator( '#user_login' ).fill( username );
-		await page.locator( '#user_pass' ).fill( password );
-		await Promise.all( [
-			page.waitForURL( /\/wp-admin\//, { timeout: 15000 } ),
-			page.locator( '#wp-submit' ).click(),
-		] );
+		let loggedIn = false;
+		for ( let attempt = 0; attempt < 2 && ! loggedIn; attempt++ ) {
+			await page.goto( `${ baseUrl }/wp-login.php`, { waitUntil: 'domcontentloaded' } );
+			await page.locator( '#user_login' ).fill( username );
+			await page.locator( '#user_pass' ).fill( password );
+			await page.locator( '#wp-submit' ).click();
+			loggedIn = await page
+				.waitForURL( /\/wp-admin(?:\/|$)/, { timeout: 10000, waitUntil: 'domcontentloaded' } )
+				.then( () => true )
+				.catch( () => false );
+			if ( ! loggedIn ) {
+				const loginError = await page.locator( '#login_error' )
+					.innerText().catch( () => '' );
+				console.warn( `Screenshot login retry ${ attempt + 1 }, URL: ${ page.url() }, response: ${ loginError }` );
+			}
+		}
+		if ( ! loggedIn ) {
+			throw new Error( `Documentation screenshot login failed at ${ page.url() }` );
+		}
 
 		// Normalize the fixture so every validation workflow renders the same
 		// WordPress.org screenshot set regardless of its caller-provided seed copy.

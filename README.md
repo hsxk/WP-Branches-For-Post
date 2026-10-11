@@ -11,7 +11,7 @@
 
 WP Branches For Post lets editors create an isolated working branch from an existing WordPress post, page, or supported custom post type, edit without changing the public original, review the difference against a saved baseline, and merge safely when the work is ready.
 
-Version **2.1.1** builds on the three-way editorial workflow with clearer merge review values, stronger branch management, tighter privacy boundaries, and broader release validation.
+Version **2.2.0** adds conservative Gutenberg block-aware merging, independent editorial approval, scheduled safe merges, and team review workflows on top of the 2.1 three-way merge foundation.
 
 <p align="center">
   <img src=".wordpress-org/screenshot-3.png" alt="WP Branches For Post three-way merge review" width="920">
@@ -30,7 +30,7 @@ This plugin models the problem explicitly:
 
 The result is an editorial workflow closer to source control, while still using normal WordPress posts, permissions, metadata, taxonomies, and editors.
 
-## What 2.1.1 can do
+## What WP Branches For Post can do
 
 - Create an isolated draft branch from published, private, or scheduled content.
 - Review **Base / Original / Branch** before merging.
@@ -45,6 +45,34 @@ The result is an editorial workflow closer to source control, while still using 
 - Support compatible custom post types.
 - Warn when synchronized patterns can affect content outside the branch.
 - Fail conservatively for legacy, unknown, or missing-original states.
+
+## Editorial workflows in 2.2.0
+
+Version 2.2.0 extends the existing branching model without changing the public original:
+
+- **Safer concurrent Gutenberg editing:** independent top-level block changes can
+  auto-merge if the saved markup is lossless and the edit ranges are unambiguous.
+  Overlapping edits, freeform content, moved or repeated blocks, and shared
+  patterns still require conflict review rather than guessing.
+- **Independent editorial review:** choose **Branch review & schedule** from an
+  active branch's admin bar or **Tools → Branch Workflow**. Submit changes for
+  review; a different authorized editor can approve or request changes.
+  Approval is tied to the exact saved content and automatically invalidates
+  when either post changes or reviewer permission is revoked.
+- **Optional approval gate:** site administrators can require independent
+  approval before merges. The setting is off by default for compatibility.
+- **Safe scheduled merges:** schedule with a site-local date and time. WP-Cron
+  checks the exact queued job, due time, permissions, approval and current
+  content fingerprint. It never force-merges or overwrites a changed state.
+  Reliable execution depends on a working WordPress cron runner.
+- **Review visibility:** a permission-filtered queue under Tools lists pending
+  submissions. Gutenberg's existing review panel remains the place to inspect
+  the full three-way field comparison.
+
+The source and release validation history are tracked in
+[PR #25](https://github.com/hsxk/WP-Branches-For-Post/pull/25).
+The 2.2.0 release does **not** modify or regenerate existing approved translation
+catalogs. New workflow messages fall back to English until separately approved.
 
 ## Merge model
 
@@ -186,7 +214,12 @@ The repository also contains real-WordPress and browser suites used by GitHub Ac
 
 ## Release engineering
 
-A version tag is not enough to publish this plugin.
+A version tag is not enough to publish this plugin. After a reviewed release
+PR is squash-merged to `master`, create `release/v2.2.0` from the exact
+merged master commit. The release-branch workflow reruns all release gates and,
+if green, publishes the WordPress.org SVN tag and creates the GitHub release
+`v2.2.0` pointing to that exact commit. This avoids unvalidated deployment
+from a direct `master` commit and does not require manually editing a tag.
 
 The release workflow calls the same quality, compatibility, and browser/visual workflows used on pull requests, verifies that the tag matches the plugin header, constant, `README.txt` stable tag, and package version, audits the generated ZIP, runs Plugin Check, and only then permits the WordPress.org deployment job.
 

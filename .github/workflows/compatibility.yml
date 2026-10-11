@@ -3,8 +3,6 @@ name: Compatibility and Release Package
 on:
   pull_request:
     branches: [master]
-  push:
-    branches: [master]
   workflow_dispatch:
   workflow_call:
 
@@ -76,6 +74,14 @@ jobs:
           wp plugin activate wp-branches-for-post --path=/tmp/wordpress
       - name: Run real WordPress integration suite
         run: wp eval-file "$GITHUB_WORKSPACE/tests/wp-real-2.1.php" --path=/tmp/wordpress
+      - name: Real editor and SEO plugin coexistence regression
+        if: matrix.wordpress == '7.1.1' && matrix.php == '8.2'
+        shell: bash
+        run: |
+          set -euo pipefail
+          wp plugin install duplicate-post wordpress-seo advanced-custom-fields elementor --activate --path=/tmp/wordpress
+          wp eval-file "$GITHUB_WORKSPACE/tests/wp-real-2.1.php" --path=/tmp/wordpress
+
 
   release-zip:
     name: Audit actual release ZIP

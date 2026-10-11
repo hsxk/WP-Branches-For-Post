@@ -64,9 +64,12 @@ final class Plugin {
 		$merges   = new Merge_Service( $branches );
 		$rest     = new REST_Controller( $branches, $merges );
 		$admin    = new Admin( $branches, $merges );
+		$workflow = new Workflow_Service( $branches, $merges );
+		$merges->set_workflow( $workflow );
 
 		add_filter( 'wp_insert_post_data', array( $branches, 'keep_branch_non_public' ), 20, 2 );
 		add_action( 'rest_api_init', array( $rest, 'register_routes' ) );
 		$admin->register_hooks();
+		$workflow->register_hooks();
 	}
 }

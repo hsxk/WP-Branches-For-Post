@@ -23,24 +23,41 @@ final class Merge_Service {
 	private Branch_Service $branches;
 
 	/**
+	 * Optional policy service injected by the plugin bootstrap.
+	 *
+	 * @var Workflow_Service|null
+	 */
+	private ?Workflow_Service $workflow = null;
+
+	/**
+	 * Inject the editorial policy used by every merge.
+	 *
+	 * @param Workflow_Service $workflow workflow.
+	 */
+	public function set_workflow( Workflow_Service $workflow ): void {
+		$this->workflow = $workflow;
+	}
+
+	/**
 	 * Initialize the merge service.
 	 *
 	 * @param Branch_Service $branches Branch lifecycle service.
 	 */
 	public function __construct( Branch_Service $branches ) {
 		$this->branches = $branches;
+		$this->workflow = new Workflow_Service( $branches, $this );
 	}
 
 	/**
 	 * Merge a branch into its original post.
-	 *
 	 * Version-2.1 branches use a three-way merge: branch-only changes are applied,
 	 * original-only changes are preserved, and overlapping changes are blocked
 	 * unless the user explicitly force-merges. Any write failure attempts to
 	 * restore the complete pre-merge original state.
 	 *
 	 * @param int  $branch_id Branch post ID.
-	 * @param bool $force     Whether to explicitly prefer branch values on conflicts.
+	 * @param bool $force Whether to explicitly prefer branch values on conflicts.
+	 *
 	 * @return int|\WP_Error Original post ID on success.
 	 */
 	public function merge( int $branch_id, bool $force = false ) {
@@ -52,6 +69,11 @@ final class Merge_Service {
 		$branch      = $validated['branch'];
 		$original    = $validated['original'];
 		$original_id = $validated['original_id'];
+
+		$gate = $this->workflow ? $this->workflow->merge_gate( $branch_id, $original_id ) : null;
+		if ( $gate ) {
+			return $gate;
+		}
 
 		if ( $force && ! $this->branches->can_force_merge( $branch_id, $original_id ) ) {
 			return new \WP_Error(
@@ -81,6 +103,11 @@ final class Merge_Service {
 		}
 		$branch   = $validated['branch'];
 		$original = $validated['original'];
+
+		$gate = $this->workflow ? $this->workflow->merge_gate( $branch_id, $original_id ) : null;
+		if ( $gate ) {
+			return $gate;
+		}
 
 		$analysis = $this->branches->analyze_branch( $branch_id );
 		if ( ! $force && in_array( $analysis['state'] ?? '', array( Branch_Service::CONFLICT_CONFLICT, Branch_Service::CONFLICT_CHANGED, Branch_Service::CONFLICT_UNKNOWN, Branch_Service::CONFLICT_MISSING ), true ) ) {
@@ -203,6 +230,7 @@ final class Merge_Service {
 	 * Move a branch to Trash without changing its original post.
 	 *
 	 * @param int $branch_id Branch post ID.
+	 *
 	 * @return true|\WP_Error
 	 */
 	public function discard( int $branch_id ) {
@@ -219,14 +247,17 @@ final class Merge_Service {
 			return new \WP_Error( 'wbfp_discard_failed', __( 'The branch could not be moved to Trash.', 'wp-branches-for-post' ), array( 'status' => 500 ) );
 		}
 
+		do_action( 'wbfp_after_discard', $branch_id );
+
 		return true;
 	}
 
 	/**
 	 * Validate branch/original relationship and authorization.
 	 *
-	 * @param int      $branch_id            Branch post ID.
-	 * @param int|null $expected_original_id Optional expected original ID after hooks.
+	 * @param int  $branch_id Branch post ID.
+	 * @param ?int $expected_original_id Optional expected original ID after hooks.
+	 *
 	 * @return array<string,mixed>|\WP_Error
 	 */
 	private function validate_relationship( int $branch_id, ?int $expected_original_id = null ) {
@@ -261,7 +292,8 @@ final class Merge_Service {
 	/**
 	 * Convert analysis state to an actionable merge error.
 	 *
-	 * @param array<string,mixed> $analysis Analysis result.
+	 * @param array $analysis Analysis result.
+	 *
 	 * @return \WP_Error
 	 */
 	private function conflict_error( array $analysis ): \WP_Error {
