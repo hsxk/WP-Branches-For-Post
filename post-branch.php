@@ -25,6 +25,7 @@ define( 'WBFP_FILE', __FILE__ );
 define( 'WBFP_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WBFP_URL', plugin_dir_url( __FILE__ ) );
 
+require_once WBFP_DIR . 'includes/class-block-merge.php';
 require_once WBFP_DIR . 'includes/class-sync-service.php';
 require_once WBFP_DIR . 'includes/class-branch-service.php';
 require_once WBFP_DIR . 'includes/class-merge-service.php';
