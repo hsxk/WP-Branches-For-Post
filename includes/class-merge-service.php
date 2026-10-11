@@ -36,6 +36,7 @@ final class Merge_Service {
 	 */
 	public function __construct( Branch_Service $branches ) {
 		$this->branches = $branches;
+		$this->workflow = new Workflow_Service( $branches, $this );
 	}
 
 	/**
