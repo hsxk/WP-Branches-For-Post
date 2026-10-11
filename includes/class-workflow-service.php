@@ -463,6 +463,8 @@ final class Workflow_Service {
 		$note        = (string) get_post_meta( $branch_id, self::META_REVIEW_NOTE, true );
 		$edit_url    = get_edit_post_link( $branch_id, 'raw' );
 		echo '<div class="wrap"><h1>' . esc_html__( 'Branch Workflow', 'wp-branches-for-post' ) . '</h1>';
+		$this->render_feedback();
+		echo '<div class="card" style="max-width:760px">';
 		echo '<p><a href="' . esc_url( $edit_url ) . '">' . esc_html__( 'Review changes in branch editor', 'wp-branches-for-post' ) . '</a></p>';
 		echo '<p>' . esc_html( get_the_title( $branch_id ) ) . ' → ' . esc_html( get_the_title( $original_id ) ) . '</p>';
 		$display_state = $this->is_approved( $branch_id ) ? 'approved' : ( 'approved' === $state ? 'stale approval' : ( '' !== $state ? $state : 'not requested' ) );
@@ -508,6 +510,7 @@ final class Workflow_Service {
 		if ( $scheduled ) {
 			$this->form( $branch_id, 'cancel', __( 'Cancel scheduled merge', 'wp-branches-for-post' ) );
 		}
+		echo '</div>';
 		if ( current_user_can( 'manage_options' ) ) {
 			$this->settings_form();
 		}
@@ -596,10 +599,25 @@ final class Workflow_Service {
 		$when   = isset( $_POST['when'] ) ? sanitize_text_field( wp_unslash( $_POST['when'] ) ) : '';
 		$result = $this->operate( $branch_id, $op, $note, $when );
 		if ( is_wp_error( $result ) ) {
-			wp_die( esc_html( $result->get_error_message() ), esc_html__( 'Workflow action blocked', 'wp-branches-for-post' ), array( 'response' => (int) ( $result->get_error_data()['status'] ?? 400 ) ) );
+			set_transient( 'wbfp_workflow_error_' . get_current_user_id(), $result->get_error_message(), MINUTE_IN_SECONDS );
 		}
 		wp_safe_redirect( admin_url( 'tools.php?page=wbfp-workflow&branch_id=' . $branch_id ) );
 		exit;
+	}
+
+	/**
+	 * Show escaped, per-user workflow errors in context and clear the notice.
+	 *
+	 * @return void
+	 */
+	private function render_feedback(): void {
+		$key   = 'wbfp_workflow_error_' . get_current_user_id();
+		$error = get_transient( $key );
+		if ( ! is_string( $error ) || '' === $error ) {
+			return;
+		}
+		delete_transient( $key );
+		echo '<div class="notice notice-error is-dismissible"><p>' . esc_html( $error ) . '</p></div>';
 	}
 
 	/**
