@@ -1,7 +1,8 @@
-# Editorial workflow extensions (development branch)
+# Editorial workflow extensions in 2.2.0
 
-This document describes the non-released work on `feat/editorial-workflow-hardening-20261012`.
-It does **not** mean that the branch is ready to tag, ship or merge.
+Engineering and operator notes for the 2.2.0 release candidate. The release is
+complete only when a GitHub release and the WordPress.org 2.2.0 tag both exist;
+a green PR or an updated plugin header alone is not proof of publication.
 
 ## 1. Block-aware content merging
 
@@ -81,17 +82,19 @@ The service validates the caller, not merely the request schema.
 - Ordinary Yoast SEO custom fields, Elementor JSON post meta and ACF
   references/field values participate in the existing per-meta-key
   synchronization unless explicitly excluded.
-- The new tests exercise these storage cases without requiring those plugins
-  to be installed. **This is not yet a full real-plugin compatibility claim.**
+- The CI compatibility suite also installs Yoast Duplicate Post, Yoast SEO,
+  ACF and Elementor together on WordPress, and repeats the integration suite.
+  This confirms co-installation and tested metadata paths, not every possible
+  third-party customization or plugin release.
 - The tools screen groups request/approve/reject, scheduling and site policy,
   and links back to the existing detailed editor review UI.
 - The editor toolbar and list rows expose workflow entry points without
   rebuilding the Gutenberg production bundle.
 
-## Validation still required before release
+## Release validation matrix (run again for the exact release commit)
 
-Run all of the following against a disposable WordPress installation,
-preferably in the repository's quota-isolated test lab:
+The release gate must execute all of the following on the exact commit being
+released, using isolated disposable WordPress installations:
 
 1. `php -l` for all changed PHP files, then PHPCS.
 2. `wp eval-file .../tests/wp-real-2.1.php` against real WP/MySQL.
@@ -106,9 +109,15 @@ preferably in the repository's quota-isolated test lab:
    translatable strings, with any catalog updates isolated for translation
    approval rather than bundled into this development work.
 
-**Gate rule:** Review the CI, WordPress compatibility, and Gutenberg
-visual workflow results for the exact current PR head before merging, tagging
-or publishing. Earlier passing runs do not validate a newer commit.
+**Gate rule:** The CI, WordPress compatibility and Gutenberg visual checks must
+all pass on the exact release commit or branch. Version header, constant,
+package.json, package-lock and WordPress.org Stable Tag must all equal 2.2.0.
+The tag must belong to `master`. Previous commit checks do not validate later code.
+
+**Localization limitation:** Approved translation catalogs are intentionally
+unchanged. Existing messages remain localized; new workflow messages fall
+back to English until independently reviewed and approved. This restriction
+must not be bypassed by regenerating catalogs during an unrelated release.
 
 ## Pending UX/quality work
 
