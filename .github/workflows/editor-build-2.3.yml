@@ -1,0 +1,46 @@
+name: Build Gutenberg 2.3 branch bundle
+
+on:
+  push:
+    branches:
+      - feat/gutenberg-editorial-workflow-2.3
+
+permissions:
+  contents: write
+
+concurrency:
+  group: wbfp-editor-build-23
+  cancel-in-progress: false
+
+jobs:
+  update-bundle:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Build editor using the locked WordPress toolchain
+        run: |
+          npm ci --no-audit --no-fund
+          npm run lint:js
+          npm run lint:css
+          npm run build
+      - name: Commit deterministic compiled editor assets back to the feature branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add build/
+          if git diff --cached --quiet; then
+            echo "Compiled editor already matches the source."
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m "build: update Gutenberg 2.3 editor assets"
+          git push origin HEAD:feat/gutenberg-editorial-workflow-2.3
