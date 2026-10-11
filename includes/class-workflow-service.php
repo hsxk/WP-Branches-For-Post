@@ -668,6 +668,7 @@ final class Workflow_Service {
 				'requested_at_gmt'  => (string) get_post_meta( $branch_id, self::META_REQUESTED_AT, true ),
 				'reviewed_at_gmt'   => (string) get_post_meta( $branch_id, self::META_REVIEWED_AT, true ),
 				'scheduled_at_gmt'  => (string) get_post_meta( $branch_id, self::META_SCHEDULE_AT, true ),
+				'site_timezone'     => wp_timezone_string(),
 				'schedule_error'    => (string) get_post_meta( $branch_id, self::META_SCHEDULE_ERROR, true ),
 				'edit_url'          => admin_url( 'tools.php?page=wbfp-workflow&branch_id=' . $branch_id ),
 			)

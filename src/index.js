@@ -98,7 +98,7 @@ function ChangeList( { title, paths, danger = false } ) {
 	);
 }
 
-function ReviewValues( { values } ) {
+function ReviewValues( { values, conflicts = [] } ) {
 	if ( ! values || ! Object.keys( values ).length ) {
 		return null;
 	}
@@ -128,8 +128,23 @@ function ReviewValues( { values } ) {
 		...Object.entries( values ).map( ( [ path, value ] ) =>
 			el(
 				'details',
-				{ key: path, className: 'wbfp-compare__field' },
-				el( 'summary', null, value.label || pathLabel( path ) ),
+				{
+					key: path,
+					className: conflicts.includes( path )
+						? 'wbfp-compare__field wbfp-compare__field--conflict'
+						: 'wbfp-compare__field',
+				},
+				el(
+					'summary',
+					null,
+					value.label || pathLabel( path ),
+					conflicts.includes( path ) &&
+						el(
+							'span',
+							{ className: 'wbfp-compare__warning' },
+							__( 'Conflicts', 'wp-branches-for-post' )
+						)
+				),
 				version(
 					__( 'Base', 'wp-branches-for-post' ),
 					value.base,
@@ -165,6 +180,11 @@ function BranchPanel() {
 	const [ error, setError ] = useState( '' );
 	const [ reviewOpen, setReviewOpen ] = useState( false );
 	const [ confirmAction, setConfirmAction ] = useState( null );
+	const [ workflow, setWorkflow ] = useState( null );
+	const [ workflowOpen, setWorkflowOpen ] = useState( false );
+	const [ reviewNote, setReviewNote ] = useState( '' );
+	const [ scheduleTime, setScheduleTime ] = useState( '' );
+	const [ workflowMessage, setWorkflowMessage ] = useState( '' );
 
 	const refreshStatus = async () => {
 		if ( ! editor.postId ) {
@@ -192,6 +212,94 @@ function BranchPanel() {
 			active = false;
 		};
 	}, [ editor.postId ] );
+
+	const refreshWorkflow = async ( postId = editor.postId ) => {
+		const result = await apiFetch( {
+			path: `/wbfp/v1/branches/${ postId }/workflow`,
+		} );
+		setWorkflow( result );
+		return result;
+	};
+
+	useEffect( () => {
+		if ( status?.type !== 'branch' || ! editor.postId ) {
+			setWorkflow( null );
+			return;
+		}
+		let active = true;
+		setWorkflow( null );
+		apiFetch( {
+			path: `/wbfp/v1/branches/${ editor.postId }/workflow`,
+		} )
+			.then( ( result ) => active && setWorkflow( result ) )
+			.catch(
+				( requestError ) =>
+					active && setError( apiErrorMessage( requestError ) )
+			);
+		return () => {
+			active = false;
+		};
+	}, [ editor.postId, status?.type ] );
+
+	const workflowAction = async ( operation ) => {
+		if ( ! editor.postId || editor.dirty || editor.saving || busy ) {
+			setError(
+				__(
+					'Save changes before requesting review or scheduling a merge.',
+					'wp-branches-for-post'
+				)
+			);
+			return;
+		}
+		if (
+			[ 'approve', 'reject' ].includes( operation ) &&
+			( ! workflow?.can_review || workflow?.state !== 'pending' )
+		) {
+			return;
+		}
+		setBusy( true );
+		setError( '' );
+		setWorkflowMessage( '' );
+		try {
+			await apiFetch( {
+				path: `/wbfp/v1/branches/${ editor.postId }/workflow`,
+				method: 'POST',
+				data: {
+					operation,
+					note: [ 'approve', 'reject' ].includes( operation )
+						? reviewNote
+						: '',
+					when: operation === 'schedule' ? scheduleTime : '',
+				},
+			} );
+			const [ nextWorkflow ] = await Promise.all( [
+				refreshWorkflow(),
+				refreshStatus(),
+			] );
+			let resultMessage = `${ __( 'Review status:', 'wp-branches-for-post' ) } ${ nextWorkflow.state || '' }`;
+			if ( operation === 'schedule' ) {
+				resultMessage = `${ __( 'Scheduled (UTC):', 'wp-branches-for-post' ) } ${ nextWorkflow.scheduled_at_gmt || '' }`;
+			} else if ( operation === 'cancel' ) {
+				resultMessage = __(
+					'Cancel scheduled merge',
+					'wp-branches-for-post'
+				);
+			}
+			setWorkflowMessage( resultMessage );
+			if ( nextWorkflow.state !== 'pending' ) {
+				setReviewNote( '' );
+			}
+		} catch ( requestError ) {
+			setError( apiErrorMessage( requestError ) );
+			try {
+				await refreshWorkflow();
+			} catch {
+				// The initial error remains visible; never invent success.
+			}
+		} finally {
+			setBusy( false );
+		}
+	};
 
 	const saveBranchIfNeeded = async () => {
 		if ( ! editor.dirty ) {
@@ -493,7 +601,10 @@ function BranchPanel() {
 					),
 					paths: review.informational_changes,
 				} ),
-				el( ReviewValues, { values: status.review_values } ),
+				el( ReviewValues, {
+					values: status.review_values,
+					conflicts: review.conflicts,
+				} ),
 				! status.legacy &&
 					! review.branch_changes?.length &&
 					el(
@@ -673,6 +784,267 @@ function BranchPanel() {
 							rel: 'noreferrer',
 						},
 						__( 'View original', 'wp-branches-for-post' )
+					)
+			),
+			el(
+				'section',
+				{ className: 'wbfp-workflow' },
+				el(
+					'div',
+					{ className: 'wbfp-workflow__head' },
+					el(
+						'strong',
+						null,
+						__( 'Branch Workflow', 'wp-branches-for-post' )
+					),
+					el(
+						Button,
+						{
+							variant: 'tertiary',
+							onClick: () => setWorkflowOpen( ! workflowOpen ),
+							'aria-expanded': workflowOpen,
+							'aria-controls': 'wbfp-workflow-details',
+						},
+						workflowOpen
+							? __( 'Cancel', 'wp-branches-for-post' )
+							: __( 'Review / schedule', 'wp-branches-for-post' )
+					)
+				),
+				workflow &&
+					el(
+						'div',
+						{ className: 'wbfp-workflow__summary' },
+						el(
+							'span',
+							null,
+							__( 'Review status:', 'wp-branches-for-post' ),
+							' ',
+							workflow.is_approved
+								? __( 'Ready', 'wp-branches-for-post' )
+								: workflow.state ||
+										__(
+											'No mergeable branch changes are currently detected.',
+											'wp-branches-for-post'
+										)
+						),
+						workflow.scheduled_at_gmt &&
+							el(
+								'span',
+								null,
+								__(
+									'Scheduled (UTC):',
+									'wp-branches-for-post'
+								),
+								' ',
+								workflow.scheduled_at_gmt
+							)
+					),
+				workflowOpen &&
+					el(
+						'div',
+						{
+							id: 'wbfp-workflow-details',
+							className: 'wbfp-workflow__details',
+						},
+						workflowMessage &&
+							el(
+								Notice,
+								{ status: 'success', isDismissible: false },
+								workflowMessage
+							),
+						workflow?.schedule_error &&
+							el(
+								Notice,
+								{ status: 'warning', isDismissible: false },
+								workflow.schedule_error
+							),
+						workflow?.requires_approval &&
+							! workflow.is_approved &&
+							el(
+								Notice,
+								{ status: 'warning', isDismissible: false },
+								__(
+									'This branch needs approval for its current contents before it can be merged.',
+									'wp-branches-for-post'
+								)
+							),
+						el(
+							'p',
+							{ className: 'wbfp-meta' },
+							__(
+								'Open Review changes in the editor and inspect Base, Original and Branch before deciding. Approval applies only to the exact requested snapshot.',
+								'wp-branches-for-post'
+							)
+						),
+						! reviewOpen &&
+							el(
+								Button,
+								{
+									variant: 'secondary',
+									onClick: toggleReview,
+									disabled: busy,
+								},
+								__( 'Review changes', 'wp-branches-for-post' )
+							),
+						el(
+							'div',
+							{ className: 'wbfp-workflow__actions' },
+							el(
+								Button,
+								{
+									variant: 'secondary',
+									onClick: () => workflowAction( 'request' ),
+									disabled:
+										busy ||
+										editor.dirty ||
+										editor.saving ||
+										! hasBranchChanges ||
+										! workflow ||
+										workflow?.state === 'pending',
+								},
+								__( 'Request review', 'wp-branches-for-post' )
+							),
+							workflow?.can_review &&
+								workflow?.state === 'pending' &&
+								el(
+									Fragment,
+									null,
+									el(
+										'label',
+										{ className: 'wbfp-workflow__label' },
+										__(
+											'Review note',
+											'wp-branches-for-post'
+										),
+										el( 'textarea', {
+											value: reviewNote,
+											rows: 2,
+											onChange: ( event ) =>
+												setReviewNote(
+													event.target.value
+												),
+											disabled:
+												busy ||
+												editor.saving ||
+												editor.dirty,
+										} )
+									),
+									el(
+										'div',
+										{
+											className:
+												'wbfp-workflow__action-row',
+										},
+										el(
+											Button,
+											{
+												variant: 'primary',
+												onClick: () =>
+													workflowAction( 'approve' ),
+												disabled:
+													busy ||
+													editor.dirty ||
+													editor.saving ||
+													hardConflict ||
+													! hasBranchChanges,
+											},
+											__(
+												'Approve current changes',
+												'wp-branches-for-post'
+											)
+										),
+										el(
+											Button,
+											{
+												variant: 'secondary',
+												onClick: () =>
+													workflowAction( 'reject' ),
+												disabled:
+													busy ||
+													editor.dirty ||
+													editor.saving,
+											},
+											__(
+												'Request changes',
+												'wp-branches-for-post'
+											)
+										)
+									)
+								),
+							el(
+								'label',
+								{ className: 'wbfp-workflow__label' },
+								__(
+									'Site-local date and time',
+									'wp-branches-for-post'
+								),
+								workflow?.site_timezone &&
+									el(
+										'span',
+										{ className: 'wbfp-meta' },
+										workflow.site_timezone
+									),
+								el( 'input', {
+									type: 'datetime-local',
+									value: scheduleTime,
+									onChange: ( event ) =>
+										setScheduleTime( event.target.value ),
+									disabled:
+										busy || editor.saving || editor.dirty,
+								} )
+							),
+							el(
+								'div',
+								{ className: 'wbfp-workflow__action-row' },
+								el(
+									Button,
+									{
+										variant: 'secondary',
+										onClick: () =>
+											workflowAction( 'schedule' ),
+										disabled:
+											busy ||
+											editor.saving ||
+											editor.dirty ||
+											! workflow ||
+											! scheduleTime ||
+											hardConflict ||
+											! hasBranchChanges ||
+											( workflow?.requires_approval &&
+												! workflow?.is_approved ),
+									},
+									__(
+										'Schedule merge',
+										'wp-branches-for-post'
+									)
+								),
+								workflow?.scheduled_at_gmt &&
+									el(
+										Button,
+										{
+											variant: 'tertiary',
+											onClick: () =>
+												workflowAction( 'cancel' ),
+											disabled:
+												busy ||
+												editor.saving ||
+												editor.dirty,
+										},
+										__(
+											'Cancel scheduled merge',
+											'wp-branches-for-post'
+										)
+									)
+							)
+						),
+						el(
+							'a',
+							{ href: workflow?.edit_url || '#' },
+							__(
+								'Branch review & schedule',
+								'wp-branches-for-post'
+							)
+						)
 					)
 			),
 			status.can_rebase &&

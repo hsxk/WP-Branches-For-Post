@@ -207,3 +207,120 @@
 	gap: 8px;
 	margin-top: 16px;
 }
+
+/* Editorial workflow lives in the existing document sidebar. */
+.wbfp-workflow {
+	margin-top: 14px;
+	border: 1px solid #c3c4c7;
+	border-radius: 6px;
+	padding: 10px;
+	min-width: 0;
+}
+
+.wbfp-workflow__head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.wbfp-workflow__head > strong {
+	overflow-wrap: anywhere;
+}
+
+.wbfp-workflow__summary {
+	display: grid;
+	gap: 3px;
+	margin-top: 7px;
+	font-size: 12px;
+	color: #50575e;
+	overflow-wrap: anywhere;
+}
+
+.wbfp-workflow__details {
+	display: grid;
+	gap: 12px;
+	padding-top: 12px;
+}
+
+.wbfp-workflow__actions {
+	display: grid;
+	gap: 12px;
+	min-width: 0;
+}
+
+.wbfp-workflow__label {
+	display: grid;
+	gap: 5px;
+	font-weight: 600;
+}
+
+.wbfp-workflow__label input,
+.wbfp-workflow__label textarea {
+	box-sizing: border-box;
+	width: 100%;
+	max-width: 100%;
+	font-weight: 400;
+}
+
+.wbfp-workflow__action-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.wbfp-workflow__action-row .components-button {
+	flex: 1 1 auto;
+	justify-content: center;
+}
+
+.wbfp-compare__field--conflict {
+	border-color: #d63638;
+}
+
+.wbfp-compare__field summary {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	align-items: center;
+	gap: 4px;
+}
+
+.wbfp-compare__warning {
+	border-radius: 4px;
+	background: #fcf0f1;
+	padding: 2px 6px;
+	font-size: 11px;
+	color: #8a2424;
+}
+
+@media (max-width: 480px) {
+
+	.wbfp-workflow {
+		padding: 8px;
+	}
+
+	.wbfp-workflow__action-row {
+		flex-direction: column;
+	}
+
+	.wbfp-workflow__action-row .components-button {
+		width: 100%;
+	}
+}
+
+@media (prefers-color-scheme: dark) {
+
+	.wbfp-workflow {
+		border-color: #757575;
+	}
+
+	.wbfp-workflow__summary {
+		color: inherit;
+	}
+
+	.wbfp-compare__field--conflict {
+		border-color: #e65054;
+	}
+}
