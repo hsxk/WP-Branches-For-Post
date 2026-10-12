@@ -2,7 +2,7 @@
 Contributors: haokexin, alkesh7
 Tags: post branch, editorial workflow, staging, revision, gutenberg
 Requires at least: 6.6
-Tested up to: 7.1.3
+Tested up to: 7.1
 Requires PHP: 8.2
 Stable tag: 2.3.0
 License: GPLv3 or later
