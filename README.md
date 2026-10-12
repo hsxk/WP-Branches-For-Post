@@ -215,10 +215,11 @@ The repository also contains real-WordPress and browser suites used by GitHub Ac
 ## Release engineering
 
 A version tag is not enough to publish this plugin. After a reviewed release
-PR is squash-merged to `master`, create `release/v2.3.0` from the exact
-merged master commit. The release-branch workflow reruns all release gates and,
-if green, publishes the WordPress.org SVN tag and creates the GitHub release
-`v2.3.0` pointing to that exact commit. This avoids unvalidated deployment
+PR is squash-merged to `master`, create `release/vX.Y.Z` from the exact
+merged master commit, replacing `X.Y.Z` with the intended version. The
+release-branch workflow reruns all release gates and, if green, publishes the
+WordPress.org SVN tag and creates the matching GitHub release `vX.Y.Z`
+pointing to that exact commit. This avoids unvalidated deployment
 from a direct `master` commit and does not require manually editing a tag.
 
 The release workflow calls the same quality, compatibility, and browser/visual workflows used on pull requests, verifies that the tag matches the plugin header, constant, `README.txt` stable tag, and package version, audits the generated ZIP, runs Plugin Check, and only then permits the WordPress.org deployment job.
