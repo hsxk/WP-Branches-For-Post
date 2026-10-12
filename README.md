@@ -11,7 +11,7 @@
 
 WP Branches For Post lets editors create an isolated working branch from an existing WordPress post, page, or supported custom post type, edit without changing the public original, review the difference against a saved baseline, and merge safely when the work is ready.
 
-Version **2.3.0** adds explicit per-field Gutenberg conflict resolution and independently approved choice proposals, retaining 2.2's block-aware merges, scheduling and editorial review. Its compatibility matrix includes real WordPress **7.1.3** installations with PHP 8.2–8.4.
+Version **2.3.1** includes Japanese and Chinese workflow localizations and builds on 2.3.0, which adds explicit per-field Gutenberg conflict resolution and independently approved choice proposals, retaining 2.2's block-aware merges, scheduling and editorial review. Its compatibility matrix includes real WordPress **7.1.3** installations with PHP 8.2–8.4.
 
 <p align="center">
   <img src=".wordpress-org/screenshot-3.png" alt="WP Branches For Post three-way merge review" width="920">
