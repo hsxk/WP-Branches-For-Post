@@ -46,7 +46,8 @@ msgstr "Hao Kexin"
 msgid "https://time2log.com/about/"
 msgstr "https://time2log.com/about/"
 
-#: includes/class-admin.php:95 build/index.js:9 src/index.js:705
+#: includes/class-admin.php:95 build/index.js:9 src/index.js:1029
+#: src/index.js:1231
 msgid "Review changes"
 msgstr "检查更改"
 
@@ -55,7 +56,7 @@ msgid "Merge branch"
 msgstr "合并分支"
 
 #: includes/class-admin.php:112 includes/class-admin.php:333 build/index.js:7
-#: src/index.js:428
+#: src/index.js:553
 msgid "Create branch"
 msgstr "创建分支"
 
@@ -65,16 +66,16 @@ msgstr "创建分支"
 msgid "Branch of #%d"
 msgstr "#%d 的分支"
 
-#: includes/class-admin.php:179 build/index.js:7 src/index.js:437
+#: includes/class-admin.php:179 build/index.js:7 src/index.js:562
 msgid "Existing branches"
 msgstr "现有分支"
 
 #: includes/class-admin.php:296 includes/class-admin.php:318
-#: includes/class-admin.php:331 build/index.js:9 src/index.js:784
+#: includes/class-admin.php:331 build/index.js:9 src/index.js:1359
 msgid "Post Branch"
 msgstr "文章分支"
 
-#: includes/class-admin.php:297 build/index.js:7 src/index.js:596
+#: includes/class-admin.php:297 build/index.js:7 src/index.js:849
 msgid "The original post is unavailable. This branch cannot be merged."
 msgstr "原始文章不可用，无法合并此分支。"
 
@@ -135,7 +136,7 @@ msgstr "创建分支期间原始文章发生了变化。请重试，以确保分
 msgid "The branch relationship metadata could not be stored."
 msgstr "无法保存分支关系元数据。"
 
-#: includes/class-branch-service.php:326 includes/class-merge-service.php:235
+#: includes/class-branch-service.php:326 includes/class-merge-service.php:292
 msgid "This post is not an active branch."
 msgstr "这篇文章不是活动分支。"
 
@@ -182,109 +183,339 @@ msgstr "无法更新分支基准信息。已恢复之前的状态。"
 msgid "The branch baseline snapshot could not be stored."
 msgstr "无法保存分支基准快照。"
 
-#: includes/class-merge-service.php:59
+#: includes/class-merge-service.php:82
 msgid "You do not have permission to force this merge."
 msgstr "你没有权限强制执行此次合并。"
 
-#: includes/class-merge-service.php:108
+#: includes/class-merge-service.php:161
 msgid "The branch or original could not be snapshotted before merging."
 msgstr "合并前无法为分支或原始文章创建快照。"
 
-#: includes/class-merge-service.php:132 includes/class-rest-controller.php:224
+#: includes/class-merge-service.php:185 includes/class-rest-controller.php:236
 msgid "The review state changed. Review the latest changes before merging."
 msgstr "审阅状态已发生变化。合并前请重新检查最新更改。"
 
-#: includes/class-merge-service.php:147
+#: includes/class-merge-service.php:200
 msgid ""
 "The merge failed and the original could not be fully restored automatically."
 msgstr "合并失败，并且无法自动完整恢复原始文章。"
 
-#: includes/class-merge-service.php:157
+#: includes/class-merge-service.php:210
 msgid ""
 "The merge could not be completed. The original post was restored to its pre-"
 "merge state."
 msgstr "无法完成合并，原始文章已恢复到合并前的状态。"
 
-#: includes/class-merge-service.php:172
+#: includes/class-merge-service.php:225
 msgid ""
 "The merge was applied, the branch could not be moved to Trash, and the "
 "original could not be fully restored automatically."
 msgstr "合并已应用，但无法将分支移至回收站，并且无法自动完整恢复原始文章。"
 
-#: includes/class-merge-service.php:182
+#: includes/class-merge-service.php:235
 msgid ""
 "The branch could not be moved to Trash, so the original post was restored "
 "and the branch remains active."
 msgstr "无法将分支移至回收站，因此已恢复原始文章，分支仍保持有效。"
 
-#: includes/class-merge-service.php:210
+#: includes/class-merge-service.php:264
 msgid "This post is not a branch."
 msgstr "这篇文章不是分支。"
 
-#: includes/class-merge-service.php:214
+#: includes/class-merge-service.php:268
 msgid "You do not have permission to discard this branch."
 msgstr "你没有权限放弃这个分支。"
 
-#: includes/class-merge-service.php:219
+#: includes/class-merge-service.php:273
 msgid "The branch could not be moved to Trash."
 msgstr "无法将该分支移到回收站。"
 
-#: includes/class-merge-service.php:240
+#: includes/class-merge-service.php:297
 msgid "The branch relationship changed before the merge could be applied."
 msgstr "应用合并前，分支关联关系发生了变化。"
 
-#: includes/class-merge-service.php:245
+#: includes/class-merge-service.php:302
 msgid "The original post no longer exists."
 msgstr "原始文章已不存在。"
 
-#: includes/class-merge-service.php:248
+#: includes/class-merge-service.php:305
 msgid "The branch and original no longer use the same post type."
 msgstr "分支与原始文章已不再使用相同的文章类型。"
 
-#: includes/class-merge-service.php:251
+#: includes/class-merge-service.php:308
 msgid "You do not have permission to merge this branch."
 msgstr "你没有权限合并这个分支。"
 
-#: includes/class-merge-service.php:270
+#: includes/class-merge-service.php:328
 msgid ""
 "This older branch has no three-way baseline. Review the original before "
 "forcing the merge."
 msgstr "这个旧版分支没有三方比较基准。强制合并前请检查原始文章。"
 
-#: includes/class-merge-service.php:272
+#: includes/class-merge-service.php:330
 msgid "The original post is unavailable, so this branch cannot be merged."
 msgstr "原始文章不可用，因此无法合并此分支。"
 
-#: includes/class-merge-service.php:274
+#: includes/class-merge-service.php:332
 msgid ""
 "The branch and original contain overlapping changes. Review the detected "
 "conflicts before forcing the merge."
 msgstr "分支与原始文章包含重叠更改。强制合并前请检查检测到的冲突。"
 
-#: includes/class-sync-service.php:162
+#: includes/class-sync-service.php:177
 msgid "A post metadata value could not be synchronized."
 msgstr "无法同步某个文章元数据值。"
 
-#: includes/class-sync-service.php:172
+#: includes/class-sync-service.php:187
 msgid "Post metadata synchronization could not be verified."
 msgstr "无法验证文章元数据同步结果。"
 
-#: includes/class-sync-service.php:258
+#: includes/class-sync-service.php:273
 msgid "Taxonomy synchronization could not be verified."
 msgstr "无法验证分类法同步结果。"
 
-#: includes/class-sync-service.php:493 includes/class-sync-service.php:520
+#: includes/class-sync-service.php:549 includes/class-sync-service.php:583
 msgid ""
 "The branch and original contain overlapping changes that require review."
 msgstr "分支与原始文章包含重叠更改，需要检查。"
 
-#: includes/class-sync-service.php:546
+#: includes/class-sync-service.php:613
 msgid "The saved branch snapshot is invalid."
 msgstr "保存的分支快照无效。"
 
-#: includes/class-sync-service.php:591
+#: includes/class-sync-service.php:658
 msgid "The merged post state could not be verified."
 msgstr "无法验证合并后的文章状态。"
+
+#: includes/class-workflow-service.php:158 build/index.js:9 src/index.js:1008
+msgid ""
+"This branch needs approval for its current contents before it can be merged."
+msgstr "合并此分支前，必须先批准其当前内容。"
+
+#: includes/class-workflow-service.php:162
+msgid "Review the currently approved conflict choices before merging."
+msgstr "合并前请检查当前获批的冲突字段选择。"
+
+#: includes/class-workflow-service.php:192
+msgid "You cannot request review for this branch."
+msgstr "您无权提交此分支的审核申请。"
+
+#: includes/class-workflow-service.php:196
+msgid "This branch cannot be reviewed until its baseline is valid."
+msgstr "此分支的基准版本无效，暂时无法审核。"
+
+#: includes/class-workflow-service.php:202 build/index.js:7 build/index.js:9
+#: src/index.js:754 src/index.js:967
+msgid "No mergeable branch changes are currently detected."
+msgstr "当前未检测到可合并的分支更改。"
+
+#: includes/class-workflow-service.php:207
+msgid ""
+"Choose an original or branch value for every supported conflict before "
+"requesting review."
+msgstr "提交审核前，请为每个受支持的冲突选择保留原文或分支的值。"
+
+#: includes/class-workflow-service.php:234
+msgid "An independent authorized editor must review this branch."
+msgstr "此分支必须由具有权限的另一位编辑审核。"
+
+#: includes/class-workflow-service.php:237
+msgid "This branch has not been submitted for review."
+msgstr "此分支尚未提交审核。"
+
+#: includes/class-workflow-service.php:241
+msgid "The branch review state could not be verified."
+msgstr "无法验证分支的审核状态。"
+
+#: includes/class-workflow-service.php:245
+msgid ""
+"The branch changed after review was requested. Submit it for review again."
+msgstr "提交审核后分支已发生更改，请重新提交审核。"
+
+#: includes/class-workflow-service.php:252
+msgid "Resolve conflicting or unknown branch changes before approval."
+msgstr "批准前请解决冲突或无法识别的分支更改。"
+
+#: includes/class-workflow-service.php:310
+msgid "You cannot schedule a merge for this branch."
+msgstr "您无权为此分支安排定时合并。"
+
+#: includes/class-workflow-service.php:313
+msgid "Choose a future time within the next year."
+msgstr "请选择未来一年内的时间。"
+
+#: includes/class-workflow-service.php:322
+msgid "Review and resolve conflicts before scheduling a merge."
+msgstr "安排定时合并前，请先检查并解决冲突。"
+
+#: includes/class-workflow-service.php:325
+msgid "Make changes to the branch before scheduling a merge."
+msgstr "请先修改分支，再安排定时合并。"
+
+#: includes/class-workflow-service.php:329
+msgid "The current content state could not be verified."
+msgstr "无法验证当前内容状态。"
+
+#: includes/class-workflow-service.php:335
+msgid "WordPress could not schedule the merge."
+msgstr "WordPress 无法安排定时合并。"
+
+#: includes/class-workflow-service.php:352
+msgid "You cannot cancel this scheduled merge."
+msgstr "您无权取消此定时合并。"
+
+#: includes/class-workflow-service.php:463 build/index.js:9 src/index.js:952
+msgid "Review / schedule"
+msgstr "审核／定时"
+
+#: includes/class-workflow-service.php:485 build/index.js:9 src/index.js:1197
+msgid "Branch review & schedule"
+msgstr "分支审核与定时合并"
+
+#: includes/class-workflow-service.php:510
+msgid "Post Branch Workflow"
+msgstr "文章分支工作流"
+
+#: includes/class-workflow-service.php:510
+#: includes/class-workflow-service.php:520
+#: includes/class-workflow-service.php:533 build/index.js:9 src/index.js:940
+msgid "Branch Workflow"
+msgstr "分支工作流"
+
+#: includes/class-workflow-service.php:520
+msgid ""
+"Open an editable working branch and follow its Workflow link to request "
+"review or schedule a merge."
+msgstr "打开可编辑的工作分支，通过其中的工作流链接提交审核或安排定时合并。"
+
+#: includes/class-workflow-service.php:536
+msgid "Review changes in branch editor"
+msgstr "在分支编辑器中检查更改"
+
+#: includes/class-workflow-service.php:539 build/index.js:3 build/index.js:9
+#: src/index.js:285 src/index.js:962
+msgid "Review status:"
+msgstr "审核状态："
+
+#: includes/class-workflow-service.php:545
+msgid "Branch creator:"
+msgstr "分支创建者："
+
+#: includes/class-workflow-service.php:548
+msgid "Last reviewed by:"
+msgstr "最近审核人："
+
+# Added 2.3 editorial workflow strings; previously approved entries above are unchanged.
+#. translators: 1: branch changes, 2: original changes, 3: conflicts, 4: auto-mergeable fields.
+#: includes/class-workflow-service.php:553
+#, php-format
+msgid ""
+"%1$d branch changes · %2$d original changes · %3$d conflicts · %4$d auto-"
+"mergeable fields"
+msgstr ""
+"分支更改 %1$d 项 · 原文更改 %2$d 项 · 冲突 %3$d 项 · 可自动合并字段 %4$d 项"
+
+#: includes/class-workflow-service.php:556
+msgid "Proposed conflict resolutions"
+msgstr "提交的冲突解决方案"
+
+#: includes/class-workflow-service.php:558 build/index.js:3 build/index.js:7
+#: src/index.js:154 src/index.js:715
+msgid "Original now"
+msgstr "原始文章当前值"
+
+#: includes/class-workflow-service.php:558 build/index.js:3 build/index.js:7
+#: src/index.js:159 src/index.js:723
+msgid "Branch now"
+msgstr "分支当前值"
+
+#: includes/class-workflow-service.php:566 build/index.js:3 build/index.js:9
+#: src/index.js:287 src/index.js:976
+msgid "Scheduled (UTC):"
+msgstr "计划合并时间（UTC）："
+
+#: includes/class-workflow-service.php:572
+msgid ""
+"Changes to the original or branch after approval or scheduling invalidate "
+"the stored review. Scheduled merges use WP-Cron and require a working "
+"WordPress cron runner."
+msgstr ""
+"审批或定时安排后，如果原文或分支发生更改，已有审核将失效。定时合并使用 WP-"
+"Cron，需要确保 WordPress 定时任务正常运行。"
+
+#: includes/class-workflow-service.php:574
+msgid ""
+"Choose the conflict values in the branch editor before requesting review."
+msgstr "请先在分支编辑器中选择冲突字段的值，再提交审核。"
+
+#: includes/class-workflow-service.php:576 build/index.js:9 src/index.js:1057
+msgid "Request review"
+msgstr "提交审核"
+
+#: includes/class-workflow-service.php:579 build/index.js:9 src/index.js:1016
+msgid ""
+"Open Review changes in the editor and inspect Base, Original and Branch "
+"before deciding. Approval applies only to the exact requested snapshot."
+msgstr ""
+"请在编辑器中打开“检查更改”，对比基准、原文和分支后再决定。批准只对提交审核时"
+"的确切内容有效。"
+
+#: includes/class-workflow-service.php:580 build/index.js:9 src/index.js:1105
+msgid "Approve current changes"
+msgstr "批准当前更改"
+
+#: includes/class-workflow-service.php:581 build/index.js:9 src/index.js:1121
+msgid "Request changes"
+msgstr "要求修改"
+
+#: includes/class-workflow-service.php:583
+msgid "Schedule safe merge"
+msgstr "安排安全合并"
+
+#: includes/class-workflow-service.php:587 build/index.js:9 src/index.js:1131
+msgid "Site-local date and time"
+msgstr "网站本地日期和时间"
+
+#: includes/class-workflow-service.php:588 build/index.js:9 src/index.js:1170
+msgid "Schedule merge"
+msgstr "安排定时合并"
+
+#: includes/class-workflow-service.php:591 build/index.js:3 build/index.js:9
+#: src/index.js:289 src/index.js:1187
+msgid "Cancel scheduled merge"
+msgstr "取消定时合并"
+
+#: includes/class-workflow-service.php:624
+msgid "Pending editorial reviews"
+msgstr "待审核的编辑申请"
+
+#: includes/class-workflow-service.php:635
+msgid "No reviews requiring your approval in the most recent 50 submissions."
+msgstr "最近 50 条审核申请中，没有需要您批准的项目。"
+
+#: includes/class-workflow-service.php:644
+msgid "Site-wide approval policy"
+msgstr "全站审批策略"
+
+#: includes/class-workflow-service.php:647
+msgid "Require independent approval before every branch merge"
+msgstr "每次合并分支前都必须经过独立审批"
+
+#: includes/class-workflow-service.php:665 build/index.js:9 src/index.js:1067
+msgid "Review note"
+msgstr "审核备注"
+
+#: includes/class-workflow-service.php:725
+msgid "Enter a valid site-local date and time."
+msgstr "请输入网站时区下有效的日期和时间。"
+
+#: includes/class-workflow-service.php:729
+msgid "Unknown workflow operation."
+msgstr "未知的工作流操作。"
+
+#: includes/class-workflow-service.php:741
+msgid "You cannot view this workflow."
+msgstr "您无权查看此工作流。"
 
 #: build/index.js:1 src/index.js:17
 msgid "WP Branches For Post could not complete the request."
@@ -348,7 +579,7 @@ msgstr "元数据：%s"
 msgid "Taxonomy: %s"
 msgstr "分类法：%s"
 
-#: build/index.js:3 src/index.js:62
+#: build/index.js:3 build/index.js:9 src/index.js:62 src/index.js:965
 msgid "Ready"
 msgstr "可合并"
 
@@ -380,19 +611,19 @@ msgstr "原始文章不可用"
 msgid "Three-way comparison"
 msgstr "三方比较"
 
-#: build/index.js:3 src/index.js:134
+#: build/index.js:3 build/index.js:7 src/index.js:145 src/index.js:643
+msgid "Conflicts"
+msgstr "冲突"
+
+#: build/index.js:3 src/index.js:149
 msgid "Base"
 msgstr "基准版本"
 
-#: build/index.js:3 src/index.js:139
-msgid "Original now"
-msgstr "原始文章当前值"
+#: build/index.js:3 src/index.js:249
+msgid "Save changes before requesting review or scheduling a merge."
+msgstr "提交审核或安排定时合并前，请先保存更改。"
 
-#: build/index.js:3 src/index.js:144
-msgid "Branch now"
-msgstr "分支当前值"
-
-#: build/index.js:3 src/index.js:206
+#: build/index.js:3 src/index.js:320
 msgid ""
 "Save or discard the current edits to the original before creating a branch. "
 "This prevents unpublished editor changes from being mistaken for the branch "
@@ -401,34 +632,34 @@ msgstr ""
 "创建分支前，请先保存或放弃原始文章当前未保存的编辑，避免把未发布的编辑误认为"
 "分支基准。"
 
-#: build/index.js:3 src/index.js:284
+#: build/index.js:3 src/index.js:406
 msgid ""
 "The review state changed after saving. Review the latest conflicts before "
 "merging."
 msgstr "保存后检查状态发生了变化。合并前请检查最新冲突。"
 
 #. translators: %d: branch post ID.
-#: build/index.js:4 build/index.js:5 src/index.js:341 src/index.js:350
+#: build/index.js:4 build/index.js:5 src/index.js:466 src/index.js:475
 msgid "Branch #%d"
 msgstr "分支 #%d"
 
 #. translators: %s: branch creator display name.
-#: build/index.js:6 build/index.js:8 src/index.js:373 src/index.js:631
+#: build/index.js:6 build/index.js:8 src/index.js:498 src/index.js:884
 msgid "Created by %s"
 msgstr "创建者：%s"
 
 #. translators: 1: number of branch changes, 2: number of conflicts.
-#: build/index.js:7 src/index.js:388
+#: build/index.js:7 src/index.js:513
 msgid "%1$d branch changes · %2$d conflicts"
 msgstr "%1$d 项分支更改 · %2$d 项冲突"
 
-#: build/index.js:7 src/index.js:404
+#: build/index.js:7 src/index.js:529
 msgid ""
 "Edit safely in a separate draft. The published post stays unchanged until "
 "you merge the branch."
 msgstr "可在独立草稿中安全编辑；在合并分支之前，已发布的文章不会发生变化。"
 
-#: build/index.js:7 src/index.js:413
+#: build/index.js:7 src/index.js:538
 msgid ""
 "This original has unsaved editor changes. Save or discard them before "
 "creating a branch so the baseline matches the saved public post."
@@ -436,15 +667,15 @@ msgstr ""
 "原始文章存在未保存的编辑。创建分支前请保存或放弃这些更改，使基准与已保存的公"
 "开文章一致。"
 
-#: build/index.js:7 src/index.js:427
+#: build/index.js:7 src/index.js:552
 msgid "Creating…"
 msgstr "正在创建…"
 
-#: build/index.js:7 src/index.js:462
+#: build/index.js:7 src/index.js:620
 msgid "Merge review"
 msgstr "合并检查"
 
-#: build/index.js:7 src/index.js:468
+#: build/index.js:7 src/index.js:626
 msgid ""
 "This branch predates three-way snapshots, so detailed change comparison is "
 "unavailable. Force merge only after manually reviewing the original."
@@ -452,39 +683,47 @@ msgstr ""
 "此分支创建于三方快照功能之前，因此无法提供详细更改比较。请手动检查原始文章后"
 "再强制合并。"
 
-#: build/index.js:7 src/index.js:474
+#: build/index.js:7 src/index.js:632
 msgid "Branch changes"
 msgstr "分支更改"
 
-#: build/index.js:7 src/index.js:478
+#: build/index.js:7 src/index.js:636
 msgid "Original changes since branch creation"
 msgstr "创建分支后原始文章的更改"
 
-#: build/index.js:7 src/index.js:485
-msgid "Conflicts"
-msgstr "冲突"
-
-#: build/index.js:7 src/index.js:490
+#: build/index.js:7 src/index.js:648
 msgid "Original identity changes preserved by merge"
 msgstr "合并时保留的原始文章标识更改"
 
-#: build/index.js:7 src/index.js:502
-msgid "No mergeable branch changes are currently detected."
-msgstr "当前未检测到可合并的分支更改。"
+#: build/index.js:7 src/index.js:666
+msgid "Resolve each conflicting field"
+msgstr "逐个解决冲突字段"
 
-#: build/index.js:7 src/index.js:521 src/index.js:543
+#: build/index.js:7 src/index.js:674
+msgid "Other non-conflicting edits remain preserved. Inspect the values above."
+msgstr "其他没有冲突的更改将予以保留。请检查上方各项值。"
+
+#: build/index.js:7 src/index.js:710
+msgid "Choose"
+msgstr "请选择"
+
+#: build/index.js:7 build/index.js:9 src/index.js:743 src/index.js:1350
+msgid "Merge selected values"
+msgstr "按所选值合并"
+
+#: build/index.js:7 src/index.js:773 src/index.js:796
 msgid "Saving and merging…"
 msgstr "正在保存并合并…"
 
-#: build/index.js:7 src/index.js:525
+#: build/index.js:7 src/index.js:777
 msgid "Save & merge into original"
 msgstr "保存并合并到原始文章"
 
-#: build/index.js:7 src/index.js:547
+#: build/index.js:7 src/index.js:800
 msgid "Force merge reviewed conflicts"
 msgstr "强制合并已检查的冲突"
 
-#: build/index.js:7 src/index.js:560
+#: build/index.js:7 src/index.js:813
 msgid ""
 "The original has newer, non-conflicting changes. You can update this branch "
 "first, or review and merge while preserving those original changes."
@@ -492,7 +731,7 @@ msgstr ""
 "原始文章有较新的非冲突更改。你可以先用原始文章更新分支，也可以检查后直接合并"
 "并保留这些原始更改。"
 
-#: build/index.js:7 src/index.js:569
+#: build/index.js:7 src/index.js:822
 msgid ""
 "The original identity changed (for example status, slug, author, or parent). "
 "Those changes are preserved and are not overwritten by this branch."
@@ -500,29 +739,29 @@ msgstr ""
 "原始文章的标识信息发生了变化（例如状态、别名、作者或父级）。这些更改会被保"
 "留，不会被此分支覆盖。"
 
-#: build/index.js:7 src/index.js:578
+#: build/index.js:7 src/index.js:831
 msgid ""
 "The branch and original changed the same data differently. Review the "
 "conflicts before deciding whether to force merge."
 msgstr ""
 "分支和原始文章对同一数据做了不同修改。请先检查冲突，再决定是否强制合并。"
 
-#: build/index.js:7 src/index.js:587
+#: build/index.js:7 src/index.js:840
 msgid ""
 "This older branch cannot provide a precise three-way comparison. Review the "
 "original manually before forcing a merge."
 msgstr "这个旧版分支无法提供精确的三方比较。强制合并前请手动检查原始文章。"
 
-#: build/index.js:7 src/index.js:609
+#: build/index.js:7 src/index.js:862
 msgid "This draft is isolated from the public original."
 msgstr "此草稿与公开的原始文章相互独立。"
 
-#: build/index.js:7 src/index.js:621
+#: build/index.js:7 src/index.js:874
 msgid "Open original"
 msgstr "打开原始文章"
 
 #. translators: %d: number of synced patterns referenced by the branch.
-#: build/index.js:9 src/index.js:646
+#: build/index.js:9 src/index.js:899
 msgid ""
 "This branch references %d synced pattern(s). Editing a synced pattern is "
 "global in WordPress and is not isolated by the branch."
@@ -530,222 +769,68 @@ msgstr ""
 "此分支引用了 %d 个同步区块样板。编辑同步样板会全局影响 WordPress，并不会被分"
 "支隔离。"
 
-#: build/index.js:9 src/index.js:665
+#: build/index.js:9 src/index.js:918
 msgid "Preview branch"
 msgstr "预览分支"
 
-#: build/index.js:9 src/index.js:675
+#: build/index.js:9 src/index.js:928
 msgid "View original"
 msgstr "查看原始文章"
 
-#: build/index.js:9 src/index.js:687
+#: build/index.js:9 src/index.js:951 src/index.js:1282 src/index.js:1334
+msgid "Cancel"
+msgstr "取消"
+
+#: build/index.js:9 src/index.js:1213
 msgid "Updating…"
 msgstr "正在更新…"
 
-#: build/index.js:9 src/index.js:688
+#: build/index.js:9 src/index.js:1214
 msgid "Update branch from original"
 msgstr "从原始文章更新分支"
 
-#: build/index.js:9 src/index.js:704
+#: build/index.js:9 src/index.js:1230
 msgid "Hide merge review"
 msgstr "隐藏合并检查"
 
-#: build/index.js:9 src/index.js:716
+#: build/index.js:9 src/index.js:1242
 msgid "Discard branch"
 msgstr "放弃分支"
 
-#: build/index.js:9 src/index.js:730
+#: build/index.js:9 src/index.js:1256
 msgid "Force merge conflicts?"
 msgstr "强制合并冲突吗？"
 
-#: build/index.js:9 src/index.js:731
+#: build/index.js:9 src/index.js:1257
 msgid "Discard this branch?"
 msgstr "放弃这个分支吗？"
 
-#: build/index.js:9 src/index.js:738
+#: build/index.js:9 src/index.js:1264
 msgid ""
 "Force merge will prefer branch values for the listed conflicts. Non-"
 "conflicting newer work on the original is still preserved."
 msgstr ""
 "强制合并会对列出的冲突优先采用分支值；原始文章中不冲突的较新更改仍会保留。"
 
-#: build/index.js:9 src/index.js:742
+#: build/index.js:9 src/index.js:1268
 msgid ""
 "The branch will be moved to Trash. The public original will not be changed."
 msgstr "分支将被移到回收站，公开的原始文章不会发生变化。"
 
-#: build/index.js:9 src/index.js:756
-msgid "Cancel"
-msgstr "取消"
-
-#: build/index.js:9 src/index.js:774
+#: build/index.js:9 src/index.js:1300
 msgid "Force merge"
 msgstr "强制合并"
 
-#: build/index.js:9 src/index.js:775
+#: build/index.js:9 src/index.js:1301
 msgid "Move to Trash"
 msgstr "移到回收站"
 
-
-# Added 2.3 editorial workflow strings; previously approved entries above are unchanged.
-msgid "%1$d branch changes · %2$d original changes · %3$d conflicts · %4$d auto-mergeable fields"
-msgstr "分支更改 %1$d 项 · 原文更改 %2$d 项 · 冲突 %3$d 项 · 可自动合并字段 %4$d 项"
-
-msgid "An independent authorized editor must review this branch."
-msgstr "此分支必须由具有权限的另一位编辑审核。"
-
-msgid "Approve current changes"
-msgstr "批准当前更改"
-
-msgid "Branch Workflow"
-msgstr "分支工作流"
-
-msgid "Branch creator:"
-msgstr "分支创建者："
-
-msgid "Branch review & schedule"
-msgstr "分支审核与定时合并"
-
-msgid "Cancel scheduled merge"
-msgstr "取消定时合并"
-
-msgid "Changes to the original or branch after approval or scheduling invalidate the stored review. Scheduled merges use WP-Cron and require a working WordPress cron runner."
-msgstr "审批或定时安排后，如果原文或分支发生更改，已有审核将失效。定时合并使用 WP-Cron，需要确保 WordPress 定时任务正常运行。"
-
-msgid "Choose"
-msgstr "请选择"
-
-msgid "Choose a future time within the next year."
-msgstr "请选择未来一年内的时间。"
-
-msgid "Choose an original or branch value for every supported conflict before requesting review."
-msgstr "提交审核前，请为每个受支持的冲突选择保留原文或分支的值。"
-
-msgid "Choose the conflict values in the branch editor before requesting review."
-msgstr "请先在分支编辑器中选择冲突字段的值，再提交审核。"
-
+#: build/index.js:9 src/index.js:1311
 msgid "Confirm selected conflict values"
 msgstr "确认所选冲突字段值"
 
-msgid "Enter a valid site-local date and time."
-msgstr "请输入网站时区下有效的日期和时间。"
-
-msgid "Last reviewed by:"
-msgstr "最近审核人："
-
-msgid "Make changes to the branch before scheduling a merge."
-msgstr "请先修改分支，再安排定时合并。"
-
-msgid "Merge selected values"
-msgstr "按所选值合并"
-
-msgid "No reviews requiring your approval in the most recent 50 submissions."
-msgstr "最近 50 条审核申请中，没有需要您批准的项目。"
-
-msgid "Open Review changes in the editor and inspect Base, Original and Branch before deciding. Approval applies only to the exact requested snapshot."
-msgstr "请在编辑器中打开“检查更改”，对比基准、原文和分支后再决定。批准只对提交审核时的确切内容有效。"
-
-msgid "Open an editable working branch and follow its Workflow link to request review or schedule a merge."
-msgstr "打开可编辑的工作分支，通过其中的工作流链接提交审核或安排定时合并。"
-
-msgid "Other non-conflicting edits remain preserved. Inspect the values above."
-msgstr "其他没有冲突的更改将予以保留。请检查上方各项值。"
-
-msgid "Pending editorial reviews"
-msgstr "待审核的编辑申请"
-
-msgid "Post Branch Workflow"
-msgstr "文章分支工作流"
-
-msgid "Proposed conflict resolutions"
-msgstr "提交的冲突解决方案"
-
-msgid "Request changes"
-msgstr "要求修改"
-
-msgid "Request review"
-msgstr "提交审核"
-
-msgid "Require independent approval before every branch merge"
-msgstr "每次合并分支前都必须经过独立审批"
-
-msgid "Resolve conflicting or unknown branch changes before approval."
-msgstr "批准前请解决冲突或无法识别的分支更改。"
-
-msgid "Resolve each conflicting field"
-msgstr "逐个解决冲突字段"
-
-msgid "Review / schedule"
-msgstr "审核／定时"
-
-msgid "Review and resolve conflicts before scheduling a merge."
-msgstr "安排定时合并前，请先检查并解决冲突。"
-
-msgid "Review changes in branch editor"
-msgstr "在分支编辑器中检查更改"
-
-msgid "Review note"
-msgstr "审核备注"
-
-msgid "Review status:"
-msgstr "审核状态："
-
-msgid "Review the currently approved conflict choices before merging."
-msgstr "合并前请检查当前获批的冲突字段选择。"
-
-msgid "Save changes before requesting review or scheduling a merge."
-msgstr "提交审核或安排定时合并前，请先保存更改。"
-
-msgid "Schedule merge"
-msgstr "安排定时合并"
-
-msgid "Schedule safe merge"
-msgstr "安排安全合并"
-
-msgid "Scheduled (UTC):"
-msgstr "计划合并时间（UTC）："
-
-msgid "Site-local date and time"
-msgstr "网站本地日期和时间"
-
-msgid "Site-wide approval policy"
-msgstr "全站审批策略"
-
-msgid "The branch changed after review was requested. Submit it for review again."
-msgstr "提交审核后分支已发生更改，请重新提交审核。"
-
-msgid "The branch review state could not be verified."
-msgstr "无法验证分支的审核状态。"
-
-msgid "The current content state could not be verified."
-msgstr "无法验证当前内容状态。"
-
-msgid "The selected values will replace those conflicts. Other independent edits remain preserved."
+#: build/index.js:9 src/index.js:1320
+msgid ""
+"The selected values will replace those conflicts. Other independent edits "
+"remain preserved."
 msgstr "将使用所选值解决对应冲突，其他独立更改会保留。"
-
-msgid "This branch cannot be reviewed until its baseline is valid."
-msgstr "此分支的基准版本无效，暂时无法审核。"
-
-msgid "This branch has not been submitted for review."
-msgstr "此分支尚未提交审核。"
-
-msgid "This branch needs approval for its current contents before it can be merged."
-msgstr "合并此分支前，必须先批准其当前内容。"
-
-msgid "Unknown workflow operation."
-msgstr "未知的工作流操作。"
-
-msgid "WordPress could not schedule the merge."
-msgstr "WordPress 无法安排定时合并。"
-
-msgid "You cannot cancel this scheduled merge."
-msgstr "您无权取消此定时合并。"
-
-msgid "You cannot request review for this branch."
-msgstr "您无权提交此分支的审核申请。"
-
-msgid "You cannot schedule a merge for this branch."
-msgstr "您无权为此分支安排定时合并。"
-
-msgid "You cannot view this workflow."
-msgstr "您无权查看此工作流。"

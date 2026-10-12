@@ -13,6 +13,9 @@
       "%1$d branch changes · %2$d conflicts": [
         "ブランチの変更 %1$d 件 · 競合 %2$d 件"
       ],
+      "Approve current changes": [
+        "現在の変更を承認"
+      ],
       "Author": [
         "投稿者"
       ],
@@ -22,17 +25,32 @@
       "Branch #%d": [
         "ブランチ #%d"
       ],
+      "Branch Workflow": [
+        "ブランチワークフロー"
+      ],
       "Branch changes": [
         "ブランチの変更"
       ],
       "Branch now": [
         "現在のブランチ"
       ],
+      "Branch review & schedule": [
+        "ブランチのレビューと予約"
+      ],
       "Cancel": [
         "キャンセル"
       ],
+      "Cancel scheduled merge": [
+        "予約済みマージを取り消す"
+      ],
+      "Choose": [
+        "選択してください"
+      ],
       "Comment status": [
         "コメント状態"
+      ],
+      "Confirm selected conflict values": [
+        "選択した競合解決内容の確認"
       ],
       "Conflicts": [
         "競合"
@@ -88,6 +106,9 @@
       "Merge review": [
         "マージ確認"
       ],
+      "Merge selected values": [
+        "選択した値でマージ"
+      ],
       "Metadata: %s": [
         "メタデータ: %s"
       ],
@@ -99,6 +120,9 @@
       ],
       "No mergeable branch changes are currently detected.": [
         "現在、マージ可能なブランチ変更は検出されていません。"
+      ],
+      "Open Review changes in the editor and inspect Base, Original and Branch before deciding. Approval applies only to the exact requested snapshot.": [
+        "エディターで「変更を確認」を開き、承認前に基準・元の投稿・ブランチを比較してください。承認は申請時点の内容にのみ適用されます。"
       ],
       "Open original": [
         "元の投稿を開く"
@@ -120,6 +144,9 @@
       ],
       "Original updated · safe to refresh branch": [
         "元の投稿が更新済み · 安全にブランチを更新できます"
+      ],
+      "Other non-conflicting edits remain preserved. Inspect the values above.": [
+        "競合しない他の変更は保持されます。上記の値を確認してください。"
       ],
       "Parent": [
         "親"
@@ -148,17 +175,47 @@
       "Ready · original identity changed": [
         "マージ可能 · 元の投稿の識別情報に変更あり"
       ],
+      "Request changes": [
+        "修正を依頼"
+      ],
+      "Request review": [
+        "レビューを依頼"
+      ],
+      "Resolve each conflicting field": [
+        "競合する各項目を解決"
+      ],
+      "Review / schedule": [
+        "レビュー／予約"
+      ],
       "Review changes": [
         "変更を確認"
       ],
+      "Review note": [
+        "レビューコメント"
+      ],
+      "Review status:": [
+        "レビュー状態："
+      ],
       "Save & merge into original": [
         "保存して元の投稿へマージ"
+      ],
+      "Save changes before requesting review or scheduling a merge.": [
+        "レビュー依頼やマージ予約の前に変更を保存してください。"
       ],
       "Save or discard the current edits to the original before creating a branch. This prevents unpublished editor changes from being mistaken for the branch baseline.": [
         "ブランチを作成する前に、元の投稿で現在編集中の内容を保存するか破棄してください。未公開の編集内容がブランチの基準として扱われるのを防ぎます。"
       ],
       "Saving and merging…": [
         "保存してマージ中…"
+      ],
+      "Schedule merge": [
+        "マージを予約"
+      ],
+      "Scheduled (UTC):": [
+        "予約日時（UTC）："
+      ],
+      "Site-local date and time": [
+        "サイトの日時"
       ],
       "Slug": [
         "スラッグ"
@@ -183,6 +240,12 @@
       ],
       "The review state changed after saving. Review the latest conflicts before merging.": [
         "保存後に確認状態が変わりました。マージ前に最新の競合を確認してください。"
+      ],
+      "The selected values will replace those conflicts. Other independent edits remain preserved.": [
+        "選択した値で競合箇所を置き換えます。競合しない他の変更は保持されます。"
+      ],
+      "This branch needs approval for its current contents before it can be merged.": [
+        "このブランチをマージするには、現在の内容に対する承認が必要です。"
       ],
       "This branch predates three-way snapshots, so detailed change comparison is unavailable. Force merge only after manually reviewing the original.": [
         "このブランチは三方向スナップショット導入前に作成されたため、詳細な変更比較を利用できません。元の投稿を手動で確認した後にのみ強制マージしてください。"

@@ -2,7 +2,7 @@
 # This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: WP Branches For Post 2.1.1\n"
+"Project-Id-Version: WP Branches For Post 2.3.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-branches-for-post\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -41,7 +41,8 @@ msgstr ""
 
 #: includes/class-admin.php:95
 #: build/index.js:9
-#: src/index.js:705
+#: src/index.js:1029
+#: src/index.js:1231
 msgid "Review changes"
 msgstr ""
 
@@ -52,7 +53,7 @@ msgstr ""
 #: includes/class-admin.php:112
 #: includes/class-admin.php:333
 #: build/index.js:7
-#: src/index.js:428
+#: src/index.js:553
 msgid "Create branch"
 msgstr ""
 
@@ -64,7 +65,7 @@ msgstr ""
 
 #: includes/class-admin.php:179
 #: build/index.js:7
-#: src/index.js:437
+#: src/index.js:562
 msgid "Existing branches"
 msgstr ""
 
@@ -72,13 +73,13 @@ msgstr ""
 #: includes/class-admin.php:318
 #: includes/class-admin.php:331
 #: build/index.js:9
-#: src/index.js:784
+#: src/index.js:1359
 msgid "Post Branch"
 msgstr ""
 
 #: includes/class-admin.php:297
 #: build/index.js:7
-#: src/index.js:596
+#: src/index.js:849
 msgid "The original post is unavailable. This branch cannot be merged."
 msgstr ""
 
@@ -130,7 +131,7 @@ msgid "The branch relationship metadata could not be stored."
 msgstr ""
 
 #: includes/class-branch-service.php:326
-#: includes/class-merge-service.php:235
+#: includes/class-merge-service.php:292
 msgid "This post is not an active branch."
 msgstr ""
 
@@ -174,98 +175,348 @@ msgstr ""
 msgid "The branch baseline snapshot could not be stored."
 msgstr ""
 
-#: includes/class-merge-service.php:59
+#: includes/class-merge-service.php:82
 msgid "You do not have permission to force this merge."
 msgstr ""
 
-#: includes/class-merge-service.php:108
+#: includes/class-merge-service.php:161
 msgid "The branch or original could not be snapshotted before merging."
 msgstr ""
 
-#: includes/class-merge-service.php:132
-#: includes/class-rest-controller.php:224
+#: includes/class-merge-service.php:185
+#: includes/class-rest-controller.php:236
 msgid "The review state changed. Review the latest changes before merging."
 msgstr ""
 
-#: includes/class-merge-service.php:147
+#: includes/class-merge-service.php:200
 msgid "The merge failed and the original could not be fully restored automatically."
 msgstr ""
 
-#: includes/class-merge-service.php:157
+#: includes/class-merge-service.php:210
 msgid "The merge could not be completed. The original post was restored to its pre-merge state."
 msgstr ""
 
-#: includes/class-merge-service.php:172
+#: includes/class-merge-service.php:225
 msgid "The merge was applied, the branch could not be moved to Trash, and the original could not be fully restored automatically."
 msgstr ""
 
-#: includes/class-merge-service.php:182
+#: includes/class-merge-service.php:235
 msgid "The branch could not be moved to Trash, so the original post was restored and the branch remains active."
 msgstr ""
 
-#: includes/class-merge-service.php:210
+#: includes/class-merge-service.php:264
 msgid "This post is not a branch."
 msgstr ""
 
-#: includes/class-merge-service.php:214
+#: includes/class-merge-service.php:268
 msgid "You do not have permission to discard this branch."
 msgstr ""
 
-#: includes/class-merge-service.php:219
+#: includes/class-merge-service.php:273
 msgid "The branch could not be moved to Trash."
 msgstr ""
 
-#: includes/class-merge-service.php:240
+#: includes/class-merge-service.php:297
 msgid "The branch relationship changed before the merge could be applied."
 msgstr ""
 
-#: includes/class-merge-service.php:245
+#: includes/class-merge-service.php:302
 msgid "The original post no longer exists."
 msgstr ""
 
-#: includes/class-merge-service.php:248
+#: includes/class-merge-service.php:305
 msgid "The branch and original no longer use the same post type."
 msgstr ""
 
-#: includes/class-merge-service.php:251
+#: includes/class-merge-service.php:308
 msgid "You do not have permission to merge this branch."
 msgstr ""
 
-#: includes/class-merge-service.php:270
+#: includes/class-merge-service.php:328
 msgid "This older branch has no three-way baseline. Review the original before forcing the merge."
 msgstr ""
 
-#: includes/class-merge-service.php:272
+#: includes/class-merge-service.php:330
 msgid "The original post is unavailable, so this branch cannot be merged."
 msgstr ""
 
-#: includes/class-merge-service.php:274
+#: includes/class-merge-service.php:332
 msgid "The branch and original contain overlapping changes. Review the detected conflicts before forcing the merge."
 msgstr ""
 
-#: includes/class-sync-service.php:162
+#: includes/class-sync-service.php:177
 msgid "A post metadata value could not be synchronized."
 msgstr ""
 
-#: includes/class-sync-service.php:172
+#: includes/class-sync-service.php:187
 msgid "Post metadata synchronization could not be verified."
 msgstr ""
 
-#: includes/class-sync-service.php:258
+#: includes/class-sync-service.php:273
 msgid "Taxonomy synchronization could not be verified."
 msgstr ""
 
-#: includes/class-sync-service.php:493
-#: includes/class-sync-service.php:520
+#: includes/class-sync-service.php:549
+#: includes/class-sync-service.php:583
 msgid "The branch and original contain overlapping changes that require review."
 msgstr ""
 
-#: includes/class-sync-service.php:546
+#: includes/class-sync-service.php:613
 msgid "The saved branch snapshot is invalid."
 msgstr ""
 
-#: includes/class-sync-service.php:591
+#: includes/class-sync-service.php:658
 msgid "The merged post state could not be verified."
+msgstr ""
+
+#: includes/class-workflow-service.php:158
+#: build/index.js:9
+#: src/index.js:1008
+msgid "This branch needs approval for its current contents before it can be merged."
+msgstr ""
+
+#: includes/class-workflow-service.php:162
+msgid "Review the currently approved conflict choices before merging."
+msgstr ""
+
+#: includes/class-workflow-service.php:192
+msgid "You cannot request review for this branch."
+msgstr ""
+
+#: includes/class-workflow-service.php:196
+msgid "This branch cannot be reviewed until its baseline is valid."
+msgstr ""
+
+#: includes/class-workflow-service.php:202
+#: build/index.js:7
+#: build/index.js:9
+#: src/index.js:754
+#: src/index.js:967
+msgid "No mergeable branch changes are currently detected."
+msgstr ""
+
+#: includes/class-workflow-service.php:207
+msgid "Choose an original or branch value for every supported conflict before requesting review."
+msgstr ""
+
+#: includes/class-workflow-service.php:234
+msgid "An independent authorized editor must review this branch."
+msgstr ""
+
+#: includes/class-workflow-service.php:237
+msgid "This branch has not been submitted for review."
+msgstr ""
+
+#: includes/class-workflow-service.php:241
+msgid "The branch review state could not be verified."
+msgstr ""
+
+#: includes/class-workflow-service.php:245
+msgid "The branch changed after review was requested. Submit it for review again."
+msgstr ""
+
+#: includes/class-workflow-service.php:252
+msgid "Resolve conflicting or unknown branch changes before approval."
+msgstr ""
+
+#: includes/class-workflow-service.php:310
+msgid "You cannot schedule a merge for this branch."
+msgstr ""
+
+#: includes/class-workflow-service.php:313
+msgid "Choose a future time within the next year."
+msgstr ""
+
+#: includes/class-workflow-service.php:322
+msgid "Review and resolve conflicts before scheduling a merge."
+msgstr ""
+
+#: includes/class-workflow-service.php:325
+msgid "Make changes to the branch before scheduling a merge."
+msgstr ""
+
+#: includes/class-workflow-service.php:329
+msgid "The current content state could not be verified."
+msgstr ""
+
+#: includes/class-workflow-service.php:335
+msgid "WordPress could not schedule the merge."
+msgstr ""
+
+#: includes/class-workflow-service.php:352
+msgid "You cannot cancel this scheduled merge."
+msgstr ""
+
+#: includes/class-workflow-service.php:463
+#: build/index.js:9
+#: src/index.js:952
+msgid "Review / schedule"
+msgstr ""
+
+#: includes/class-workflow-service.php:485
+#: build/index.js:9
+#: src/index.js:1197
+msgid "Branch review & schedule"
+msgstr ""
+
+#: includes/class-workflow-service.php:510
+msgid "Post Branch Workflow"
+msgstr ""
+
+#: includes/class-workflow-service.php:510
+#: includes/class-workflow-service.php:520
+#: includes/class-workflow-service.php:533
+#: build/index.js:9
+#: src/index.js:940
+msgid "Branch Workflow"
+msgstr ""
+
+#: includes/class-workflow-service.php:520
+msgid "Open an editable working branch and follow its Workflow link to request review or schedule a merge."
+msgstr ""
+
+#: includes/class-workflow-service.php:536
+msgid "Review changes in branch editor"
+msgstr ""
+
+#: includes/class-workflow-service.php:539
+#: build/index.js:3
+#: build/index.js:9
+#: src/index.js:285
+#: src/index.js:962
+msgid "Review status:"
+msgstr ""
+
+#: includes/class-workflow-service.php:545
+msgid "Branch creator:"
+msgstr ""
+
+#: includes/class-workflow-service.php:548
+msgid "Last reviewed by:"
+msgstr ""
+
+#. translators: 1: branch changes, 2: original changes, 3: conflicts, 4: auto-mergeable fields.
+#: includes/class-workflow-service.php:553
+#, php-format
+msgid "%1$d branch changes · %2$d original changes · %3$d conflicts · %4$d auto-mergeable fields"
+msgstr ""
+
+#: includes/class-workflow-service.php:556
+msgid "Proposed conflict resolutions"
+msgstr ""
+
+#: includes/class-workflow-service.php:558
+#: build/index.js:3
+#: build/index.js:7
+#: src/index.js:154
+#: src/index.js:715
+msgid "Original now"
+msgstr ""
+
+#: includes/class-workflow-service.php:558
+#: build/index.js:3
+#: build/index.js:7
+#: src/index.js:159
+#: src/index.js:723
+msgid "Branch now"
+msgstr ""
+
+#: includes/class-workflow-service.php:566
+#: build/index.js:3
+#: build/index.js:9
+#: src/index.js:287
+#: src/index.js:976
+msgid "Scheduled (UTC):"
+msgstr ""
+
+#: includes/class-workflow-service.php:572
+msgid "Changes to the original or branch after approval or scheduling invalidate the stored review. Scheduled merges use WP-Cron and require a working WordPress cron runner."
+msgstr ""
+
+#: includes/class-workflow-service.php:574
+msgid "Choose the conflict values in the branch editor before requesting review."
+msgstr ""
+
+#: includes/class-workflow-service.php:576
+#: build/index.js:9
+#: src/index.js:1057
+msgid "Request review"
+msgstr ""
+
+#: includes/class-workflow-service.php:579
+#: build/index.js:9
+#: src/index.js:1016
+msgid "Open Review changes in the editor and inspect Base, Original and Branch before deciding. Approval applies only to the exact requested snapshot."
+msgstr ""
+
+#: includes/class-workflow-service.php:580
+#: build/index.js:9
+#: src/index.js:1105
+msgid "Approve current changes"
+msgstr ""
+
+#: includes/class-workflow-service.php:581
+#: build/index.js:9
+#: src/index.js:1121
+msgid "Request changes"
+msgstr ""
+
+#: includes/class-workflow-service.php:583
+msgid "Schedule safe merge"
+msgstr ""
+
+#: includes/class-workflow-service.php:587
+#: build/index.js:9
+#: src/index.js:1131
+msgid "Site-local date and time"
+msgstr ""
+
+#: includes/class-workflow-service.php:588
+#: build/index.js:9
+#: src/index.js:1170
+msgid "Schedule merge"
+msgstr ""
+
+#: includes/class-workflow-service.php:591
+#: build/index.js:3
+#: build/index.js:9
+#: src/index.js:289
+#: src/index.js:1187
+msgid "Cancel scheduled merge"
+msgstr ""
+
+#: includes/class-workflow-service.php:624
+msgid "Pending editorial reviews"
+msgstr ""
+
+#: includes/class-workflow-service.php:635
+msgid "No reviews requiring your approval in the most recent 50 submissions."
+msgstr ""
+
+#: includes/class-workflow-service.php:644
+msgid "Site-wide approval policy"
+msgstr ""
+
+#: includes/class-workflow-service.php:647
+msgid "Require independent approval before every branch merge"
+msgstr ""
+
+#: includes/class-workflow-service.php:665
+#: build/index.js:9
+#: src/index.js:1067
+msgid "Review note"
+msgstr ""
+
+#: includes/class-workflow-service.php:725
+msgid "Enter a valid site-local date and time."
+msgstr ""
+
+#: includes/class-workflow-service.php:729
+msgid "Unknown workflow operation."
+msgstr ""
+
+#: includes/class-workflow-service.php:741
+msgid "You cannot view this workflow."
 msgstr ""
 
 #: build/index.js:1
@@ -348,7 +599,9 @@ msgid "Taxonomy: %s"
 msgstr ""
 
 #: build/index.js:3
+#: build/index.js:9
 #: src/index.js:62
+#: src/index.js:965
 msgid "Ready"
 msgstr ""
 
@@ -388,35 +641,37 @@ msgid "Three-way comparison"
 msgstr ""
 
 #: build/index.js:3
-#: src/index.js:134
+#: build/index.js:7
+#: src/index.js:145
+#: src/index.js:643
+msgid "Conflicts"
+msgstr ""
+
+#: build/index.js:3
+#: src/index.js:149
 msgid "Base"
 msgstr ""
 
 #: build/index.js:3
-#: src/index.js:139
-msgid "Original now"
+#: src/index.js:249
+msgid "Save changes before requesting review or scheduling a merge."
 msgstr ""
 
 #: build/index.js:3
-#: src/index.js:144
-msgid "Branch now"
-msgstr ""
-
-#: build/index.js:3
-#: src/index.js:206
+#: src/index.js:320
 msgid "Save or discard the current edits to the original before creating a branch. This prevents unpublished editor changes from being mistaken for the branch baseline."
 msgstr ""
 
 #: build/index.js:3
-#: src/index.js:284
+#: src/index.js:406
 msgid "The review state changed after saving. Review the latest conflicts before merging."
 msgstr ""
 
 #. translators: %d: branch post ID.
 #: build/index.js:4
 #: build/index.js:5
-#: src/index.js:341
-#: src/index.js:350
+#: src/index.js:466
+#: src/index.js:475
 #, js-format
 msgid "Branch #%d"
 msgstr ""
@@ -424,183 +679,207 @@ msgstr ""
 #. translators: %s: branch creator display name.
 #: build/index.js:6
 #: build/index.js:8
-#: src/index.js:373
-#: src/index.js:631
+#: src/index.js:498
+#: src/index.js:884
 #, js-format
 msgid "Created by %s"
 msgstr ""
 
 #. translators: 1: number of branch changes, 2: number of conflicts.
 #: build/index.js:7
-#: src/index.js:388
+#: src/index.js:513
 #, js-format
 msgid "%1$d branch changes · %2$d conflicts"
 msgstr ""
 
 #: build/index.js:7
-#: src/index.js:404
+#: src/index.js:529
 msgid "Edit safely in a separate draft. The published post stays unchanged until you merge the branch."
 msgstr ""
 
 #: build/index.js:7
-#: src/index.js:413
+#: src/index.js:538
 msgid "This original has unsaved editor changes. Save or discard them before creating a branch so the baseline matches the saved public post."
 msgstr ""
 
 #: build/index.js:7
-#: src/index.js:427
+#: src/index.js:552
 msgid "Creating…"
 msgstr ""
 
 #: build/index.js:7
-#: src/index.js:462
+#: src/index.js:620
 msgid "Merge review"
 msgstr ""
 
 #: build/index.js:7
-#: src/index.js:468
+#: src/index.js:626
 msgid "This branch predates three-way snapshots, so detailed change comparison is unavailable. Force merge only after manually reviewing the original."
 msgstr ""
 
 #: build/index.js:7
-#: src/index.js:474
+#: src/index.js:632
 msgid "Branch changes"
 msgstr ""
 
 #: build/index.js:7
-#: src/index.js:478
+#: src/index.js:636
 msgid "Original changes since branch creation"
 msgstr ""
 
 #: build/index.js:7
-#: src/index.js:485
-msgid "Conflicts"
-msgstr ""
-
-#: build/index.js:7
-#: src/index.js:490
+#: src/index.js:648
 msgid "Original identity changes preserved by merge"
 msgstr ""
 
 #: build/index.js:7
-#: src/index.js:502
-msgid "No mergeable branch changes are currently detected."
+#: src/index.js:666
+msgid "Resolve each conflicting field"
 msgstr ""
 
 #: build/index.js:7
-#: src/index.js:521
-#: src/index.js:543
+#: src/index.js:674
+msgid "Other non-conflicting edits remain preserved. Inspect the values above."
+msgstr ""
+
+#: build/index.js:7
+#: src/index.js:710
+msgid "Choose"
+msgstr ""
+
+#: build/index.js:7
+#: build/index.js:9
+#: src/index.js:743
+#: src/index.js:1350
+msgid "Merge selected values"
+msgstr ""
+
+#: build/index.js:7
+#: src/index.js:773
+#: src/index.js:796
 msgid "Saving and merging…"
 msgstr ""
 
 #: build/index.js:7
-#: src/index.js:525
+#: src/index.js:777
 msgid "Save & merge into original"
 msgstr ""
 
 #: build/index.js:7
-#: src/index.js:547
+#: src/index.js:800
 msgid "Force merge reviewed conflicts"
 msgstr ""
 
 #: build/index.js:7
-#: src/index.js:560
+#: src/index.js:813
 msgid "The original has newer, non-conflicting changes. You can update this branch first, or review and merge while preserving those original changes."
 msgstr ""
 
 #: build/index.js:7
-#: src/index.js:569
+#: src/index.js:822
 msgid "The original identity changed (for example status, slug, author, or parent). Those changes are preserved and are not overwritten by this branch."
 msgstr ""
 
 #: build/index.js:7
-#: src/index.js:578
+#: src/index.js:831
 msgid "The branch and original changed the same data differently. Review the conflicts before deciding whether to force merge."
 msgstr ""
 
 #: build/index.js:7
-#: src/index.js:587
+#: src/index.js:840
 msgid "This older branch cannot provide a precise three-way comparison. Review the original manually before forcing a merge."
 msgstr ""
 
 #: build/index.js:7
-#: src/index.js:609
+#: src/index.js:862
 msgid "This draft is isolated from the public original."
 msgstr ""
 
 #: build/index.js:7
-#: src/index.js:621
+#: src/index.js:874
 msgid "Open original"
 msgstr ""
 
 #. translators: %d: number of synced patterns referenced by the branch.
 #: build/index.js:9
-#: src/index.js:646
+#: src/index.js:899
 #, js-format
 msgid "This branch references %d synced pattern(s). Editing a synced pattern is global in WordPress and is not isolated by the branch."
 msgstr ""
 
 #: build/index.js:9
-#: src/index.js:665
+#: src/index.js:918
 msgid "Preview branch"
 msgstr ""
 
 #: build/index.js:9
-#: src/index.js:675
+#: src/index.js:928
 msgid "View original"
 msgstr ""
 
 #: build/index.js:9
-#: src/index.js:687
-msgid "Updating…"
-msgstr ""
-
-#: build/index.js:9
-#: src/index.js:688
-msgid "Update branch from original"
-msgstr ""
-
-#: build/index.js:9
-#: src/index.js:704
-msgid "Hide merge review"
-msgstr ""
-
-#: build/index.js:9
-#: src/index.js:716
-msgid "Discard branch"
-msgstr ""
-
-#: build/index.js:9
-#: src/index.js:730
-msgid "Force merge conflicts?"
-msgstr ""
-
-#: build/index.js:9
-#: src/index.js:731
-msgid "Discard this branch?"
-msgstr ""
-
-#: build/index.js:9
-#: src/index.js:738
-msgid "Force merge will prefer branch values for the listed conflicts. Non-conflicting newer work on the original is still preserved."
-msgstr ""
-
-#: build/index.js:9
-#: src/index.js:742
-msgid "The branch will be moved to Trash. The public original will not be changed."
-msgstr ""
-
-#: build/index.js:9
-#: src/index.js:756
+#: src/index.js:951
+#: src/index.js:1282
+#: src/index.js:1334
 msgid "Cancel"
 msgstr ""
 
 #: build/index.js:9
-#: src/index.js:774
+#: src/index.js:1213
+msgid "Updating…"
+msgstr ""
+
+#: build/index.js:9
+#: src/index.js:1214
+msgid "Update branch from original"
+msgstr ""
+
+#: build/index.js:9
+#: src/index.js:1230
+msgid "Hide merge review"
+msgstr ""
+
+#: build/index.js:9
+#: src/index.js:1242
+msgid "Discard branch"
+msgstr ""
+
+#: build/index.js:9
+#: src/index.js:1256
+msgid "Force merge conflicts?"
+msgstr ""
+
+#: build/index.js:9
+#: src/index.js:1257
+msgid "Discard this branch?"
+msgstr ""
+
+#: build/index.js:9
+#: src/index.js:1264
+msgid "Force merge will prefer branch values for the listed conflicts. Non-conflicting newer work on the original is still preserved."
+msgstr ""
+
+#: build/index.js:9
+#: src/index.js:1268
+msgid "The branch will be moved to Trash. The public original will not be changed."
+msgstr ""
+
+#: build/index.js:9
+#: src/index.js:1300
 msgid "Force merge"
 msgstr ""
 
 #: build/index.js:9
-#: src/index.js:775
+#: src/index.js:1301
 msgid "Move to Trash"
+msgstr ""
+
+#: build/index.js:9
+#: src/index.js:1311
+msgid "Confirm selected conflict values"
+msgstr ""
+
+#: build/index.js:9
+#: src/index.js:1320
+msgid "The selected values will replace those conflicts. Other independent edits remain preserved."
 msgstr ""

@@ -13,6 +13,9 @@
       "%1$d branch changes · %2$d conflicts": [
         "%1$d 項分支變更 · %2$d 項衝突"
       ],
+      "Approve current changes": [
+        "核准目前的變更"
+      ],
       "Author": [
         "作者"
       ],
@@ -22,17 +25,32 @@
       "Branch #%d": [
         "分支 #%d"
       ],
+      "Branch Workflow": [
+        "分支工作流程"
+      ],
       "Branch changes": [
         "分支變更"
       ],
       "Branch now": [
         "分支目前值"
       ],
+      "Branch review & schedule": [
+        "分支審核與排程合併"
+      ],
       "Cancel": [
         "取消"
       ],
+      "Cancel scheduled merge": [
+        "取消排程合併"
+      ],
+      "Choose": [
+        "請選擇"
+      ],
       "Comment status": [
         "留言狀態"
+      ],
+      "Confirm selected conflict values": [
+        "確認所選衝突欄位值"
       ],
       "Conflicts": [
         "衝突"
@@ -88,6 +106,9 @@
       "Merge review": [
         "合併檢查"
       ],
+      "Merge selected values": [
+        "依所選值合併"
+      ],
       "Metadata: %s": [
         "中繼資料：%s"
       ],
@@ -99,6 +120,9 @@
       ],
       "No mergeable branch changes are currently detected.": [
         "目前未偵測到可合併的分支變更。"
+      ],
+      "Open Review changes in the editor and inspect Base, Original and Branch before deciding. Approval applies only to the exact requested snapshot.": [
+        "請在編輯器中開啟「檢查變更」，比較基準、原文與分支後再決定。核准僅對提交審核時的確切內容有效。"
       ],
       "Open original": [
         "開啟原始文章"
@@ -120,6 +144,9 @@
       ],
       "Original updated · safe to refresh branch": [
         "原始文章已更新 · 可安全重新整理分支"
+      ],
+      "Other non-conflicting edits remain preserved. Inspect the values above.": [
+        "其他沒有衝突的變更將予以保留。請檢查上方各項值。"
       ],
       "Parent": [
         "上層"
@@ -148,17 +175,47 @@
       "Ready · original identity changed": [
         "可合併 · 原始文章識別已變更"
       ],
+      "Request changes": [
+        "要求修改"
+      ],
+      "Request review": [
+        "提交審核"
+      ],
+      "Resolve each conflicting field": [
+        "逐一解決衝突欄位"
+      ],
+      "Review / schedule": [
+        "審核／排程"
+      ],
       "Review changes": [
         "檢查變更"
       ],
+      "Review note": [
+        "審核備註"
+      ],
+      "Review status:": [
+        "審核狀態："
+      ],
       "Save & merge into original": [
         "儲存並合併到原始文章"
+      ],
+      "Save changes before requesting review or scheduling a merge.": [
+        "提交審核或安排排程合併前，請先儲存變更。"
       ],
       "Save or discard the current edits to the original before creating a branch. This prevents unpublished editor changes from being mistaken for the branch baseline.": [
         "建立分支前，請先儲存或捨棄原始文章目前未儲存的編輯，避免把未發佈的編輯誤認為分支基準。"
       ],
       "Saving and merging…": [
         "正在儲存並合併…"
+      ],
+      "Schedule merge": [
+        "安排排程合併"
+      ],
+      "Scheduled (UTC):": [
+        "排程合併時間（UTC）："
+      ],
+      "Site-local date and time": [
+        "網站本地日期與時間"
       ],
       "Slug": [
         "代稱"
@@ -183,6 +240,12 @@
       ],
       "The review state changed after saving. Review the latest conflicts before merging.": [
         "儲存後檢查狀態發生變更。合併前請檢查最新衝突。"
+      ],
+      "The selected values will replace those conflicts. Other independent edits remain preserved.": [
+        "將使用所選值解決對應衝突，其他獨立變更會保留。"
+      ],
+      "This branch needs approval for its current contents before it can be merged.": [
+        "合併此分支前，必須先核准其目前內容。"
       ],
       "This branch predates three-way snapshots, so detailed change comparison is unavailable. Force merge only after manually reviewing the original.": [
         "此分支建立於三方快照功能之前，因此無法提供詳細變更比較。請手動檢查原始文章後再強制合併。"
