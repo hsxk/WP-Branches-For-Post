@@ -611,3 +611,167 @@ msgstr "強制マージ"
 #: build/index.js:9 src/index.js:775
 msgid "Move to Trash"
 msgstr "ゴミ箱へ移動"
+
+
+# Added 2.3 editorial workflow strings; previously approved entries above are unchanged.
+msgid "%1$d branch changes · %2$d original changes · %3$d conflicts · %4$d auto-mergeable fields"
+msgstr "ブランチの変更 %1$d 件 · 元の投稿の変更 %2$d 件 · 競合 %3$d 件 · 自動マージ可能 %4$d 項目"
+
+msgid "An independent authorized editor must review this branch."
+msgstr "此ブランチは、権限を持つ別の編集者によるレビューが必要です。"
+
+msgid "Approve current changes"
+msgstr "現在の変更を承認"
+
+msgid "Branch Workflow"
+msgstr "ブランチワークフロー"
+
+msgid "Branch creator:"
+msgstr "ブランチ作成者："
+
+msgid "Branch review & schedule"
+msgstr "ブランチのレビューと予約"
+
+msgid "Cancel scheduled merge"
+msgstr "予約済みマージを取り消す"
+
+msgid "Changes to the original or branch after approval or scheduling invalidate the stored review. Scheduled merges use WP-Cron and require a working WordPress cron runner."
+msgstr "承認または予約後に元の投稿やブランチを変更すると、保存済みのレビューは無効になります。予約マージには WP-Cron を使用するため、WordPress の cron が動作している必要があります。"
+
+msgid "Choose"
+msgstr "選択してください"
+
+msgid "Choose a future time within the next year."
+msgstr "今後1年以内の日時を指定してください。"
+
+msgid "Choose an original or branch value for every supported conflict before requesting review."
+msgstr "レビューを依頼する前に、対応するすべての競合について元の投稿かブランチの値を選択してください。"
+
+msgid "Choose the conflict values in the branch editor before requesting review."
+msgstr "レビューを依頼する前に、ブランチエディターで競合する値を選択してください。"
+
+msgid "Confirm selected conflict values"
+msgstr "選択した競合解決内容の確認"
+
+msgid "Enter a valid site-local date and time."
+msgstr "サイトのタイムゾーンに基づく有効な日時を入力してください。"
+
+msgid "Last reviewed by:"
+msgstr "最終レビュアー："
+
+msgid "Make changes to the branch before scheduling a merge."
+msgstr "マージを予約する前に、ブランチを編集してください。"
+
+msgid "Merge selected values"
+msgstr "選択した値でマージ"
+
+msgid "No reviews requiring your approval in the most recent 50 submissions."
+msgstr "直近50件の申請に、あなたの承認が必要なレビューはありません。"
+
+msgid "Open Review changes in the editor and inspect Base, Original and Branch before deciding. Approval applies only to the exact requested snapshot."
+msgstr "エディターで「変更を確認」を開き、承認前に基準・元の投稿・ブランチを比較してください。承認は申請時点の内容にのみ適用されます。"
+
+msgid "Open an editable working branch and follow its Workflow link to request review or schedule a merge."
+msgstr "編集可能な作業ブランチを開き、「ワークフロー」リンクからレビュー依頼またはマージ予約を行ってください。"
+
+msgid "Other non-conflicting edits remain preserved. Inspect the values above."
+msgstr "競合しない他の変更は保持されます。上記の値を確認してください。"
+
+msgid "Pending editorial reviews"
+msgstr "承認待ちの編集レビュー"
+
+msgid "Post Branch Workflow"
+msgstr "投稿ブランチワークフロー"
+
+msgid "Proposed conflict resolutions"
+msgstr "提案された競合解決内容"
+
+msgid "Request changes"
+msgstr "修正を依頼"
+
+msgid "Request review"
+msgstr "レビューを依頼"
+
+msgid "Require independent approval before every branch merge"
+msgstr "すべてのブランチマージに別の編集者の承認を必須にする"
+
+msgid "Resolve conflicting or unknown branch changes before approval."
+msgstr "承認前に競合または不明なブランチ変更を解決してください。"
+
+msgid "Resolve each conflicting field"
+msgstr "競合する各項目を解決"
+
+msgid "Review / schedule"
+msgstr "レビュー／予約"
+
+msgid "Review and resolve conflicts before scheduling a merge."
+msgstr "マージを予約する前に競合を確認し、解決してください。"
+
+msgid "Review changes in branch editor"
+msgstr "ブランチエディターで変更を確認"
+
+msgid "Review note"
+msgstr "レビューコメント"
+
+msgid "Review status:"
+msgstr "レビュー状態："
+
+msgid "Review the currently approved conflict choices before merging."
+msgstr "マージする前に、現在承認されている競合解決内容を確認してください。"
+
+msgid "Save changes before requesting review or scheduling a merge."
+msgstr "レビュー依頼やマージ予約の前に変更を保存してください。"
+
+msgid "Schedule merge"
+msgstr "マージを予約"
+
+msgid "Schedule safe merge"
+msgstr "安全なマージを予約"
+
+msgid "Scheduled (UTC):"
+msgstr "予約日時（UTC）："
+
+msgid "Site-local date and time"
+msgstr "サイトの日時"
+
+msgid "Site-wide approval policy"
+msgstr "サイト全体の承認ポリシー"
+
+msgid "The branch changed after review was requested. Submit it for review again."
+msgstr "レビュー依頼後にブランチが変更されました。改めてレビューを依頼してください。"
+
+msgid "The branch review state could not be verified."
+msgstr "ブランチのレビュー状態を検証できませんでした。"
+
+msgid "The current content state could not be verified."
+msgstr "現在のコンテンツ状態を検証できませんでした。"
+
+msgid "The selected values will replace those conflicts. Other independent edits remain preserved."
+msgstr "選択した値で競合箇所を置き換えます。競合しない他の変更は保持されます。"
+
+msgid "This branch cannot be reviewed until its baseline is valid."
+msgstr "基準となる状態が有効になるまで、このブランチはレビューできません。"
+
+msgid "This branch has not been submitted for review."
+msgstr "このブランチはまだレビューに提出されていません。"
+
+msgid "This branch needs approval for its current contents before it can be merged."
+msgstr "このブランチをマージするには、現在の内容に対する承認が必要です。"
+
+msgid "Unknown workflow operation."
+msgstr "不明なワークフロー操作です。"
+
+msgid "WordPress could not schedule the merge."
+msgstr "WordPress はマージを予約できませんでした。"
+
+msgid "You cannot cancel this scheduled merge."
+msgstr "このマージ予約を取り消す権限がありません。"
+
+msgid "You cannot request review for this branch."
+msgstr "このブランチのレビューを依頼する権限がありません。"
+
+msgid "You cannot schedule a merge for this branch."
+msgstr "このブランチのマージを予約する権限がありません。"
+
+msgid "You cannot view this workflow."
+msgstr "このワークフローを表示する権限がありません。"
