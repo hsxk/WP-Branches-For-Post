@@ -585,3 +585,167 @@ msgstr "强制合并"
 #: build/index.js:9 src/index.js:775
 msgid "Move to Trash"
 msgstr "移到回收站"
+
+
+# Added 2.3 editorial workflow strings; previously approved entries above are unchanged.
+msgid "%1$d branch changes · %2$d original changes · %3$d conflicts · %4$d auto-mergeable fields"
+msgstr "分支更改 %1$d 项 · 原文更改 %2$d 项 · 冲突 %3$d 项 · 可自动合并字段 %4$d 项"
+
+msgid "An independent authorized editor must review this branch."
+msgstr "此分支必须由具有权限的另一位编辑审核。"
+
+msgid "Approve current changes"
+msgstr "批准当前更改"
+
+msgid "Branch Workflow"
+msgstr "分支工作流"
+
+msgid "Branch creator:"
+msgstr "分支创建者："
+
+msgid "Branch review & schedule"
+msgstr "分支审核与定时合并"
+
+msgid "Cancel scheduled merge"
+msgstr "取消定时合并"
+
+msgid "Changes to the original or branch after approval or scheduling invalidate the stored review. Scheduled merges use WP-Cron and require a working WordPress cron runner."
+msgstr "审批或定时安排后，如果原文或分支发生更改，已有审核将失效。定时合并使用 WP-Cron，需要确保 WordPress 定时任务正常运行。"
+
+msgid "Choose"
+msgstr "请选择"
+
+msgid "Choose a future time within the next year."
+msgstr "请选择未来一年内的时间。"
+
+msgid "Choose an original or branch value for every supported conflict before requesting review."
+msgstr "提交审核前，请为每个受支持的冲突选择保留原文或分支的值。"
+
+msgid "Choose the conflict values in the branch editor before requesting review."
+msgstr "请先在分支编辑器中选择冲突字段的值，再提交审核。"
+
+msgid "Confirm selected conflict values"
+msgstr "确认所选冲突字段值"
+
+msgid "Enter a valid site-local date and time."
+msgstr "请输入网站时区下有效的日期和时间。"
+
+msgid "Last reviewed by:"
+msgstr "最近审核人："
+
+msgid "Make changes to the branch before scheduling a merge."
+msgstr "请先修改分支，再安排定时合并。"
+
+msgid "Merge selected values"
+msgstr "按所选值合并"
+
+msgid "No reviews requiring your approval in the most recent 50 submissions."
+msgstr "最近 50 条审核申请中，没有需要您批准的项目。"
+
+msgid "Open Review changes in the editor and inspect Base, Original and Branch before deciding. Approval applies only to the exact requested snapshot."
+msgstr "请在编辑器中打开“检查更改”，对比基准、原文和分支后再决定。批准只对提交审核时的确切内容有效。"
+
+msgid "Open an editable working branch and follow its Workflow link to request review or schedule a merge."
+msgstr "打开可编辑的工作分支，通过其中的工作流链接提交审核或安排定时合并。"
+
+msgid "Other non-conflicting edits remain preserved. Inspect the values above."
+msgstr "其他没有冲突的更改将予以保留。请检查上方各项值。"
+
+msgid "Pending editorial reviews"
+msgstr "待审核的编辑申请"
+
+msgid "Post Branch Workflow"
+msgstr "文章分支工作流"
+
+msgid "Proposed conflict resolutions"
+msgstr "提交的冲突解决方案"
+
+msgid "Request changes"
+msgstr "要求修改"
+
+msgid "Request review"
+msgstr "提交审核"
+
+msgid "Require independent approval before every branch merge"
+msgstr "每次合并分支前都必须经过独立审批"
+
+msgid "Resolve conflicting or unknown branch changes before approval."
+msgstr "批准前请解决冲突或无法识别的分支更改。"
+
+msgid "Resolve each conflicting field"
+msgstr "逐个解决冲突字段"
+
+msgid "Review / schedule"
+msgstr "审核／定时"
+
+msgid "Review and resolve conflicts before scheduling a merge."
+msgstr "安排定时合并前，请先检查并解决冲突。"
+
+msgid "Review changes in branch editor"
+msgstr "在分支编辑器中检查更改"
+
+msgid "Review note"
+msgstr "审核备注"
+
+msgid "Review status:"
+msgstr "审核状态："
+
+msgid "Review the currently approved conflict choices before merging."
+msgstr "合并前请检查当前获批的冲突字段选择。"
+
+msgid "Save changes before requesting review or scheduling a merge."
+msgstr "提交审核或安排定时合并前，请先保存更改。"
+
+msgid "Schedule merge"
+msgstr "安排定时合并"
+
+msgid "Schedule safe merge"
+msgstr "安排安全合并"
+
+msgid "Scheduled (UTC):"
+msgstr "计划合并时间（UTC）："
+
+msgid "Site-local date and time"
+msgstr "网站本地日期和时间"
+
+msgid "Site-wide approval policy"
+msgstr "全站审批策略"
+
+msgid "The branch changed after review was requested. Submit it for review again."
+msgstr "提交审核后分支已发生更改，请重新提交审核。"
+
+msgid "The branch review state could not be verified."
+msgstr "无法验证分支的审核状态。"
+
+msgid "The current content state could not be verified."
+msgstr "无法验证当前内容状态。"
+
+msgid "The selected values will replace those conflicts. Other independent edits remain preserved."
+msgstr "将使用所选值解决对应冲突，其他独立更改会保留。"
+
+msgid "This branch cannot be reviewed until its baseline is valid."
+msgstr "此分支的基准版本无效，暂时无法审核。"
+
+msgid "This branch has not been submitted for review."
+msgstr "此分支尚未提交审核。"
+
+msgid "This branch needs approval for its current contents before it can be merged."
+msgstr "合并此分支前，必须先批准其当前内容。"
+
+msgid "Unknown workflow operation."
+msgstr "未知的工作流操作。"
+
+msgid "WordPress could not schedule the merge."
+msgstr "WordPress 无法安排定时合并。"
+
+msgid "You cannot cancel this scheduled merge."
+msgstr "您无权取消此定时合并。"
+
+msgid "You cannot request review for this branch."
+msgstr "您无权提交此分支的审核申请。"
+
+msgid "You cannot schedule a merge for this branch."
+msgstr "您无权为此分支安排定时合并。"
+
+msgid "You cannot view this workflow."
+msgstr "您无权查看此工作流。"
