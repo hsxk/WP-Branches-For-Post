@@ -192,6 +192,21 @@ final class Sync_Service {
 	}
 
 	/**
+	 * List taxonomies that represent editable post state.
+	 *
+	 * Polylang's post_translations taxonomy groups different posts as
+	 * translations of one another. It is a relationship, not a post category:
+	 * copying its term to a branch can disturb the translation group and fail
+	 * synchronization. Keep the language taxonomy itself syncable.
+	 *
+	 * @param string $post_type Post type.
+	 * @return string[]
+	 */
+	private static function syncable_taxonomies( string $post_type ): array {
+		return array_values( array_diff( get_object_taxonomies( $post_type ), array( 'post_translations' ) ) );
+	}
+
+	/**
 	 * Read all taxonomy assignments for a post.
 	 *
 	 * @param int    $post_id   Post ID.
@@ -200,7 +215,7 @@ final class Sync_Service {
 	 */
 	public static function get_taxonomy_state( int $post_id, string $post_type ) {
 		$result = array();
-		foreach ( get_object_taxonomies( $post_type ) as $taxonomy ) {
+		foreach ( self::syncable_taxonomies( $post_type ) as $taxonomy ) {
 			$term_ids = wp_get_object_terms( $post_id, $taxonomy, array( 'fields' => 'ids' ) );
 			if ( is_wp_error( $term_ids ) ) {
 				return $term_ids;
@@ -253,7 +268,7 @@ final class Sync_Service {
 	 * @return \WP_Error|null
 	 */
 	public static function set_taxonomy_state( int $target_id, string $post_type, array $desired ): ?\WP_Error {
-		foreach ( get_object_taxonomies( $post_type ) as $taxonomy ) {
+		foreach ( self::syncable_taxonomies( $post_type ) as $taxonomy ) {
 			$term_ids = isset( $desired[ $taxonomy ] ) && is_array( $desired[ $taxonomy ] )
 				? array_map( 'intval', $desired[ $taxonomy ] )
 				: array();
