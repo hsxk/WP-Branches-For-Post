@@ -55,7 +55,7 @@ final class Merge_Service {
 	 * unless the user explicitly force-merges. Any write failure attempts to
 	 * restore the complete pre-merge original state.
 	 *
-	 * @param int  $branch_id Branch post ID.
+	 * @param int                  $branch_id Branch post ID.
 	 * @param bool                 $force Whether to prefer branch values on conflicts.
 	 * @param array<string,string> $resolutions Explicit choices for every supported conflict.
 	 *
@@ -91,11 +91,13 @@ final class Merge_Service {
 		if ( ! empty( $resolutions ) && Branch_Service::CONFLICT_CONFLICT !== ( $analysis['state'] ?? '' ) ) {
 			return new \WP_Error( 'wbfp_invalid_resolutions', 'No resolvable conflict state is available.', array( 'status' => 409 ) );
 		}
-		$initial_resolution_state = ! empty( $resolutions ) ? wp_json_encode( array(
-			Sync_Service::state_hash_from_payload( $analysis['base'] ?? array() ),
-			Sync_Service::state_hash_from_payload( $analysis['original'] ?? array() ),
-			Sync_Service::state_hash_from_payload( $analysis['branch'] ?? array() ),
-		) ) : '';
+		$initial_resolution_state = ! empty( $resolutions ) ? wp_json_encode(
+			array(
+				Sync_Service::state_hash_from_payload( $analysis['base'] ?? array() ),
+				Sync_Service::state_hash_from_payload( $analysis['original'] ?? array() ),
+				Sync_Service::state_hash_from_payload( $analysis['branch'] ?? array() ),
+			)
+		) : '';
 		if ( ! $force && empty( $resolutions ) && in_array( $analysis['state'] ?? '', array( Branch_Service::CONFLICT_CONFLICT, Branch_Service::CONFLICT_CHANGED, Branch_Service::CONFLICT_UNKNOWN, Branch_Service::CONFLICT_MISSING ), true ) ) {
 			return $this->conflict_error( $analysis );
 		}
@@ -123,11 +125,13 @@ final class Merge_Service {
 
 		$analysis = $this->branches->analyze_branch( $branch_id );
 		if ( ! empty( $resolutions ) ) {
-			$current_resolution_state = wp_json_encode( array(
-				Sync_Service::state_hash_from_payload( $analysis['base'] ?? array() ),
-				Sync_Service::state_hash_from_payload( $analysis['original'] ?? array() ),
-				Sync_Service::state_hash_from_payload( $analysis['branch'] ?? array() ),
-			) );
+			$current_resolution_state = wp_json_encode(
+				array(
+					Sync_Service::state_hash_from_payload( $analysis['base'] ?? array() ),
+					Sync_Service::state_hash_from_payload( $analysis['original'] ?? array() ),
+					Sync_Service::state_hash_from_payload( $analysis['branch'] ?? array() ),
+				)
+			);
 			if ( false === $initial_resolution_state || false === $current_resolution_state || ! hash_equals( $initial_resolution_state, $current_resolution_state ) ) {
 				return new \WP_Error( 'wbfp_review_state_changed', 'The selected conflict values changed during review.', array( 'status' => 409 ) );
 			}

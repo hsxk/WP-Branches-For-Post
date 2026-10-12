@@ -514,15 +514,15 @@ final class Sync_Service {
 	/**
 	 * Build the post-merge state while preserving non-overlapping original work.
 	 *
-	 * @param array<string,mixed> $base     Base snapshot.
-	 * @param array<string,mixed> $original Current original snapshot.
-	 * @param array<string,mixed> $branch   Current branch snapshot.
-	 * @param bool                $force       Whether conflicts should prefer branch values.
+	 * @param array<string,mixed>  $base     Base snapshot.
+	 * @param array<string,mixed>  $original Current original snapshot.
+	 * @param array<string,mixed>  $branch   Current branch snapshot.
+	 * @param bool                 $force       Whether conflicts should prefer branch values.
 	 * @param array<string,string> $resolutions Exact conflict paths mapped to original or branch.
 	 * @return array<string,mixed>|\WP_Error
 	 */
 	public static function merged_snapshot( array $base, array $original, array $branch, bool $force = false, array $resolutions = array() ) {
-		$analysis = self::three_way_analysis( $base, $original, $branch );
+		$analysis  = self::three_way_analysis( $base, $original, $branch );
 		$conflicts = $analysis['conflicts'];
 		if ( ! empty( $resolutions ) ) {
 			// Fail closed: the client must resolve every current conflict, and no other path.
