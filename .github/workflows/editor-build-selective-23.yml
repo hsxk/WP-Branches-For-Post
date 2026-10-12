@@ -34,11 +34,21 @@ jobs:
           npm run lint:js
           npm run lint:css
           npm run build
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+      - name: Fix safe WordPress coding-standard formatting
+        shell: bash
+        run: |
+          composer install --no-interaction --no-progress
+          vendor/bin/phpcbf includes/class-sync-service.php includes/class-merge-service.php includes/class-rest-controller.php tests/wp-real-2.1.php || test "$?" = 1
+          composer run lint
       - name: Commit verified build assets on feature branch
         shell: bash
         run: |
           set -euo pipefail
-          git add src/index.js assets/css/editor.css build/
+          git add src/index.js assets/css/editor.css build/ includes/class-sync-service.php includes/class-merge-service.php includes/class-rest-controller.php tests/wp-real-2.1.php
           if git diff --cached --quiet; then
             echo "Compiled editor matches the source."
             exit 0
