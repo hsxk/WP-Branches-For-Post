@@ -78,6 +78,7 @@ final class Workflow_Service {
 	 *
 	 * @param int $branch_id branch id.
 	 * @param int $original_id original id.
+	 * @param array<string,string> $resolutions Selected conflict values.
 	 */
 	public static function requires_approval( int $branch_id, int $original_id ): bool {
 		return (bool) apply_filters( 'wbfp_require_approval', (bool) get_option( 'wbfp_require_approval', false ), $branch_id, $original_id );
@@ -184,6 +185,7 @@ final class Workflow_Service {
 	 * Any branch editor can ask an independent reviewer to inspect changes.
 	 *
 	 * @param int $branch_id branch id.
+	 * @param array<string,string> $resolutions Proposed conflict selections.
 	 */
 	public function request_review( int $branch_id, array $resolutions = array() ) {
 		if ( ! $this->can_edit( $branch_id ) ) {
@@ -693,6 +695,7 @@ final class Workflow_Service {
 	 * @param string $action action.
 	 * @param string $note note.
 	 * @param string $when when.
+	 * @param array<string,string> $resolutions Review proposal choices.
 	 */
 	private function operate( int $branch_id, string $action, string $note = '', string $when = '', array $resolutions = array() ) {
 		switch ( $action ) {
