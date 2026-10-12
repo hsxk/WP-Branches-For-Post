@@ -664,6 +664,22 @@ async function openOriginal( page ) {
 		check( await selectedFields.count() === 2, 'Each conflicting field receives a separate choice' );
 		await selectedFields.filter( { hasText: 'Title' } ).locator( 'select' ).selectOption( 'branch' );
 		await selectedFields.filter( { hasText: 'Excerpt' } ).locator( 'select' ).selectOption( 'original' );
+		const conflictWorkflow = page.locator( '.wbfp-workflow' );
+		await conflictWorkflow.getByRole( 'button', { name: 'Review / schedule', exact: true } ).click();
+		await conflictWorkflow.getByRole( 'button', { name: 'Request review', exact: true } ).click();
+		const proposed = await apiFetch( page, {
+			path: `/wbfp/v1/branches/${ selectedBranchId }/workflow`,
+		} );
+		check(
+			proposed.state === 'pending' &&
+			proposed.proposed_resolutions[ 'post.post_title' ] === 'branch' &&
+			proposed.proposed_resolutions[ 'post.post_excerpt' ] === 'original',
+			'Inline Gutenberg review request persists the exact conflict choices'
+		);
+		check(
+			await selectedFields.locator( 'select' ).first().isDisabled(),
+			'Pending review locks the submitted conflict choices against later edits'
+		);
 		await selective.getByRole( 'button', { name: 'Merge selected values' } ).click();
 		await page.getByText( 'Confirm selected conflict values', { exact: true } )
 			.waitFor( { state: 'visible', timeout: 10000 } );
@@ -746,6 +762,28 @@ async function openOriginal( page ) {
 
 		await page.getByRole( 'link', { name: 'Review changes in branch editor' } ).click();
 		await waitForEditor( page, workflowBranchId );
+		await page.setViewportSize( { width: 390, height: 844 } );
+		await ensureBranchPanel( page );
+		const mobileWorkflow = page.locator( '.wbfp-workflow' );
+		await mobileWorkflow.waitFor( { state: 'visible', timeout: 12000 } );
+		const mobileBounds = await mobileWorkflow.boundingBox();
+		check(
+			Boolean( mobileBounds ) && mobileBounds.width <= 390 && mobileBounds.x >= -1,
+			'Post Branch workflow fits inside the 390px mobile viewport'
+		);
+		const mobileToggle = mobileWorkflow.getByRole( 'button', { name: 'Review / schedule', exact: true } );
+		await mobileToggle.focus();
+		check(
+			await mobileToggle.evaluate( ( element ) => element === document.activeElement ),
+			'Mobile review controls are keyboard focusable'
+		);
+		await mobileToggle.press( 'Enter' );
+		check(
+			( await mobileWorkflow.locator( 'button[aria-controls="wbfp-workflow-details"]' ).getAttribute( 'aria-expanded' ) ) === 'true',
+			'Mobile review section expands using keyboard and reports aria-expanded'
+		);
+		await page.setViewportSize( { width: 1280, height: 900 } );
+		await ensureBranchPanel( page );
 		await page.getByRole( 'button', { name: 'Discard branch', exact: true } ).click();
 		await page.getByRole( 'button', { name: 'Move to Trash', exact: true } ).click();
 		await page.waitForURL(

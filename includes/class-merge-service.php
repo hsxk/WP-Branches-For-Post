@@ -71,7 +71,7 @@ final class Merge_Service {
 		$original    = $validated['original'];
 		$original_id = $validated['original_id'];
 
-		$gate = $this->workflow ? $this->workflow->merge_gate( $branch_id, $original_id ) : null;
+		$gate = $this->workflow ? $this->workflow->merge_gate( $branch_id, $original_id, $resolutions ) : null;
 		if ( $gate ) {
 			return $gate;
 		}
@@ -118,7 +118,7 @@ final class Merge_Service {
 		$branch   = $validated['branch'];
 		$original = $validated['original'];
 
-		$gate = $this->workflow ? $this->workflow->merge_gate( $branch_id, $original_id ) : null;
+		$gate = $this->workflow ? $this->workflow->merge_gate( $branch_id, $original_id, $resolutions ) : null;
 		if ( $gate ) {
 			return $gate;
 		}

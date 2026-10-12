@@ -11,7 +11,7 @@
 
 WP Branches For Post lets editors create an isolated working branch from an existing WordPress post, page, or supported custom post type, edit without changing the public original, review the difference against a saved baseline, and merge safely when the work is ready.
 
-Version **2.2.0** adds conservative Gutenberg block-aware merging, independent editorial approval, scheduled safe merges, and team review workflows on top of the 2.1 three-way merge foundation.
+Version **2.3.0** adds explicit per-field Gutenberg conflict resolution and independently approved choice proposals, retaining 2.2's block-aware merges, scheduling and editorial review. Its compatibility matrix includes real WordPress **7.1.3** installations with PHP 8.2–8.4.
 
 <p align="center">
   <img src=".wordpress-org/screenshot-3.png" alt="WP Branches For Post three-way merge review" width="920">
@@ -46,9 +46,9 @@ The result is an editorial workflow closer to source control, while still using 
 - Warn when synchronized patterns can affect content outside the branch.
 - Fail conservatively for legacy, unknown, or missing-original states.
 
-## Editorial workflows in 2.2.0
+## Editorial workflows in 2.3.0
 
-Version 2.2.0 extends the existing branching model without changing the public original:
+Version 2.3.0 extends the existing branching model without changing the public original:
 
 - **Safer concurrent Gutenberg editing:** independent top-level block changes can
   auto-merge if the saved markup is lossless and the edit ranges are unambiguous.
@@ -71,7 +71,7 @@ Version 2.2.0 extends the existing branching model without changing the public o
 
 The source and release validation history are tracked in
 [PR #25](https://github.com/hsxk/WP-Branches-For-Post/pull/25).
-The 2.2.0 release does **not** modify or regenerate existing approved translation
+The 2.3.0 release does **not** modify or regenerate existing approved translation
 catalogs. New workflow messages fall back to English until separately approved.
 
 ## Merge model
@@ -119,7 +119,7 @@ The 2.1.1 release extends the 2.1.0 validation baseline and has passed the follo
 | Real WordPress service/integration suite | **130 / 130 checks** |
 | Real Chromium + Gutenberg E2E | **42 / 42 checks** |
 | Semantic UI/tutorial coverage | **35 / 35 cases** |
-| WordPress compatibility | **6.6 + 7.1.1** |
+| WordPress compatibility | **6.6 + 7.1.3 (PHP 8.2/8.3/8.4)** |
 | PHP compatibility | **8.2 / 8.3 / 8.4** |
 | Static quality | PHP syntax, WordPress Coding Standards, JS lint, CSS lint |
 | Build integrity | deterministic editor build + committed-build verification |
@@ -215,10 +215,10 @@ The repository also contains real-WordPress and browser suites used by GitHub Ac
 ## Release engineering
 
 A version tag is not enough to publish this plugin. After a reviewed release
-PR is squash-merged to `master`, create `release/v2.2.0` from the exact
+PR is squash-merged to `master`, create `release/v2.3.0` from the exact
 merged master commit. The release-branch workflow reruns all release gates and,
 if green, publishes the WordPress.org SVN tag and creates the GitHub release
-`v2.2.0` pointing to that exact commit. This avoids unvalidated deployment
+`v2.3.0` pointing to that exact commit. This avoids unvalidated deployment
 from a direct `master` commit and does not require manually editing a tag.
 
 The release workflow calls the same quality, compatibility, and browser/visual workflows used on pull requests, verifies that the tag matches the plugin header, constant, `README.txt` stable tag, and package version, audits the generated ZIP, runs Plugin Check, and only then permits the WordPress.org deployment job.

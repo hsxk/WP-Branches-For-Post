@@ -1294,6 +1294,100 @@ try {
 	wbfp_check( ! metadata_exists( 'post', $approval_original, \WP_Branches_For_Post\Workflow_Service::META_REVIEW_TOKEN ), 'Approval bookkeeping never leaks onto the original' );
 	wbfp_check( ! metadata_exists( 'post', $approval_original, \WP_Branches_For_Post\Workflow_Service::META_REQUEST_TOKEN ), 'Review request fingerprints are also excluded from the public post' );
 
+	// 2.3: reviewers approve an exact conflict-resolution proposal, not just
+	// the underlying document. No actor may substitute unreviewed choices.
+	$reviewed_original = wbfp_make_post();
+	$reviewed_branch   = $branches->create( $reviewed_original );
+	wbfp_check( ! is_wp_error( $reviewed_branch ), 'Create protected selective-review candidate' );
+	$reviewed_branch = (int) $reviewed_branch;
+	$created_posts[] = $reviewed_branch;
+	wp_update_post(
+		array(
+			'ID'           => $reviewed_original,
+			'post_title'   => 'Reviewed original title',
+			'post_excerpt' => 'Reviewed original excerpt',
+		)
+	);
+	wp_update_post(
+		array(
+			'ID'           => $reviewed_branch,
+			'post_title'   => 'Reviewed branch title',
+			'post_excerpt' => 'Reviewed branch excerpt',
+		)
+	);
+	$reviewed_choices  = array(
+		'post.post_title'   => 'branch',
+		'post.post_excerpt' => 'original',
+	);
+	$incomplete_review = $workflow->request_review( $reviewed_branch );
+	wbfp_check( is_wp_error( $incomplete_review ) && 'wbfp_review_resolution_invalid' === $incomplete_review->get_error_code(), 'Mandatory review rejects unresolved conflicting paths' );
+	wbfp_check( true === $workflow->request_review( $reviewed_branch, $reviewed_choices ), 'Author requests an exact reviewed resolution proposal' );
+	$proposal_status = new WP_REST_Request( 'GET', '/wbfp/v1/branches/' . $reviewed_branch . '/workflow' );
+	$proposal_status->set_param( 'id', $reviewed_branch );
+	$public_proposal = $workflow->rest_status( $proposal_status )->get_data();
+	wbfp_check( $reviewed_choices === $public_proposal['proposed_resolutions'], 'Reviewer can inspect the selected conflict choices in REST status' );
+	$editor_review = $workflow->decide( $reviewed_branch, true );
+	wbfp_check( is_wp_error( $editor_review ) && 'wbfp_review_denied' === $editor_review->get_error_code(), 'Branch author cannot self-approve selected conflicts' );
+	wp_set_current_user( (int) $reviewer_id );
+	wbfp_check( true === $workflow->decide( $reviewed_branch, true, 'The selected fields are approved.' ), 'Separate editor explicitly approves conflict choices' );
+	wp_set_current_user( $admin_id );
+	wbfp_check( $workflow->is_approved( $reviewed_branch ), 'Resolution approval remains tied to content and choices' );
+	$missing_choice_merge = $merges->merge( $reviewed_branch, false );
+	wbfp_check( is_wp_error( $missing_choice_merge ) && 'wbfp_approved_resolutions_mismatch' === $missing_choice_merge->get_error_code(), 'Approved conflict cannot merge without approved selections' );
+	$wrong_choice_merge = $merges->merge(
+		$reviewed_branch,
+		false,
+		array(
+			'post.post_title'   => 'original',
+			'post.post_excerpt' => 'branch',
+		)
+	);
+	wbfp_check( is_wp_error( $wrong_choice_merge ) && 'wbfp_approved_resolutions_mismatch' === $wrong_choice_merge->get_error_code(), 'Approved conflict rejects alternate selections' );
+	update_post_meta(
+		$reviewed_branch,
+		\WP_Branches_For_Post\Workflow_Service::META_RESOLUTION_PROPOSAL,
+		array(
+			'post.post_title'   => 'original',
+			'post.post_excerpt' => 'branch',
+		)
+	);
+	wbfp_check( ! $workflow->is_approved( $reviewed_branch ), 'Modifying the stored proposal invalidates its approved hash' );
+	update_post_meta( $reviewed_branch, \WP_Branches_For_Post\Workflow_Service::META_RESOLUTION_PROPOSAL, $reviewed_choices );
+	wbfp_check( $workflow->is_approved( $reviewed_branch ), 'Restoring identical approved choices preserves exact approval' );
+	$selective_approved_merge = $merges->merge( $reviewed_branch, false, $reviewed_choices );
+	wbfp_check( $reviewed_original === $selective_approved_merge, 'Approved selective conflict merge succeeds with unchanged choices' );
+	wbfp_check( 'Reviewed branch title' === get_post( $reviewed_original )->post_title && 'Reviewed original excerpt' === get_post( $reviewed_original )->post_excerpt, 'Reviewed conflict choices select correct sides' );
+	wbfp_check( ! metadata_exists( 'post', $reviewed_original, \WP_Branches_For_Post\Workflow_Service::META_RESOLUTION_PROPOSAL ), 'Resolution proposals never leak into the published original' );
+
+	$stale_review_original = wbfp_make_post();
+	$stale_review_branch   = $branches->create( $stale_review_original );
+	wbfp_check( ! is_wp_error( $stale_review_branch ), 'Create stale-proposal candidate' );
+	$stale_review_branch = (int) $stale_review_branch;
+	$created_posts[]     = $stale_review_branch;
+	wp_update_post(
+		array(
+			'ID'         => $stale_review_original,
+			'post_title' => 'Original conflict value',
+		)
+	);
+	wp_update_post(
+		array(
+			'ID'         => $stale_review_branch,
+			'post_title' => 'Branch conflict value',
+		)
+	);
+	wbfp_check( true === $workflow->request_review( $stale_review_branch, array( 'post.post_title' => 'branch' ) ), 'Propose current conflict choice for independent review' );
+	wp_update_post(
+		array(
+			'ID'         => $stale_review_original,
+			'post_title' => 'Original changed after proposal',
+		)
+	);
+	wp_set_current_user( (int) $reviewer_id );
+	$stale_choice_review = $workflow->decide( $stale_review_branch, true );
+	wbfp_check( is_wp_error( $stale_choice_review ) && 'wbfp_review_state_changed' === $stale_choice_review->get_error_code(), 'Reviewer rejects stale proposals after concurrent original edits' );
+	wp_set_current_user( $admin_id );
+
 	// Scheduled merge: expire safely on competing edits, and execute a fresh approved job.
 	$scheduled_original = wbfp_make_post();
 	$scheduled_branch   = $branches->create( $scheduled_original );

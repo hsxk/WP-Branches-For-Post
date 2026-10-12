@@ -78,10 +78,47 @@ and the WordPress integration suite covers missing/extra selections,
 unknown values and stale tokens. This remains unreleased 2.3 development
 until its PR checks pass and a later full release is prepared.
 
+## Independently reviewed conflict resolutions
+
+When independent approval is mandatory, a branch author chooses an explicit
+Original/Branch winner for every currently conflicting supported field.
+**Request review** stores the proposal on the private branch, never the public
+original. The proposal is immutable from the Gutenberg review panel while
+pending or approved. A separate authorized reviewer sees the chosen values
+alongside the three-way comparison and approves or rejects them.
+
+Approval is pinned to **both** the current snapshot hash and the SHA-256 hash
+of the proposed choices. Altering either invalidates approval. At merge time
+the service checks that the exact approved map is supplied both before and
+after the merge hooks. An omitted, expanded or modified resolution map fails
+closed, even for users with force-merge permission. Independently edited
+original fields remain preserved.
+
+Older approved conflict-free branches still merge without any proposal.
+Sites with approval disabled retain the original selective-merge workflow.
+Arbitrary metadata and unsupported conflicts cannot be submitted as reviewable
+selection maps and require manual resolution.
+
+## WordPress 7.1.3 compatibility
+
+WordPress 7.1.3 was released October 6, 2026. The project runs a real
+WordPress installation matrix on 6.6/PHP 8.2 and 7.1.3/PHP 8.2, 8.3, 8.4;
+third-party plugin coexistence is exercised on 7.1.3/PHP 8.2. The real
+Chromium Gutenberg E2E and tutorial screenshot workflow also install 7.1.3.
+Version coverage must be assessed from successful tests at the exact PR head;
+a YAML version bump alone is not evidence.
+
+## Accessible/mobile verification
+
+The browser contract additionally checks responsive workflow sizing in a
+390px editor viewport, keyboard focus and Enter activation of the disclosure
+button, and its updated `aria-expanded` state. The reviewed conflict choices
+remain usable through labeled native select controls without drag-only UI.
+Screen reader conformance beyond these behavior checks still requires
+independent manual testing.
+
 ## Still open for a later 2.3 pass
 
-- Independent-review-compatible conflict resolution proposals, so sites
-  requiring approval can review and approve previously conflicting changes.
 - Full keyboard/screen-reader and mobile responsive E2E coverage.
 - Multilingual review of the new workflow labels without altering the
   currently approved catalogs.

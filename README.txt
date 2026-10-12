@@ -4,7 +4,7 @@ Tags: post branch, editorial workflow, staging, revision, gutenberg
 Requires at least: 6.6
 Tested up to: 7.1
 Requires PHP: 8.2
-Stable tag: 2.2.0
+Stable tag: 2.3.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -16,7 +16,19 @@ WP Branches For Post adds a Git-like editorial workflow to WordPress.
 
 When a published page or post needs a larger edit, you do not have to change the live content directly. Create a private working branch, edit it in the normal WordPress editor, review the differences, and merge only when you are ready. The public original keeps its post ID, URL and publication identity throughout the workflow.
 
-Version 2.2 adds independent editorial approvals, scheduled merges, and conservative Gutenberg top-level block merge on top of the safe three-way merge model from 2.1.
+Version 2.3 adds selective, per-field conflict resolution inside Gutenberg; independent reviewers can approve the exact proposed Original/Branch decisions before a guarded merge. Version 2.2 introduced editorial approvals, scheduling and conservative block-aware merging.
+
+== What's new in 2.3.0 ==
+
+* Resolve eligible conflicting post fields individually in Gutenberg; choose current Original or Branch, review the three-way comparison and confirm before merging.
+* For sites requiring independent approval, submit exactly which conflicting values you want kept; a separate authorized reviewer approves those specific choices and the current content snapshot.
+* Refuse incomplete or modified choices, stale reviews, unsafe or unsupported fields, and attempts to substitute different choices after approval.
+* Keep original-only updates, original post ID, URL and history intact; never copy internal review proposals to published content.
+* Review, approve and schedule from the existing Post Branch editor sidebar; inspect proposed choices in Tools > Branch Workflow.
+* Improve responsive and keyboard-operated workflow controls.
+* Tested with real WordPress 7.1.3 / PHP 8.2, 8.3 and 8.4 installations, WordPress 6.6 baseline, Gutenberg browser automation, and popular editor/SEO plugin coexistence.
+
+Some newly introduced workflow interface messages fall back to English pending separately approved Japanese and Chinese translations; existing approved translation catalogs are preserved.
 
 == What's new in 2.2.0 ==
 
@@ -294,6 +306,13 @@ The Block Editor source is in `src/index.js` and is built with `@wordpress/scrip
 Human-readable source code and build tooling are maintained at https://github.com/hsxk/WP-Branches-For-Post/.
 
 == Changelog ==
+
+= 2.3.0 =
+* Added safe, explicit, per-field Gutenberg conflict choices with current review-token enforcement and preservation of independent original edits.
+* Added independently reviewed conflict-choice proposals, approval bound to both content and choice hashes, and exact-choice checks at two merge gates.
+* Improved workflow visibility in the WordPress Tools screen, mobile layout and keyboard/accessibility browser coverage.
+* Expanded real integration and visual testing to WordPress 7.1.3 with PHP 8.2–8.4, retaining WordPress 6.6 regression coverage.
+* Preserved all previously approved translation files unchanged.
 
 = 2.2.0 =
 * Added conservative, lossless Gutenberg top-level block-aware three-way merge and rebase for independent edits.
