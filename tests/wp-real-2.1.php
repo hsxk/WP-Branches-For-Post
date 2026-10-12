@@ -883,6 +883,57 @@ try {
 	$original_groups = wp_get_object_terms( $multilingual_original, 'post_translations', array( 'fields' => 'ids' ) );
 	wbfp_check( array( (int) $translation_term['term_id'] ) === array_map( 'intval', $original_groups ), 'Original translation group survives the merge' );
 
+	// Polylang can assign the default language to a new draft before branch
+	// taxonomies are synchronized. It also translates category terms on write.
+	// The branch language must be set before its category for exact verification.
+	$default_language = wp_insert_term( 'WBFP default language', 'language', array( 'slug' => 'wbfp-default-language' ) );
+	$local_category   = wp_insert_term( 'WBFP category for local language', 'category', array( 'slug' => 'wbfp-local-category' ) );
+	$default_category = wp_insert_term( 'WBFP category for default language', 'category', array( 'slug' => 'wbfp-default-category' ) );
+	if ( is_wp_error( $default_language ) || is_wp_error( $local_category ) || is_wp_error( $default_category ) ) {
+		throw new RuntimeException( 'Could not create translated-category test fixtures.' );
+	}
+	$created_terms[] = array( 'taxonomy' => 'language', 'term_id' => (int) $default_language['term_id'] );
+	$created_terms[] = array( 'taxonomy' => 'category', 'term_id' => (int) $local_category['term_id'] );
+	$created_terms[] = array( 'taxonomy' => 'category', 'term_id' => (int) $default_category['term_id'] );
+	$localized_source = wbfp_make_post( array( 'post_title' => 'Translated category original' ) );
+	wp_set_object_terms( $localized_source, array( (int) $language_term['term_id'] ), 'language' );
+	wp_set_object_terms( $localized_source, array( (int) $local_category['term_id'] ), 'category' );
+
+	$default_language_on_draft = static function ( $post_id, $post ) use ( $default_language ) {
+		if ( 'post' !== $post->post_type || 'draft' !== $post->post_status ) {
+			return;
+		}
+		$languages = wp_get_object_terms( $post_id, 'language', array( 'fields' => 'ids' ) );
+		if ( ! is_wp_error( $languages ) && empty( $languages ) ) {
+			wp_set_object_terms( $post_id, array( (int) $default_language['term_id'] ), 'language' );
+		}
+	};
+	$translating_category = false;
+	$translate_category_to_post_language = static function ( $post_id, $terms, $tt_ids, $taxonomy ) use ( $language_term, $default_language, $local_category, $default_category, &$translating_category ) {
+		if ( $translating_category || 'category' !== $taxonomy || ! in_array( (int) $local_category['term_id'], array_map( 'intval', (array) $terms ), true ) ) {
+			return;
+		}
+		$languages = wp_get_object_terms( $post_id, 'language', array( 'fields' => 'ids' ) );
+		if ( ! is_wp_error( $languages ) && in_array( (int) $default_language['term_id'], array_map( 'intval', $languages ), true ) ) {
+			$translating_category = true;
+			wp_set_object_terms( $post_id, array( (int) $default_category['term_id'] ), 'category', false );
+			$translating_category = false;
+		}
+	};
+	add_action( 'save_post', $default_language_on_draft, 10, 2 );
+	add_action( 'set_object_terms', $translate_category_to_post_language, 10, 4 );
+	$localized_branch = $branches->create( $localized_source );
+	remove_action( 'set_object_terms', $translate_category_to_post_language, 10 );
+	remove_action( 'save_post', $default_language_on_draft, 10 );
+	wbfp_check( ! is_wp_error( $localized_branch ), 'Translated category branch creates successfully despite the draft default language' );
+	$localized_branch = (int) $localized_branch;
+	$created_posts[]  = $localized_branch;
+	$localized_languages = wp_get_object_terms( $localized_branch, 'language', array( 'fields' => 'ids' ) );
+	$localized_categories = wp_get_object_terms( $localized_branch, 'category', array( 'fields' => 'ids' ) );
+	wbfp_check( array( (int) $language_term['term_id'] ) === array_map( 'intval', $localized_languages ), 'Language is synchronized before translated category assignments' );
+	wbfp_check( array( (int) $local_category['term_id'] ) === array_map( 'intval', $localized_categories ), 'Polylang-style category translation does not replace the intended term' );
+	wbfp_check( Branch_Service::CONFLICT_CLEAN === $branches->conflict_state( $localized_branch ), 'Localized category branch starts clean and can be reviewed' );
+
 	// Custom post type, custom taxonomy, custom meta and featured-image metadata.
 	register_post_type(
 		'wbfp_story',
