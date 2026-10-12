@@ -203,7 +203,17 @@ final class Sync_Service {
 	 * @return string[]
 	 */
 	private static function syncable_taxonomies( string $post_type ): array {
-		return array_values( array_diff( get_object_taxonomies( $post_type ), array( 'post_translations' ) ) );
+		$taxonomies = array_values( array_diff( get_object_taxonomies( $post_type ), array( 'post_translations' ) ) );
+
+		// Polylang translates category/tag assignments to the post's current
+		// language during set_object_terms. A new branch may start in the site
+		// default language; set its copied language BEFORE other term writes.
+		if ( in_array( 'language', $taxonomies, true ) ) {
+			$taxonomies = array_values( array_diff( $taxonomies, array( 'language' ) ) );
+			array_unshift( $taxonomies, 'language' );
+		}
+
+		return $taxonomies;
 	}
 
 	/**
