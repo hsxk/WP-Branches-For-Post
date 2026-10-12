@@ -4,7 +4,7 @@ Tags: post branch, editorial workflow, staging, revision, gutenberg
 Requires at least: 6.6
 Tested up to: 7.1
 Requires PHP: 8.2
-Stable tag: 2.3.1
+Stable tag: 2.3.2
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -16,7 +16,7 @@ WP Branches For Post adds a Git-like editorial workflow to WordPress.
 
 When a published page or post needs a larger edit, you do not have to change the live content directly. Create a private working branch, edit it in the normal WordPress editor, review the differences, and merge only when you are ready. The public original keeps its post ID, URL and publication identity throughout the workflow.
 
-Version 2.3 adds selective, per-field conflict resolution inside Gutenberg; independent reviewers can approve the exact proposed Original/Branch decisions before a guarded merge. Version 2.2 introduced editorial approvals, scheduling and conservative block-aware merging.
+Version 2.3.2 fixes branch creation on sites using Polylang without copying its internal translation groups. Regular editorial taxonomies, including language and categories, remain supported. Version 2.3 adds selective, per-field conflict resolution inside Gutenberg; independent reviewers can approve the exact proposed Original/Branch decisions before a guarded merge. Version 2.2 introduced editorial approvals, scheduling and conservative block-aware merging.
 
 == What's new in 2.3.0 ==
 
@@ -306,6 +306,13 @@ The Block Editor source is in `src/index.js` and is built with `@wordpress/scrip
 Human-readable source code and build tooling are maintained at https://github.com/hsxk/WP-Branches-For-Post/.
 
 == Changelog ==
+
+= 2.3.2 =
+* Fixed branch creation failures on Polylang sites by excluding the internal post_translations relationship from copied and merged taxonomy state.
+* Kept normal post language, categories, tags and editable custom taxonomy assignments synchronized; the original's translation group remains unchanged.
+* Normalized older stored branch baselines in memory so internal translation-group data does not trigger false merge conflicts.
+* Added regression tests for multilingual branch creation, language preservation, legacy snapshots and translation-group safety. No translation catalog updates.
+
 
 = 2.3.1 =
 * Localized the 2.3 editorial review, scheduling, conflict choices and error messages in Japanese, Simplified Chinese and Traditional Chinese (54 new messages per locale).
