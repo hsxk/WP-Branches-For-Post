@@ -4,7 +4,7 @@ Tags: post branch, editorial workflow, staging, revision, gutenberg
 Requires at least: 6.6
 Tested up to: 7.1
 Requires PHP: 8.2
-Stable tag: 2.3.2
+Stable tag: 2.3.3
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -16,7 +16,7 @@ WP Branches For Post adds a Git-like editorial workflow to WordPress.
 
 When a published page or post needs a larger edit, you do not have to change the live content directly. Create a private working branch, edit it in the normal WordPress editor, review the differences, and merge only when you are ready. The public original keeps its post ID, URL and publication identity throughout the workflow.
 
-Version 2.3.2 fixes branch creation on sites using Polylang without copying its internal translation groups. Regular editorial taxonomies, including language and categories, remain supported. Version 2.3 adds selective, per-field conflict resolution inside Gutenberg; independent reviewers can approve the exact proposed Original/Branch decisions before a guarded merge. Version 2.2 introduced editorial approvals, scheduling and conservative block-aware merging.
+Version 2.3.3 also sets the branch language before copying translated categories and tags on Polylang sites. Version 2.3.2 stopped copying internal translation groups. Regular editorial taxonomies, including language and categories, remain supported. Version 2.3 adds selective, per-field conflict resolution inside Gutenberg; independent reviewers can approve the exact proposed Original/Branch decisions before a guarded merge. Version 2.2 introduced editorial approvals, scheduling and conservative block-aware merging.
 
 == What's new in 2.3.0 ==
 
@@ -306,6 +306,12 @@ The Block Editor source is in `src/index.js` and is built with `@wordpress/scrip
 Human-readable source code and build tooling are maintained at https://github.com/hsxk/WP-Branches-For-Post/.
 
 == Changelog ==
+
+= 2.3.3 =
+* Fixed Polylang multilingual branch creation when the new draft initially uses the site default language: synchronize its intended language before category and tag terms.
+* Prevented translated categories from being automatically rewritten to the wrong language during branch creation; kept strict taxonomy verification, original translation relationships and normal editorial taxonomy behavior.
+* Added real WordPress regression coverage for default-language draft creation and language-sensitive category synchronization. No translation catalog updates.
+
 
 = 2.3.2 =
 * Fixed branch creation failures on Polylang sites by excluding the internal post_translations relationship from copied and merged taxonomy state.
