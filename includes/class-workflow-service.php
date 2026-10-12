@@ -78,7 +78,6 @@ final class Workflow_Service {
 	 *
 	 * @param int $branch_id branch id.
 	 * @param int $original_id original id.
-	 * @param array<string,string> $resolutions Selected conflict values.
 	 */
 	public static function requires_approval( int $branch_id, int $original_id ): bool {
 		return (bool) apply_filters( 'wbfp_require_approval', (bool) get_option( 'wbfp_require_approval', false ), $branch_id, $original_id );
@@ -149,6 +148,7 @@ final class Workflow_Service {
 	 *
 	 * @param int $branch_id branch id.
 	 * @param int $original_id original id.
+	 * @param array<string,string> $resolutions Selected conflict values.
 	 */
 	public function merge_gate( int $branch_id, int $original_id, array $resolutions = array() ): ?\WP_Error {
 		if ( ! self::requires_approval( $branch_id, $original_id ) ) {
