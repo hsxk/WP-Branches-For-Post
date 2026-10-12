@@ -1,6 +1,6 @@
 {
   "name": "wp-branches-for-post",
-  "version": "2.3.2",
+  "version": "2.3.3",
   "private": true,
   "description": "Modern block-editor tooling for WP Branches For Post.",
   "scripts": {
