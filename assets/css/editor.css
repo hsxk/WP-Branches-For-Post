@@ -324,3 +324,42 @@
 		border-color: #e65054;
 	}
 }
+
+/* Explicitly resolved fields; no conflict choice is preselected. */
+.wbfp-resolution {
+	display: grid;
+	gap: 12px;
+	margin: 12px 0 0;
+	padding: 12px;
+	min-width: 0;
+	border: 1px solid #c3c4c7;
+	border-radius: 6px;
+}
+
+.wbfp-resolution legend {
+	padding: 0 4px;
+	font-weight: 600;
+}
+
+.wbfp-resolution__field {
+	display: grid;
+	gap: 5px;
+	min-width: 0;
+}
+
+.wbfp-resolution__field select {
+	box-sizing: border-box;
+	width: 100%;
+	min-width: 0;
+	max-width: 100%;
+}
+
+.wbfp-resolution > .components-button {
+	justify-content: center;
+}
+
+@media (max-width: 480px) {
+	.wbfp-resolution {
+		padding: 8px;
+	}
+}
