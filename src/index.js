@@ -272,6 +272,9 @@ function BranchPanel() {
 						? reviewNote
 						: '',
 					when: operation === 'schedule' ? scheduleTime : '',
+					...( operation === 'request' && status?.conflict === 'conflict'
+						? { conflict_resolutions: conflictChoices }
+						: {} ),
 				},
 			} );
 			const [ nextWorkflow ] = await Promise.all( [
@@ -592,13 +595,19 @@ function BranchPanel() {
 						path
 					)
 			);
+		const selectedResolutions =
+			workflow?.state === 'pending' || workflow?.state === 'approved'
+				? workflow.proposed_resolutions || {}
+				: conflictChoices;
 		const allConflictsSelected =
 			canSelectConflicts &&
 			conflicts.every(
 				( path ) =>
-					conflictChoices[ path ] === 'original' ||
-					conflictChoices[ path ] === 'branch'
+					selectedResolutions[ path ] === 'original' ||
+					selectedResolutions[ path ] === 'branch'
 			);
+		const approvedForMerge =
+			! workflow?.requires_approval || workflow?.is_approved;
 		const reviewPanel =
 			reviewOpen &&
 			el(
@@ -677,7 +686,7 @@ function BranchPanel() {
 								el(
 									'select',
 									{
-										value: conflictChoices[ path ] || '',
+										value: selectedResolutions[ path ] || '',
 										onChange: ( event ) =>
 											setConflictChoices(
 												( previous ) => ( {
@@ -689,7 +698,9 @@ function BranchPanel() {
 										disabled:
 											busy ||
 											editor.dirty ||
-											editor.saving,
+											editor.saving ||
+											workflow?.state === 'pending' ||
+											workflow?.state === 'approved',
 									},
 									el(
 										'option',
@@ -722,6 +733,7 @@ function BranchPanel() {
 								onClick: () => setSelectiveConfirm( true ),
 								disabled:
 									! allConflictsSelected ||
+									! approvedForMerge ||
 									busy ||
 									editor.dirty ||
 									editor.saving,
@@ -768,6 +780,7 @@ function BranchPanel() {
 					status.can_merge &&
 						hardConflict &&
 						status.can_force_merge &&
+						! workflow?.requires_approval &&
 						state !== 'missing' &&
 						el(
 							Button,
@@ -1027,6 +1040,8 @@ function BranchPanel() {
 										editor.saving ||
 										! hasBranchChanges ||
 										! workflow ||
+										( state === 'conflict' && ( ! canSelectConflicts ||
+											! conflicts.every( ( path ) => [ 'original', 'branch' ].includes( conflictChoices[ path ] ) ) ) ) ||
 										workflow?.state === 'pending',
 								},
 								__( 'Request review', 'wp-branches-for-post' )
@@ -1072,7 +1087,8 @@ function BranchPanel() {
 													busy ||
 													editor.dirty ||
 													editor.saving ||
-													hardConflict ||
+													( hardConflict && ( ! canSelectConflicts ||
+														! allConflictsSelected ) ) ||
 													! hasBranchChanges,
 											},
 											__(
@@ -1312,7 +1328,9 @@ function BranchPanel() {
 						variant: 'primary',
 						onClick: () => {
 							setSelectiveConfirm( false );
-							mergeBranch( false, conflictChoices );
+							mergeBranch( false, workflow?.requires_approval
+							? workflow?.proposed_resolutions || {}
+							: conflictChoices );
 						},
 					},
 					__( 'Merge selected values', 'wp-branches-for-post' )
