@@ -551,6 +551,14 @@ final class Workflow_Service {
 		$review   = $analysis['analysis'] ?? array();
 		// translators: 1: branch changes, 2: original changes, 3: conflicts, 4: auto-mergeable fields.
 		echo '<p>' . esc_html( sprintf( __( '%1$d branch changes · %2$d original changes · %3$d conflicts · %4$d auto-mergeable fields', 'wp-branches-for-post' ), count( $review['branch_changes'] ?? array() ), count( $review['original_changes'] ?? array() ), count( $review['conflicts'] ?? array() ), count( $review['auto_merged_fields'] ?? array() ) ) ) . '</p>';
+		$proposed_choices = $this->resolution_proposal( $branch_id );
+		if ( $proposed_choices && in_array( $state, array( 'pending', 'approved', 'rejected' ), true ) ) {
+			echo '<h2>' . esc_html__( 'Proposed conflict resolutions', 'wp-branches-for-post' ) . '</h2><ul class="ul-disc">';
+			foreach ( $proposed_choices as $field => $choice ) {
+				echo '<li><code>' . esc_html( (string) $field ) . '</code>: ' . esc_html( 'original' === $choice ? __( 'Original now', 'wp-branches-for-post' ) : __( 'Branch now', 'wp-branches-for-post' ) ) . '</li>';
+			}
+			echo '</ul>';
+		}
 		if ( $note ) {
 			echo '<p>' . esc_html( $note ) . '</p>';
 		}
@@ -562,7 +570,11 @@ final class Workflow_Service {
 			echo '<div class="notice notice-warning"><p>' . esc_html( $last_error ) . '</p></div>';
 		}
 		echo '<p>' . esc_html__( 'Changes to the original or branch after approval or scheduling invalidate the stored review. Scheduled merges use WP-Cron and require a working WordPress cron runner.', 'wp-branches-for-post' ) . '</p>';
-		$this->form( $branch_id, 'request', __( 'Request review', 'wp-branches-for-post' ) );
+		if ( Branch_Service::CONFLICT_CONFLICT === ( $analysis['state'] ?? '' ) ) {
+			echo '<p class="description">' . esc_html__( 'Choose the conflict values in the branch editor before requesting review.', 'wp-branches-for-post' ) . '</p>';
+		} else {
+			$this->form( $branch_id, 'request', __( 'Request review', 'wp-branches-for-post' ) );
+		}
 		if ( $this->can_review( $branch_id ) && 'pending' === $state ) {
 			echo '<p class="description">' . esc_html__( 'Open Review changes in the editor and inspect Base, Original and Branch before deciding. Approval applies only to the exact requested snapshot.', 'wp-branches-for-post' ) . '</p>';
 			$this->form( $branch_id, 'approve', __( 'Approve current changes', 'wp-branches-for-post' ), true );
