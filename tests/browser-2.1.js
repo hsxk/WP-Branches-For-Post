@@ -779,7 +779,7 @@ async function openOriginal( page ) {
 		);
 		await mobileToggle.press( 'Enter' );
 		check(
-			await mobileToggle.getAttribute( 'aria-expanded' ) === 'true',
+			( await mobileWorkflow.locator( 'button[aria-controls="wbfp-workflow-details"]' ).getAttribute( 'aria-expanded' ) ) === 'true',
 			'Mobile review section expands using keyboard and reports aria-expanded'
 		);
 		await page.setViewportSize( { width: 1280, height: 900 } );
