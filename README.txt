@@ -4,7 +4,7 @@ Tags: post branch, editorial workflow, staging, revision, gutenberg
 Requires at least: 6.6
 Tested up to: 7.1
 Requires PHP: 8.2
-Stable tag: 2.3.0
+Stable tag: 2.3.1
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -306,6 +306,12 @@ The Block Editor source is in `src/index.js` and is built with `@wordpress/scrip
 Human-readable source code and build tooling are maintained at https://github.com/hsxk/WP-Branches-For-Post/.
 
 == Changelog ==
+
+= 2.3.1 =
+* Localized the 2.3 editorial review, scheduling, conflict choices and error messages in Japanese, Simplified Chinese and Traditional Chinese (54 new messages per locale).
+* Updated PHP gettext and Gutenberg editor translation bundles, preserving every previously approved translation.
+* Added real multilingual Gutenberg mobile and workflow-page browser regression tests on WordPress 7.1.3.
+
 
 = 2.3.0 =
 * Added safe, explicit, per-field Gutenberg conflict choices with current review-token enforcement and preservation of independent original edits.
