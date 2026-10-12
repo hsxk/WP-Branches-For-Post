@@ -124,6 +124,15 @@ jobs:
           WBFP_BROWSER_USER: admin
           WBFP_BROWSER_PASSWORD: test-password
         run: node tests/browser-2.1.js
+      - name: Verify Japanese and Chinese Gutenberg UI in Chromium
+        env:
+          WBFP_BASE_URL: http://127.0.0.1:8080
+          WBFP_BROWSER_USER: admin
+          WBFP_BROWSER_PASSWORD: test-password
+          WBFP_WP_PATH: /tmp/wordpress
+        run: |
+          node --check tests/browser-i18n-2.3.js
+          node tests/browser-i18n-2.3.js
       - name: Create documentation fixture
         id: docs_fixture
         shell: bash
@@ -215,6 +224,7 @@ jobs:
           path: |
             .wordpress-org/screenshot-*.png
             docs/tutorial-2.1/screenshots/*.png
+            /tmp/wbfp-i18n-*.png
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 14
