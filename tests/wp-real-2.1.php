@@ -16,6 +16,7 @@ $GLOBALS['wbfp_checks'] = 0;
 $created_posts          = array();
 $created_users          = array();
 $created_terms          = array();
+$created_taxonomies     = array();
 
 function wbfp_check( $condition, string $message ): void {
 	++$GLOBALS['wbfp_checks'];
@@ -840,6 +841,48 @@ try {
 	wbfp_check( 'closed' === get_post( $status_original )->comment_status, 'Comment status merges from the reviewed branch value' );
 	wbfp_check( 'closed' === get_post( $status_original )->ping_status, 'Ping status merges from the reviewed branch value' );
 
+	// Polylang compatibility: copy the post language, not the shared translation group.
+	// These test taxonomies mirror the WordPress taxonomy names used by Polylang.
+	foreach ( array( 'language', 'post_translations' ) as $test_taxonomy ) {
+		if ( ! taxonomy_exists( $test_taxonomy ) ) {
+			register_taxonomy( $test_taxonomy, array( 'post' ), array( 'public' => false ) );
+			$created_taxonomies[] = $test_taxonomy;
+		}
+	}
+	$language_term    = wp_insert_term( 'WBFP test language', 'language', array( 'slug' => 'wbfp-test-language' ) );
+	$translation_term = wp_insert_term( 'WBFP translation group', 'post_translations', array( 'slug' => 'wbfp-test-translations' ) );
+	if ( is_wp_error( $language_term ) || is_wp_error( $translation_term ) ) {
+		throw new RuntimeException( 'Could not create multilingual taxonomy fixtures.' );
+	}
+	$created_terms[] = array( 'taxonomy' => 'language', 'term_id' => (int) $language_term['term_id'] );
+	$created_terms[] = array( 'taxonomy' => 'post_translations', 'term_id' => (int) $translation_term['term_id'] );
+	$multilingual_original = wbfp_make_post( array( 'post_title' => 'Multilingual source' ) );
+	wp_set_object_terms( $multilingual_original, array( (int) $language_term['term_id'] ), 'language' );
+	wp_set_object_terms( $multilingual_original, array( (int) $translation_term['term_id'] ), 'post_translations' );
+	$multilingual_state = Sync_Service::get_taxonomy_state( $multilingual_original, 'post' );
+	wbfp_check( ! isset( $multilingual_state['post_translations'] ), 'Translation-group taxonomy is omitted from editable snapshots' );
+	$multilingual_branch = $branches->create( $multilingual_original );
+	wbfp_check( ! is_wp_error( $multilingual_branch ), 'Create a branch for a post with Polylang-style taxonomies' );
+	$multilingual_branch = (int) $multilingual_branch;
+	$created_posts[]     = $multilingual_branch;
+	$branch_languages = wp_get_object_terms( $multilingual_branch, 'language', array( 'fields' => 'ids' ) );
+	$branch_groups    = wp_get_object_terms( $multilingual_branch, 'post_translations', array( 'fields' => 'ids' ) );
+	wbfp_check( array( (int) $language_term['term_id'] ) === array_map( 'intval', $branch_languages ), 'Post language is preserved on the draft branch' );
+	wbfp_check( empty( $branch_groups ), 'Draft branch is not attached to the live translation group' );
+
+	$old_base = get_post_meta( $multilingual_branch, Branch_Service::META_BASE_SNAPSHOT, true );
+	$old_base['merge']['taxonomies']['post_translations'] = array( (int) $translation_term['term_id'] );
+	update_post_meta( $multilingual_branch, Branch_Service::META_BASE_SNAPSHOT, $old_base );
+	$normalized_base = $branches->get_base_snapshot( $multilingual_branch );
+	wbfp_check( ! isset( $normalized_base['merge']['taxonomies']['post_translations'] ), 'Legacy baseline translation-group terms are ignored in memory' );
+	wbfp_check( Branch_Service::CONFLICT_CLEAN === $branches->conflict_state( $multilingual_branch ), 'Legacy baseline does not cause a false translation conflict' );
+
+	wp_update_post( array( 'ID' => $multilingual_branch, 'post_content' => 'Revised multilingual content' ) );
+	$multilingual_merge = $merges->merge( $multilingual_branch, false );
+	wbfp_check( $multilingual_original === $multilingual_merge, 'Multilingual branch content merges without modifying translation links' );
+	$original_groups = wp_get_object_terms( $multilingual_original, 'post_translations', array( 'fields' => 'ids' ) );
+	wbfp_check( array( (int) $translation_term['term_id'] ) === array_map( 'intval', $original_groups ), 'Original translation group survives the merge' );
+
 	// Custom post type, custom taxonomy, custom meta and featured-image metadata.
 	register_post_type(
 		'wbfp_story',
@@ -1486,6 +1529,11 @@ try {
 	foreach ( $created_terms as $term ) {
 		if ( ! empty( $term['term_id'] ) && ! empty( $term['taxonomy'] ) ) {
 			wp_delete_term( (int) $term['term_id'], (string) $term['taxonomy'] );
+		}
+	}
+	foreach ( array_reverse( $created_taxonomies ) as $taxonomy ) {
+		if ( taxonomy_exists( $taxonomy ) ) {
+			unregister_taxonomy( $taxonomy );
 		}
 	}
 	foreach ( array_unique( array_map( 'intval', $created_users ) ) as $user_id ) {

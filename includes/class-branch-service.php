@@ -229,7 +229,18 @@ final class Branch_Service {
 	 */
 	public function get_base_snapshot( int $branch_id ): ?array {
 		$base = get_post_meta( $branch_id, self::META_BASE_SNAPSHOT, true );
-		return is_array( $base ) && isset( $base['merge'] ) ? $base : null;
+		if ( ! is_array( $base ) || ! isset( $base['merge'] ) ) {
+			return null;
+		}
+
+		// Older branch snapshots included Polylang's post-to-translation-group
+		// relationship. Drop it for comparison without modifying stored history.
+		// The original translation relationships are never merged from branches.
+		if ( isset( $base['merge']['taxonomies'] ) && is_array( $base['merge']['taxonomies'] ) ) {
+			unset( $base['merge']['taxonomies']['post_translations'] );
+		}
+
+		return $base;
 	}
 
 	/**
