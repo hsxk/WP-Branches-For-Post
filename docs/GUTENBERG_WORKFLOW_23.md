@@ -49,10 +49,39 @@ browser timezone.
 - Every generated build asset must match `src/index.js` before merging.
 - No merge to `master` or version tag until exact PR head gates are green.
 
+## Selective conflict handling (2.3 follow-up)
+
+For conflicting `post_title`, `post_excerpt`, `post_content`,
+`menu_order`, `comment_status` and `ping_status`, an authorized editor
+with force-merge authority may explicitly select **Original now** or
+**Branch now** for *every* conflict before a separate confirmation.
+The supported choices are intentionally **unset by default**. Other
+independent edits remain preserved by the normal three-way merge.
+
+This is implemented in the merge snapshot builder, REST controller and
+merge service, not only in the browser. The server rejects incomplete,
+extra, malformed or unsupported paths; it also blocks missing/stale
+review tokens, forced merge combined with choices, and changing data
+between analysis and application. Existing snapshot verification and
+rollback still apply. Arbitrary metadata, password state, and complex
+unreviewable conflict types have **no selective controls** and are never
+silently modified.
+
+Sites with mandatory independent approval continue to reject merges
+without valid approval; selective choices do not bypass that requirement.
+A subsequent milestone must support a separately approved, non-conflicting
+resolution proposal if such sites are to use selective conflict actions
+rather than manual branch editing.
+
+The browser test covers choosing the branch title and original excerpt,
+and the WordPress integration suite covers missing/extra selections,
+unknown values and stale tokens. This remains unreleased 2.3 development
+until its PR checks pass and a later full release is prepared.
+
 ## Still open for a later 2.3 pass
 
-- Secure, genuinely selective per-field conflict application (not merely a
-  decorative choice selector).
+- Independent-review-compatible conflict resolution proposals, so sites
+  requiring approval can review and approve previously conflicting changes.
 - Full keyboard/screen-reader and mobile responsive E2E coverage.
 - Multilingual review of the new workflow labels without altering the
   currently approved catalogs.
