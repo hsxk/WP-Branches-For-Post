@@ -15,22 +15,22 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Workflow metadata is kept on the working draft, never on the public original.
  */
 final class Workflow_Service {
-	public const META_STATE             = '_wbfp_workflow_state';
-	public const META_REQUEST_BY        = '_wbfp_review_requested_by';
-	public const META_REQUEST_TOKEN     = '_wbfp_review_requested_state_token';
-	public const META_REVIEW_BY         = '_wbfp_reviewed_by';
-	public const META_REVIEWED_AT       = '_wbfp_reviewed_at_gmt';
-	public const META_REQUESTED_AT      = '_wbfp_review_requested_at_gmt';
-	public const META_REVIEW_TOKEN      = '_wbfp_approved_state_token';
-	public const META_REVIEW_NOTE       = '_wbfp_review_feedback';
-	public const META_RESOLUTION_PROPOSAL = '_wbfp_resolution_proposal';
+	public const META_STATE                    = '_wbfp_workflow_state';
+	public const META_REQUEST_BY               = '_wbfp_review_requested_by';
+	public const META_REQUEST_TOKEN            = '_wbfp_review_requested_state_token';
+	public const META_REVIEW_BY                = '_wbfp_reviewed_by';
+	public const META_REVIEWED_AT              = '_wbfp_reviewed_at_gmt';
+	public const META_REQUESTED_AT             = '_wbfp_review_requested_at_gmt';
+	public const META_REVIEW_TOKEN             = '_wbfp_approved_state_token';
+	public const META_REVIEW_NOTE              = '_wbfp_review_feedback';
+	public const META_RESOLUTION_PROPOSAL      = '_wbfp_resolution_proposal';
 	public const META_APPROVED_RESOLUTION_HASH = '_wbfp_approved_resolution_hash';
-	public const META_SCHEDULE_AT       = '_wbfp_schedule_at_gmt';
-	public const META_SCHEDULE_BY       = '_wbfp_schedule_by';
-	public const META_SCHEDULE_TOKEN    = '_wbfp_schedule_state_token';
-	public const META_SCHEDULE_EVENT_ID = '_wbfp_schedule_event_id';
-	public const META_SCHEDULE_ERROR    = '_wbfp_schedule_error';
-	public const CRON_HOOK              = 'wbfp_run_scheduled_merge';
+	public const META_SCHEDULE_AT              = '_wbfp_schedule_at_gmt';
+	public const META_SCHEDULE_BY              = '_wbfp_schedule_by';
+	public const META_SCHEDULE_TOKEN           = '_wbfp_schedule_state_token';
+	public const META_SCHEDULE_EVENT_ID        = '_wbfp_schedule_event_id';
+	public const META_SCHEDULE_ERROR           = '_wbfp_schedule_error';
+	public const CRON_HOOK                     = 'wbfp_run_scheduled_merge';
 
 	/**
 	 * Branch relationship service.
@@ -117,16 +117,16 @@ final class Workflow_Service {
 	 * @param int $branch_id branch id.
 	 */
 	public function is_approved( int $branch_id ): bool {
-		$stored   = (string) get_post_meta( $branch_id, self::META_REVIEW_TOKEN, true );
-		$now      = $this->state_token( $branch_id );
-		$reviewer = (int) get_post_meta( $branch_id, self::META_REVIEW_BY, true );
-		$creator  = (int) get_post_meta( $branch_id, Branch_Service::META_CREATOR_USER_ID, true );
-		$original = get_post( $this->branches->get_original_id( $branch_id ) );
-		$type     = $original ? get_post_type_object( $original->post_type ) : null;
-		$proposal = $this->resolution_proposal( $branch_id );
-		$analysis = $this->branches->analyze_branch( $branch_id );
-		$approved_choices = (string) get_post_meta( $branch_id, self::META_APPROVED_RESOLUTION_HASH, true );
-		$proposal_hash = $proposal ? hash( 'sha256', wp_json_encode( $proposal ) ) : '';
+		$stored            = (string) get_post_meta( $branch_id, self::META_REVIEW_TOKEN, true );
+		$now               = $this->state_token( $branch_id );
+		$reviewer          = (int) get_post_meta( $branch_id, self::META_REVIEW_BY, true );
+		$creator           = (int) get_post_meta( $branch_id, Branch_Service::META_CREATOR_USER_ID, true );
+		$original          = get_post( $this->branches->get_original_id( $branch_id ) );
+		$type              = $original ? get_post_type_object( $original->post_type ) : null;
+		$proposal          = $this->resolution_proposal( $branch_id );
+		$analysis          = $this->branches->analyze_branch( $branch_id );
+		$approved_choices  = (string) get_post_meta( $branch_id, self::META_APPROVED_RESOLUTION_HASH, true );
+		$proposal_hash     = $proposal ? hash( 'sha256', wp_json_encode( $proposal ) ) : '';
 		$resolutions_valid = $this->valid_resolution_proposal( $analysis, $proposal );
 		if ( 'conflict' === ( $analysis['state'] ?? '' ) ) {
 			$resolutions_valid = $resolutions_valid && '' !== $proposal_hash
@@ -146,8 +146,8 @@ final class Workflow_Service {
 	/**
 	 * A direct merge must never silently bypass an enabled approval policy.
 	 *
-	 * @param int $branch_id branch id.
-	 * @param int $original_id original id.
+	 * @param int                  $branch_id branch id.
+	 * @param int                  $original_id original id.
 	 * @param array<string,string> $resolutions Selected conflict values.
 	 */
 	public function merge_gate( int $branch_id, int $original_id, array $resolutions = array() ): ?\WP_Error {
@@ -184,7 +184,7 @@ final class Workflow_Service {
 	/**
 	 * Any branch editor can ask an independent reviewer to inspect changes.
 	 *
-	 * @param int $branch_id branch id.
+	 * @param int                  $branch_id branch id.
 	 * @param array<string,string> $resolutions Proposed conflict selections.
 	 */
 	public function request_review( int $branch_id, array $resolutions = array() ) {
@@ -245,8 +245,8 @@ final class Workflow_Service {
 			return new \WP_Error( 'wbfp_review_state_changed', __( 'The branch changed after review was requested. Submit it for review again.', 'wp-branches-for-post' ), array( 'status' => 409 ) );
 		}
 		if ( $approve ) {
-			$analysis = $this->branches->analyze_branch( $branch_id );
-			$proposal = $this->resolution_proposal( $branch_id );
+			$analysis   = $this->branches->analyze_branch( $branch_id );
+			$proposal   = $this->resolution_proposal( $branch_id );
 			$approvable = in_array( $analysis['state'] ?? '', array( Branch_Service::CONFLICT_CLEAN, Branch_Service::CONFLICT_REBASE, Branch_Service::CONFLICT_INFORMATIONAL, Branch_Service::CONFLICT_CONFLICT ), true );
 			if ( ! $approvable || ! $this->valid_resolution_proposal( $analysis, $proposal ) ) {
 				return new \WP_Error( 'wbfp_review_conflicts', __( 'Resolve conflicting or unknown branch changes before approval.', 'wp-branches-for-post' ), array( 'status' => 409 ) );
@@ -284,7 +284,7 @@ final class Workflow_Service {
 	 * Only the exact currently conflicting, explicitly allowlisted fields
 	 * can be submitted as an independent-review resolution proposal.
 	 *
-	 * @param array<string,mixed> $analysis Current branch analysis.
+	 * @param array<string,mixed>  $analysis Current branch analysis.
 	 * @param array<string,string> $resolutions Proposed choices.
 	 */
 	private function valid_resolution_proposal( array $analysis, array $resolutions ): bool {
@@ -691,10 +691,10 @@ final class Workflow_Service {
 	/**
 	 * Reuse the same service validation for forms and REST requests.
 	 *
-	 * @param int    $branch_id branch id.
-	 * @param string $action action.
-	 * @param string $note note.
-	 * @param string $when when.
+	 * @param int                  $branch_id branch id.
+	 * @param string               $action action.
+	 * @param string               $note note.
+	 * @param string               $when when.
 	 * @param array<string,string> $resolutions Review proposal choices.
 	 */
 	private function operate( int $branch_id, string $action, string $note = '', string $when = '', array $resolutions = array() ) {
@@ -730,17 +730,17 @@ final class Workflow_Service {
 		}
 		return rest_ensure_response(
 			array(
-				'requires_approval' => self::requires_approval( $branch_id, $this->branches->get_original_id( $branch_id ) ),
-				'state'             => (string) get_post_meta( $branch_id, self::META_STATE, true ),
-				'is_approved'       => $this->is_approved( $branch_id ),
+				'requires_approval'    => self::requires_approval( $branch_id, $this->branches->get_original_id( $branch_id ) ),
+				'state'                => (string) get_post_meta( $branch_id, self::META_STATE, true ),
+				'is_approved'          => $this->is_approved( $branch_id ),
 				'proposed_resolutions' => $this->resolution_proposal( $branch_id ),
-				'can_review'        => $this->can_review( $branch_id ),
-				'requested_at_gmt'  => (string) get_post_meta( $branch_id, self::META_REQUESTED_AT, true ),
-				'reviewed_at_gmt'   => (string) get_post_meta( $branch_id, self::META_REVIEWED_AT, true ),
-				'scheduled_at_gmt'  => (string) get_post_meta( $branch_id, self::META_SCHEDULE_AT, true ),
-				'site_timezone'     => wp_timezone_string(),
-				'schedule_error'    => (string) get_post_meta( $branch_id, self::META_SCHEDULE_ERROR, true ),
-				'edit_url'          => admin_url( 'tools.php?page=wbfp-workflow&branch_id=' . $branch_id ),
+				'can_review'           => $this->can_review( $branch_id ),
+				'requested_at_gmt'     => (string) get_post_meta( $branch_id, self::META_REQUESTED_AT, true ),
+				'reviewed_at_gmt'      => (string) get_post_meta( $branch_id, self::META_REVIEWED_AT, true ),
+				'scheduled_at_gmt'     => (string) get_post_meta( $branch_id, self::META_SCHEDULE_AT, true ),
+				'site_timezone'        => wp_timezone_string(),
+				'schedule_error'       => (string) get_post_meta( $branch_id, self::META_SCHEDULE_ERROR, true ),
+				'edit_url'             => admin_url( 'tools.php?page=wbfp-workflow&branch_id=' . $branch_id ),
 			)
 		);
 	}
@@ -791,26 +791,26 @@ final class Workflow_Service {
 					);
 				},
 				'args'                => array(
-					'id'        => array(
+					'id'                   => array(
 						'type'     => 'integer',
 						'minimum'  => 1,
 						'required' => true,
 					),
-					'operation' => array(
+					'operation'            => array(
 						'type'     => 'string',
 						'required' => true,
 						'enum'     => array( 'request', 'approve', 'reject', 'schedule', 'cancel' ),
 					),
-					'note'      => array(
+					'note'                 => array(
 						'type'    => 'string',
 						'default' => '',
 					),
-					'when'      => array(
+					'when'                 => array(
 						'type'    => 'string',
 						'default' => '',
 					),
 					'conflict_resolutions' => array(
-						'type' => 'object',
+						'type'                 => 'object',
 						'additionalProperties' => array(
 							'type' => 'string',
 							'enum' => array( 'original', 'branch' ),

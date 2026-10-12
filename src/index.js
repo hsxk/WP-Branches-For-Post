@@ -272,7 +272,8 @@ function BranchPanel() {
 						? reviewNote
 						: '',
 					when: operation === 'schedule' ? scheduleTime : '',
-					...( operation === 'request' && status?.conflict === 'conflict'
+					...( operation === 'request' &&
+					status?.conflict === 'conflict'
 						? { conflict_resolutions: conflictChoices }
 						: {} ),
 				},
@@ -686,7 +687,8 @@ function BranchPanel() {
 								el(
 									'select',
 									{
-										value: selectedResolutions[ path ] || '',
+										value:
+											selectedResolutions[ path ] || '',
 										onChange: ( event ) =>
 											setConflictChoices(
 												( previous ) => ( {
@@ -1040,8 +1042,16 @@ function BranchPanel() {
 										editor.saving ||
 										! hasBranchChanges ||
 										! workflow ||
-										( state === 'conflict' && ( ! canSelectConflicts ||
-											! conflicts.every( ( path ) => [ 'original', 'branch' ].includes( conflictChoices[ path ] ) ) ) ) ||
+										( state === 'conflict' &&
+											( ! canSelectConflicts ||
+												! conflicts.every( ( path ) =>
+													[
+														'original',
+														'branch',
+													].includes(
+														conflictChoices[ path ]
+													)
+												) ) ) ||
 										workflow?.state === 'pending',
 								},
 								__( 'Request review', 'wp-branches-for-post' )
@@ -1087,8 +1097,9 @@ function BranchPanel() {
 													busy ||
 													editor.dirty ||
 													editor.saving ||
-													( hardConflict && ( ! canSelectConflicts ||
-														! allConflictsSelected ) ) ||
+													( hardConflict &&
+														( ! canSelectConflicts ||
+															! allConflictsSelected ) ) ||
 													! hasBranchChanges,
 											},
 											__(
@@ -1328,9 +1339,12 @@ function BranchPanel() {
 						variant: 'primary',
 						onClick: () => {
 							setSelectiveConfirm( false );
-							mergeBranch( false, workflow?.requires_approval
-							? workflow?.proposed_resolutions || {}
-							: conflictChoices );
+							mergeBranch(
+								false,
+								workflow?.requires_approval
+									? workflow?.proposed_resolutions || {}
+									: conflictChoices
+							);
 						},
 					},
 					__( 'Merge selected values', 'wp-branches-for-post' )
