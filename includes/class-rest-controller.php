@@ -78,14 +78,21 @@ final class REST_Controller {
 				'callback'            => array( $this, 'merge_branch' ),
 				'permission_callback' => array( $this, 'can_merge_branch' ),
 				'args'                => array(
-					'id'           => $this->id_arg(),
-					'force'        => array(
+					'id'                   => $this->id_arg(),
+					'force'                => array(
 						'type'    => 'boolean',
 						'default' => false,
 					),
-					'review_token' => array(
+					'review_token'         => array(
 						'type'    => 'string',
 						'default' => '',
+					),
+					'conflict_resolutions' => array(
+						'type'                 => 'object',
+						'additionalProperties' => array(
+							'type' => 'string',
+							'enum' => array( 'original', 'branch' ),
+						),
 					),
 				),
 			)
@@ -216,6 +223,11 @@ final class REST_Controller {
 	public function merge_branch( \WP_REST_Request $request ) {
 		$branch_id    = (int) $request['id'];
 		$review_token = (string) $request->get_param( 'review_token' );
+		$has_choices  = $request->has_param( 'conflict_resolutions' );
+		$resolutions  = $has_choices ? $request->get_param( 'conflict_resolutions' ) : array();
+		if ( $has_choices && ( ! is_array( $resolutions ) || empty( $resolutions ) || '' === $review_token || (bool) $request->get_param( 'force' ) ) ) {
+			return new \WP_Error( 'wbfp_invalid_resolutions', 'Field choices require a current review and cannot be forced.', array( 'status' => 400 ) );
+		}
 		if ( '' !== $review_token ) {
 			$current_token = $this->review_token( $branch_id );
 			if ( '' === $current_token || ! hash_equals( $review_token, $current_token ) ) {
@@ -227,7 +239,7 @@ final class REST_Controller {
 			}
 		}
 
-		$original_id = $this->merges->merge( $branch_id, (bool) $request->get_param( 'force' ) );
+		$original_id = $this->merges->merge( $branch_id, (bool) $request->get_param( 'force' ), $resolutions );
 		if ( is_wp_error( $original_id ) ) {
 			return $original_id;
 		}

@@ -55,12 +55,13 @@ final class Merge_Service {
 	 * unless the user explicitly force-merges. Any write failure attempts to
 	 * restore the complete pre-merge original state.
 	 *
-	 * @param int  $branch_id Branch post ID.
-	 * @param bool $force Whether to explicitly prefer branch values on conflicts.
+	 * @param int                  $branch_id Branch post ID.
+	 * @param bool                 $force Whether to prefer branch values on conflicts.
+	 * @param array<string,string> $resolutions Explicit choices for every supported conflict.
 	 *
 	 * @return int|\WP_Error Original post ID on success.
 	 */
-	public function merge( int $branch_id, bool $force = false ) {
+	public function merge( int $branch_id, bool $force = false, array $resolutions = array() ) {
 		$validated = $this->validate_relationship( $branch_id );
 		if ( is_wp_error( $validated ) ) {
 			return $validated;
@@ -75,7 +76,7 @@ final class Merge_Service {
 			return $gate;
 		}
 
-		if ( $force && ! $this->branches->can_force_merge( $branch_id, $original_id ) ) {
+		if ( ( $force || ! empty( $resolutions ) ) && ! $this->branches->can_force_merge( $branch_id, $original_id ) ) {
 			return new \WP_Error(
 				'wbfp_cannot_force_merge',
 				__( 'You do not have permission to force this merge.', 'wp-branches-for-post' ),
@@ -84,7 +85,20 @@ final class Merge_Service {
 		}
 
 		$analysis = $this->branches->analyze_branch( $branch_id );
-		if ( ! $force && in_array( $analysis['state'] ?? '', array( Branch_Service::CONFLICT_CONFLICT, Branch_Service::CONFLICT_CHANGED, Branch_Service::CONFLICT_UNKNOWN, Branch_Service::CONFLICT_MISSING ), true ) ) {
+		if ( $force && ! empty( $resolutions ) ) {
+			return new \WP_Error( 'wbfp_invalid_resolutions', 'Do not combine force merge with field choices.', array( 'status' => 400 ) );
+		}
+		if ( ! empty( $resolutions ) && Branch_Service::CONFLICT_CONFLICT !== ( $analysis['state'] ?? '' ) ) {
+			return new \WP_Error( 'wbfp_invalid_resolutions', 'No resolvable conflict state is available.', array( 'status' => 409 ) );
+		}
+		$initial_resolution_state = ! empty( $resolutions ) ? wp_json_encode(
+			array(
+				Sync_Service::state_hash_from_payload( $analysis['base'] ?? array() ),
+				Sync_Service::state_hash_from_payload( $analysis['original'] ?? array() ),
+				Sync_Service::state_hash_from_payload( $analysis['branch'] ?? array() ),
+			)
+		) : '';
+		if ( ! $force && empty( $resolutions ) && in_array( $analysis['state'] ?? '', array( Branch_Service::CONFLICT_CONFLICT, Branch_Service::CONFLICT_CHANGED, Branch_Service::CONFLICT_UNKNOWN, Branch_Service::CONFLICT_MISSING ), true ) ) {
 			return $this->conflict_error( $analysis );
 		}
 
@@ -110,7 +124,19 @@ final class Merge_Service {
 		}
 
 		$analysis = $this->branches->analyze_branch( $branch_id );
-		if ( ! $force && in_array( $analysis['state'] ?? '', array( Branch_Service::CONFLICT_CONFLICT, Branch_Service::CONFLICT_CHANGED, Branch_Service::CONFLICT_UNKNOWN, Branch_Service::CONFLICT_MISSING ), true ) ) {
+		if ( ! empty( $resolutions ) ) {
+			$current_resolution_state = wp_json_encode(
+				array(
+					Sync_Service::state_hash_from_payload( $analysis['base'] ?? array() ),
+					Sync_Service::state_hash_from_payload( $analysis['original'] ?? array() ),
+					Sync_Service::state_hash_from_payload( $analysis['branch'] ?? array() ),
+				)
+			);
+			if ( false === $initial_resolution_state || false === $current_resolution_state || ! hash_equals( $initial_resolution_state, $current_resolution_state ) ) {
+				return new \WP_Error( 'wbfp_review_state_changed', 'The selected conflict values changed during review.', array( 'status' => 409 ) );
+			}
+		}
+		if ( ! $force && empty( $resolutions ) && in_array( $analysis['state'] ?? '', array( Branch_Service::CONFLICT_CONFLICT, Branch_Service::CONFLICT_CHANGED, Branch_Service::CONFLICT_UNKNOWN, Branch_Service::CONFLICT_MISSING ), true ) ) {
 			return $this->conflict_error( $analysis );
 		}
 
@@ -120,7 +146,7 @@ final class Merge_Service {
 			&& ! empty( $analysis['branch'] );
 
 		if ( $three_way ) {
-			$target = Sync_Service::merged_snapshot( $analysis['base'], $analysis['original'], $analysis['branch'], $force );
+			$target = Sync_Service::merged_snapshot( $analysis['base'], $analysis['original'], $analysis['branch'], $force, $resolutions );
 			if ( is_wp_error( $target ) ) {
 				$target->add_data( array( 'status' => 409 ) );
 				return $target;

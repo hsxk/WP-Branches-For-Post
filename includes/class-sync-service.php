@@ -514,15 +514,34 @@ final class Sync_Service {
 	/**
 	 * Build the post-merge state while preserving non-overlapping original work.
 	 *
-	 * @param array<string,mixed> $base     Base snapshot.
-	 * @param array<string,mixed> $original Current original snapshot.
-	 * @param array<string,mixed> $branch   Current branch snapshot.
-	 * @param bool                $force    Whether conflicts should prefer branch values.
+	 * @param array<string,mixed>  $base     Base snapshot.
+	 * @param array<string,mixed>  $original Current original snapshot.
+	 * @param array<string,mixed>  $branch   Current branch snapshot.
+	 * @param bool                 $force       Whether conflicts should prefer branch values.
+	 * @param array<string,string> $resolutions Exact conflict paths mapped to original or branch.
 	 * @return array<string,mixed>|\WP_Error
 	 */
-	public static function merged_snapshot( array $base, array $original, array $branch, bool $force = false ) {
-		$analysis = self::three_way_analysis( $base, $original, $branch );
-		if ( ! $force && ! empty( $analysis['conflicts'] ) ) {
+	public static function merged_snapshot( array $base, array $original, array $branch, bool $force = false, array $resolutions = array() ) {
+		$analysis  = self::three_way_analysis( $base, $original, $branch );
+		$conflicts = $analysis['conflicts'];
+		if ( ! empty( $resolutions ) ) {
+			// Fail closed: the client must resolve every current conflict, and no other path.
+			$expected = $conflicts;
+			$selected = array_keys( $resolutions );
+			sort( $expected );
+			sort( $selected );
+			if ( $force || $expected !== $selected ) {
+				return new \WP_Error( 'wbfp_invalid_resolutions', 'Conflict choices must cover exactly the current conflicts.' );
+			}
+			foreach ( $resolutions as $path => $choice ) {
+				// Arbitrary metadata and password values are not exposed in the review UI.
+				if ( ! in_array( $path, array( 'post.post_title', 'post.post_excerpt', 'post.post_content', 'post.menu_order', 'post.comment_status', 'post.ping_status' ), true )
+					|| ! in_array( $choice, array( 'original', 'branch' ), true ) ) {
+					return new \WP_Error( 'wbfp_invalid_resolutions', 'Unsupported conflict choice.' );
+				}
+			}
+		}
+		if ( ! $force && empty( $resolutions ) && ! empty( $conflicts ) ) {
 			return new \WP_Error(
 				'wbfp_merge_conflict',
 				__( 'The branch and original contain overlapping changes that require review.', 'wp-branches-for-post' ),
@@ -532,6 +551,9 @@ final class Sync_Service {
 
 		$result = $original;
 		foreach ( $analysis['branch_changes'] as $path ) {
+			if ( isset( $resolutions[ $path ] ) && 'original' === $resolutions[ $path ] ) {
+				continue;
+			}
 			if ( in_array( $path, $analysis['auto_merged_fields'], true ) ) {
 				self::set_path_value( $result, $path, self::merged_block_content( $base, $original, $branch ) );
 			} else {

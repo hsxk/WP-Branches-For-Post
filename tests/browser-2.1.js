@@ -635,6 +635,46 @@ async function openOriginal( page ) {
 		);
 
 
+		// Scenario 4b: selective conflict resolution keeps the unselected
+		// original field while applying the chosen branch field.
+		const selectedBranchId = await createBranchFromCurrentOriginal( page );
+		await apiFetch( page, {
+			path: `/wp/v2/posts/${ originalId }`,
+			method: 'POST',
+			data: {
+				title: 'Original editorial title choice',
+				excerpt: 'Original editorial excerpt choice',
+			},
+		} );
+		await apiFetch( page, {
+			path: `/wp/v2/posts/${ selectedBranchId }`,
+			method: 'POST',
+			data: {
+				title: 'Branch editorial title choice',
+				excerpt: 'Branch editorial excerpt choice',
+			},
+		} );
+		await page.reload( { waitUntil: 'domcontentloaded' } );
+		await waitForEditor( page, selectedBranchId );
+		await page.getByRole( 'button', { name: 'Review changes', exact: true } ).click();
+		const selective = page.locator( '.wbfp-resolution' );
+		await selective.waitFor( { state: 'visible', timeout: 12000 } );
+		check( true, 'Gutenberg offers field choices only for reviewed conflicts' );
+		const selectedFields = selective.locator( '.wbfp-resolution__field' );
+		check( await selectedFields.count() === 2, 'Each conflicting field receives a separate choice' );
+		await selectedFields.filter( { hasText: 'Title' } ).locator( 'select' ).selectOption( 'branch' );
+		await selectedFields.filter( { hasText: 'Excerpt' } ).locator( 'select' ).selectOption( 'original' );
+		await selective.getByRole( 'button', { name: 'Merge selected values' } ).click();
+		await page.getByText( 'Confirm selected conflict values', { exact: true } )
+			.waitFor( { state: 'visible', timeout: 10000 } );
+		check( true, 'Conflict selections require an explicit confirmation' );
+		await page.getByRole( 'button', { name: 'Merge selected values', exact: true } ).last().click();
+		await page.waitForURL( new RegExp( `/wp-admin/post\\.php\\?post=${ originalId }&action=edit` ), { timeout: 20000 } );
+		const selectiveOriginal = await apiFetch( page, { path: `/wp/v2/posts/${ originalId }?context=edit` } );
+		check( selectiveOriginal.title.raw === 'Branch editorial title choice', 'Selected branch title is merged' );
+		check( selectiveOriginal.excerpt.raw === 'Original editorial excerpt choice', 'Selected original excerpt is preserved' );
+		await waitForEditor( page, originalId );
+
 		// Scenario 5: review/schedule management is discoverable in the real
 		// Gutenberg browser and does not require custom JavaScript bundles.
 		const workflowBranchId = await createBranchFromCurrentOriginal( page );
