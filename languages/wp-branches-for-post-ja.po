@@ -338,7 +338,7 @@ msgstr ""
 
 #: includes/class-workflow-service.php:234
 msgid "An independent authorized editor must review this branch."
-msgstr "此ブランチは、権限を持つ別の編集者によるレビューが必要です。"
+msgstr "このブランチは、権限を持つ別の編集者によるレビューが必要です。"
 
 #: includes/class-workflow-service.php:237
 msgid "This branch has not been submitted for review."
