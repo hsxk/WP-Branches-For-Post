@@ -172,7 +172,18 @@ async function checkLocale( browser, selected ) {
 		}
 		const filename = '/tmp/wbfp-i18n-' + selected.locale + '.png';
 		await page.screenshot( { path: filename } );
-		console.log( 'LOCALE UI PASS ' + selected.locale + ': ' + filename );
+		await page.goto(
+			baseUrl + '/wp-admin/tools.php?page=wbfp-workflow',
+			{ waitUntil: 'domcontentloaded' }
+		);
+		await page.getByRole( 'heading', {
+			name: selected.workflow,
+			exact: true,
+		} ).waitFor( { state: 'visible', timeout: 12000 } );
+		console.log(
+			'LOCALE UI PASS ' + selected.locale +
+				': Gutenberg editor and PHP Tools page; ' + filename
+		);
 	} finally {
 		await context.close();
 	}
