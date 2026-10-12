@@ -388,11 +388,13 @@ function BranchPanel() {
 				'unknown',
 				'missing',
 			].includes( fresh?.conflict );
-			const selected = resolutions && Object.keys( resolutions ).length > 0;
+			const selected =
+				resolutions && Object.keys( resolutions ).length > 0;
 			const matching =
 				selected &&
 				fresh?.conflict === 'conflict' &&
-				fresh?.review?.conflicts?.length === Object.keys( resolutions ).length &&
+				fresh?.review?.conflicts?.length ===
+					Object.keys( resolutions ).length &&
 				fresh.review.conflicts.every( ( path ) => resolutions[ path ] );
 			if ( reviewChanged || ( blocked && ! force && ! matching ) ) {
 				setReviewOpen( true );
@@ -410,7 +412,9 @@ function BranchPanel() {
 				data: {
 					force,
 					review_token: fresh.review_token,
-					...( selected ? { conflict_resolutions: resolutions } : {} ),
+					...( selected
+						? { conflict_resolutions: resolutions }
+						: {} ),
 				},
 			} );
 			window.location.assign( result.edit_url );
@@ -649,7 +653,10 @@ function BranchPanel() {
 						el(
 							'legend',
 							null,
-							__( 'Resolve each conflicting field', 'wp-branches-for-post' )
+							__(
+								'Resolve each conflicting field',
+								'wp-branches-for-post'
+							)
 						),
 						el(
 							'p',
@@ -662,18 +669,27 @@ function BranchPanel() {
 						...conflicts.map( ( path ) =>
 							el(
 								'label',
-								{ key: path, className: 'wbfp-resolution__field' },
+								{
+									key: path,
+									className: 'wbfp-resolution__field',
+								},
 								el( 'strong', null, pathLabel( path ) ),
 								el(
 									'select',
 									{
 										value: conflictChoices[ path ] || '',
 										onChange: ( event ) =>
-											setConflictChoices( ( previous ) => ( {
-												...previous,
-												[ path ]: event.target.value,
-											} ) ),
-										disabled: busy || editor.dirty || editor.saving,
+											setConflictChoices(
+												( previous ) => ( {
+													...previous,
+													[ path ]:
+														event.target.value,
+												} )
+											),
+										disabled:
+											busy ||
+											editor.dirty ||
+											editor.saving,
 									},
 									el(
 										'option',
@@ -683,12 +699,18 @@ function BranchPanel() {
 									el(
 										'option',
 										{ value: 'original' },
-										__( 'Original now', 'wp-branches-for-post' )
+										__(
+											'Original now',
+											'wp-branches-for-post'
+										)
 									),
 									el(
 										'option',
 										{ value: 'branch' },
-										__( 'Branch now', 'wp-branches-for-post' )
+										__(
+											'Branch now',
+											'wp-branches-for-post'
+										)
 									)
 								)
 							)
@@ -704,7 +726,10 @@ function BranchPanel() {
 									editor.dirty ||
 									editor.saving,
 							},
-							__( 'Merge selected values', 'wp-branches-for-post' )
+							__(
+								'Merge selected values',
+								'wp-branches-for-post'
+							)
 						)
 					),
 				! status.legacy &&
@@ -1256,7 +1281,10 @@ function BranchPanel() {
 		el(
 			Modal,
 			{
-				title: __( 'Confirm selected conflict values', 'wp-branches-for-post' ),
+				title: __(
+					'Confirm selected conflict values',
+					'wp-branches-for-post'
+				),
 				onRequestClose: () => setSelectiveConfirm( false ),
 			},
 			el(
@@ -1283,8 +1311,8 @@ function BranchPanel() {
 					{
 						variant: 'primary',
 						onClick: () => {
-						setSelectiveConfirm( false );
-						mergeBranch( false, conflictChoices );
+							setSelectiveConfirm( false );
+							mergeBranch( false, conflictChoices );
 						},
 					},
 					__( 'Merge selected values', 'wp-branches-for-post' )
