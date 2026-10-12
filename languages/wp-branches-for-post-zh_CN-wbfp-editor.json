@@ -13,6 +13,9 @@
       "%1$d branch changes · %2$d conflicts": [
         "%1$d 项分支更改 · %2$d 项冲突"
       ],
+      "Approve current changes": [
+        "批准当前更改"
+      ],
       "Author": [
         "作者"
       ],
@@ -22,17 +25,32 @@
       "Branch #%d": [
         "分支 #%d"
       ],
+      "Branch Workflow": [
+        "分支工作流"
+      ],
       "Branch changes": [
         "分支更改"
       ],
       "Branch now": [
         "分支当前值"
       ],
+      "Branch review & schedule": [
+        "分支审核与定时合并"
+      ],
       "Cancel": [
         "取消"
       ],
+      "Cancel scheduled merge": [
+        "取消定时合并"
+      ],
+      "Choose": [
+        "请选择"
+      ],
       "Comment status": [
         "评论状态"
+      ],
+      "Confirm selected conflict values": [
+        "确认所选冲突字段值"
       ],
       "Conflicts": [
         "冲突"
@@ -88,6 +106,9 @@
       "Merge review": [
         "合并检查"
       ],
+      "Merge selected values": [
+        "按所选值合并"
+      ],
       "Metadata: %s": [
         "元数据：%s"
       ],
@@ -99,6 +120,9 @@
       ],
       "No mergeable branch changes are currently detected.": [
         "当前未检测到可合并的分支更改。"
+      ],
+      "Open Review changes in the editor and inspect Base, Original and Branch before deciding. Approval applies only to the exact requested snapshot.": [
+        "请在编辑器中打开“检查更改”，对比基准、原文和分支后再决定。批准只对提交审核时的确切内容有效。"
       ],
       "Open original": [
         "打开原始文章"
@@ -120,6 +144,9 @@
       ],
       "Original updated · safe to refresh branch": [
         "原始文章已更新 · 可安全刷新分支"
+      ],
+      "Other non-conflicting edits remain preserved. Inspect the values above.": [
+        "其他没有冲突的更改将予以保留。请检查上方各项值。"
       ],
       "Parent": [
         "父级"
@@ -148,17 +175,47 @@
       "Ready · original identity changed": [
         "可合并 · 原始文章标识已更改"
       ],
+      "Request changes": [
+        "要求修改"
+      ],
+      "Request review": [
+        "提交审核"
+      ],
+      "Resolve each conflicting field": [
+        "逐个解决冲突字段"
+      ],
+      "Review / schedule": [
+        "审核／定时"
+      ],
       "Review changes": [
         "检查更改"
       ],
+      "Review note": [
+        "审核备注"
+      ],
+      "Review status:": [
+        "审核状态："
+      ],
       "Save & merge into original": [
         "保存并合并到原始文章"
+      ],
+      "Save changes before requesting review or scheduling a merge.": [
+        "提交审核或安排定时合并前，请先保存更改。"
       ],
       "Save or discard the current edits to the original before creating a branch. This prevents unpublished editor changes from being mistaken for the branch baseline.": [
         "创建分支前，请先保存或放弃原始文章当前未保存的编辑，避免把未发布的编辑误认为分支基准。"
       ],
       "Saving and merging…": [
         "正在保存并合并…"
+      ],
+      "Schedule merge": [
+        "安排定时合并"
+      ],
+      "Scheduled (UTC):": [
+        "计划合并时间（UTC）："
+      ],
+      "Site-local date and time": [
+        "网站本地日期和时间"
       ],
       "Slug": [
         "别名"
@@ -183,6 +240,12 @@
       ],
       "The review state changed after saving. Review the latest conflicts before merging.": [
         "保存后检查状态发生了变化。合并前请检查最新冲突。"
+      ],
+      "The selected values will replace those conflicts. Other independent edits remain preserved.": [
+        "将使用所选值解决对应冲突，其他独立更改会保留。"
+      ],
+      "This branch needs approval for its current contents before it can be merged.": [
+        "合并此分支前，必须先批准其当前内容。"
       ],
       "This branch predates three-way snapshots, so detailed change comparison is unavailable. Force merge only after manually reviewing the original.": [
         "此分支创建于三方快照功能之前，因此无法提供详细更改比较。请手动检查原始文章后再强制合并。"

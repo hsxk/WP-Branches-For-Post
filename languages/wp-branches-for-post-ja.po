@@ -46,7 +46,8 @@ msgstr "Hao Kexin"
 msgid "https://time2log.com/about/"
 msgstr "https://time2log.com/about/"
 
-#: includes/class-admin.php:95 build/index.js:9 src/index.js:705
+#: includes/class-admin.php:95 build/index.js:9 src/index.js:1029
+#: src/index.js:1231
 msgid "Review changes"
 msgstr "変更を確認"
 
@@ -55,7 +56,7 @@ msgid "Merge branch"
 msgstr "ブランチをマージ"
 
 #: includes/class-admin.php:112 includes/class-admin.php:333 build/index.js:7
-#: src/index.js:428
+#: src/index.js:553
 msgid "Create branch"
 msgstr "ブランチを作成"
 
@@ -65,16 +66,16 @@ msgstr "ブランチを作成"
 msgid "Branch of #%d"
 msgstr "#%d のブランチ"
 
-#: includes/class-admin.php:179 build/index.js:7 src/index.js:437
+#: includes/class-admin.php:179 build/index.js:7 src/index.js:562
 msgid "Existing branches"
 msgstr "既存のブランチ"
 
 #: includes/class-admin.php:296 includes/class-admin.php:318
-#: includes/class-admin.php:331 build/index.js:9 src/index.js:784
+#: includes/class-admin.php:331 build/index.js:9 src/index.js:1359
 msgid "Post Branch"
 msgstr "投稿ブランチ"
 
-#: includes/class-admin.php:297 build/index.js:7 src/index.js:596
+#: includes/class-admin.php:297 build/index.js:7 src/index.js:849
 msgid "The original post is unavailable. This branch cannot be merged."
 msgstr "元の投稿を利用できないため、このブランチはマージできません。"
 
@@ -138,7 +139,7 @@ msgstr ""
 msgid "The branch relationship metadata could not be stored."
 msgstr "ブランチの関連付けメタデータを保存できませんでした。"
 
-#: includes/class-branch-service.php:326 includes/class-merge-service.php:235
+#: includes/class-branch-service.php:326 includes/class-merge-service.php:292
 msgid "This post is not an active branch."
 msgstr "この投稿は有効なブランチではありません。"
 
@@ -190,33 +191,33 @@ msgstr "ブランチの基準情報を更新できなかったため、以前の
 msgid "The branch baseline snapshot could not be stored."
 msgstr "ブランチの基準スナップショットを保存できませんでした。"
 
-#: includes/class-merge-service.php:59
+#: includes/class-merge-service.php:82
 msgid "You do not have permission to force this merge."
 msgstr "このマージを強制実行する権限がありません。"
 
-#: includes/class-merge-service.php:108
+#: includes/class-merge-service.php:161
 msgid "The branch or original could not be snapshotted before merging."
 msgstr ""
 "マージ前にブランチまたは元の投稿のスナップショットを作成できませんでした。"
 
-#: includes/class-merge-service.php:132 includes/class-rest-controller.php:224
+#: includes/class-merge-service.php:185 includes/class-rest-controller.php:236
 msgid "The review state changed. Review the latest changes before merging."
 msgstr ""
 "確認した状態が変更されました。マージする前に最新の変更内容をもう一度確認して"
 "ください。"
 
-#: includes/class-merge-service.php:147
+#: includes/class-merge-service.php:200
 msgid ""
 "The merge failed and the original could not be fully restored automatically."
 msgstr "マージに失敗し、元の投稿を自動で完全には復元できませんでした。"
 
-#: includes/class-merge-service.php:157
+#: includes/class-merge-service.php:210
 msgid ""
 "The merge could not be completed. The original post was restored to its pre-"
 "merge state."
 msgstr "マージを完了できなかったため、元の投稿をマージ前の状態に復元しました。"
 
-#: includes/class-merge-service.php:172
+#: includes/class-merge-service.php:225
 msgid ""
 "The merge was applied, the branch could not be moved to Trash, and the "
 "original could not be fully restored automatically."
@@ -224,7 +225,7 @@ msgstr ""
 "マージは適用されましたが、ブランチをゴミ箱へ移動できず、元の投稿も自動で完全"
 "には復元できませんでした。"
 
-#: includes/class-merge-service.php:182
+#: includes/class-merge-service.php:235
 msgid ""
 "The branch could not be moved to Trash, so the original post was restored "
 "and the branch remains active."
@@ -232,35 +233,35 @@ msgstr ""
 "ブランチをゴミ箱へ移動できなかったため、元の投稿を復元しました。ブランチは引"
 "き続き有効です。"
 
-#: includes/class-merge-service.php:210
+#: includes/class-merge-service.php:264
 msgid "This post is not a branch."
 msgstr "この投稿はブランチではありません。"
 
-#: includes/class-merge-service.php:214
+#: includes/class-merge-service.php:268
 msgid "You do not have permission to discard this branch."
 msgstr "このブランチを破棄する権限がありません。"
 
-#: includes/class-merge-service.php:219
+#: includes/class-merge-service.php:273
 msgid "The branch could not be moved to Trash."
 msgstr "ブランチをゴミ箱へ移動できませんでした。"
 
-#: includes/class-merge-service.php:240
+#: includes/class-merge-service.php:297
 msgid "The branch relationship changed before the merge could be applied."
 msgstr "マージを適用する前にブランチの関連付けが変更されました。"
 
-#: includes/class-merge-service.php:245
+#: includes/class-merge-service.php:302
 msgid "The original post no longer exists."
 msgstr "元の投稿は存在しません。"
 
-#: includes/class-merge-service.php:248
+#: includes/class-merge-service.php:305
 msgid "The branch and original no longer use the same post type."
 msgstr "ブランチと元の投稿の投稿タイプが一致しなくなっています。"
 
-#: includes/class-merge-service.php:251
+#: includes/class-merge-service.php:308
 msgid "You do not have permission to merge this branch."
 msgstr "このブランチをマージする権限がありません。"
 
-#: includes/class-merge-service.php:270
+#: includes/class-merge-service.php:328
 msgid ""
 "This older branch has no three-way baseline. Review the original before "
 "forcing the merge."
@@ -268,11 +269,11 @@ msgstr ""
 "この旧形式のブランチには三方向比較の基準がありません。強制マージ前に元の投稿"
 "を確認してください。"
 
-#: includes/class-merge-service.php:272
+#: includes/class-merge-service.php:330
 msgid "The original post is unavailable, so this branch cannot be merged."
 msgstr "元の投稿を利用できないため、このブランチはマージできません。"
 
-#: includes/class-merge-service.php:274
+#: includes/class-merge-service.php:332
 msgid ""
 "The branch and original contain overlapping changes. Review the detected "
 "conflicts before forcing the merge."
@@ -280,30 +281,268 @@ msgstr ""
 "ブランチと元の投稿に重複する変更があります。強制マージする前に検出された競合"
 "を確認してください。"
 
-#: includes/class-sync-service.php:162
+#: includes/class-sync-service.php:177
 msgid "A post metadata value could not be synchronized."
 msgstr "投稿メタデータの値を同期できませんでした。"
 
-#: includes/class-sync-service.php:172
+#: includes/class-sync-service.php:187
 msgid "Post metadata synchronization could not be verified."
 msgstr "投稿メタデータの同期結果を確認できませんでした。"
 
-#: includes/class-sync-service.php:258
+#: includes/class-sync-service.php:273
 msgid "Taxonomy synchronization could not be verified."
 msgstr "タクソノミーの同期結果を確認できませんでした。"
 
-#: includes/class-sync-service.php:493 includes/class-sync-service.php:520
+#: includes/class-sync-service.php:549 includes/class-sync-service.php:583
 msgid ""
 "The branch and original contain overlapping changes that require review."
 msgstr "ブランチと元の投稿に重複する変更があります。確認が必要です。"
 
-#: includes/class-sync-service.php:546
+#: includes/class-sync-service.php:613
 msgid "The saved branch snapshot is invalid."
 msgstr "保存されたブランチのスナップショットが無効です。"
 
-#: includes/class-sync-service.php:591
+#: includes/class-sync-service.php:658
 msgid "The merged post state could not be verified."
 msgstr "マージ後の投稿状態を確認できませんでした。"
+
+#: includes/class-workflow-service.php:158 build/index.js:9 src/index.js:1008
+msgid ""
+"This branch needs approval for its current contents before it can be merged."
+msgstr "このブランチをマージするには、現在の内容に対する承認が必要です。"
+
+#: includes/class-workflow-service.php:162
+msgid "Review the currently approved conflict choices before merging."
+msgstr "マージする前に、現在承認されている競合解決内容を確認してください。"
+
+#: includes/class-workflow-service.php:192
+msgid "You cannot request review for this branch."
+msgstr "このブランチのレビューを依頼する権限がありません。"
+
+#: includes/class-workflow-service.php:196
+msgid "This branch cannot be reviewed until its baseline is valid."
+msgstr "基準となる状態が有効になるまで、このブランチはレビューできません。"
+
+#: includes/class-workflow-service.php:202 build/index.js:7 build/index.js:9
+#: src/index.js:754 src/index.js:967
+msgid "No mergeable branch changes are currently detected."
+msgstr "現在、マージ可能なブランチ変更は検出されていません。"
+
+#: includes/class-workflow-service.php:207
+msgid ""
+"Choose an original or branch value for every supported conflict before "
+"requesting review."
+msgstr ""
+"レビューを依頼する前に、対応するすべての競合について元の投稿かブランチの値を"
+"選択してください。"
+
+#: includes/class-workflow-service.php:234
+msgid "An independent authorized editor must review this branch."
+msgstr "このブランチは、権限を持つ別の編集者によるレビューが必要です。"
+
+#: includes/class-workflow-service.php:237
+msgid "This branch has not been submitted for review."
+msgstr "このブランチはまだレビューに提出されていません。"
+
+#: includes/class-workflow-service.php:241
+msgid "The branch review state could not be verified."
+msgstr "ブランチのレビュー状態を検証できませんでした。"
+
+#: includes/class-workflow-service.php:245
+msgid ""
+"The branch changed after review was requested. Submit it for review again."
+msgstr ""
+"レビュー依頼後にブランチが変更されました。改めてレビューを依頼してください。"
+
+#: includes/class-workflow-service.php:252
+msgid "Resolve conflicting or unknown branch changes before approval."
+msgstr "承認前に競合または不明なブランチ変更を解決してください。"
+
+#: includes/class-workflow-service.php:310
+msgid "You cannot schedule a merge for this branch."
+msgstr "このブランチのマージを予約する権限がありません。"
+
+#: includes/class-workflow-service.php:313
+msgid "Choose a future time within the next year."
+msgstr "今後1年以内の日時を指定してください。"
+
+#: includes/class-workflow-service.php:322
+msgid "Review and resolve conflicts before scheduling a merge."
+msgstr "マージを予約する前に競合を確認し、解決してください。"
+
+#: includes/class-workflow-service.php:325
+msgid "Make changes to the branch before scheduling a merge."
+msgstr "マージを予約する前に、ブランチを編集してください。"
+
+#: includes/class-workflow-service.php:329
+msgid "The current content state could not be verified."
+msgstr "現在のコンテンツ状態を検証できませんでした。"
+
+#: includes/class-workflow-service.php:335
+msgid "WordPress could not schedule the merge."
+msgstr "WordPress はマージを予約できませんでした。"
+
+#: includes/class-workflow-service.php:352
+msgid "You cannot cancel this scheduled merge."
+msgstr "このマージ予約を取り消す権限がありません。"
+
+#: includes/class-workflow-service.php:463 build/index.js:9 src/index.js:952
+msgid "Review / schedule"
+msgstr "レビュー／予約"
+
+#: includes/class-workflow-service.php:485 build/index.js:9 src/index.js:1197
+msgid "Branch review & schedule"
+msgstr "ブランチのレビューと予約"
+
+#: includes/class-workflow-service.php:510
+msgid "Post Branch Workflow"
+msgstr "投稿ブランチワークフロー"
+
+#: includes/class-workflow-service.php:510
+#: includes/class-workflow-service.php:520
+#: includes/class-workflow-service.php:533 build/index.js:9 src/index.js:940
+msgid "Branch Workflow"
+msgstr "ブランチワークフロー"
+
+#: includes/class-workflow-service.php:520
+msgid ""
+"Open an editable working branch and follow its Workflow link to request "
+"review or schedule a merge."
+msgstr ""
+"編集可能な作業ブランチを開き、「ワークフロー」リンクからレビュー依頼または"
+"マージ予約を行ってください。"
+
+#: includes/class-workflow-service.php:536
+msgid "Review changes in branch editor"
+msgstr "ブランチエディターで変更を確認"
+
+#: includes/class-workflow-service.php:539 build/index.js:3 build/index.js:9
+#: src/index.js:285 src/index.js:962
+msgid "Review status:"
+msgstr "レビュー状態："
+
+#: includes/class-workflow-service.php:545
+msgid "Branch creator:"
+msgstr "ブランチ作成者："
+
+#: includes/class-workflow-service.php:548
+msgid "Last reviewed by:"
+msgstr "最終レビュアー："
+
+# Added 2.3 editorial workflow strings; previously approved entries above are unchanged.
+#. translators: 1: branch changes, 2: original changes, 3: conflicts, 4: auto-mergeable fields.
+#: includes/class-workflow-service.php:553
+#, php-format
+msgid ""
+"%1$d branch changes · %2$d original changes · %3$d conflicts · %4$d auto-"
+"mergeable fields"
+msgstr ""
+"ブランチの変更 %1$d 件 · 元の投稿の変更 %2$d 件 · 競合 %3$d 件 · 自動マージ可"
+"能 %4$d 項目"
+
+#: includes/class-workflow-service.php:556
+msgid "Proposed conflict resolutions"
+msgstr "提案された競合解決内容"
+
+#: includes/class-workflow-service.php:558 build/index.js:3 build/index.js:7
+#: src/index.js:154 src/index.js:715
+msgid "Original now"
+msgstr "現在の元の投稿"
+
+#: includes/class-workflow-service.php:558 build/index.js:3 build/index.js:7
+#: src/index.js:159 src/index.js:723
+msgid "Branch now"
+msgstr "現在のブランチ"
+
+#: includes/class-workflow-service.php:566 build/index.js:3 build/index.js:9
+#: src/index.js:287 src/index.js:976
+msgid "Scheduled (UTC):"
+msgstr "予約日時（UTC）："
+
+#: includes/class-workflow-service.php:572
+msgid ""
+"Changes to the original or branch after approval or scheduling invalidate "
+"the stored review. Scheduled merges use WP-Cron and require a working "
+"WordPress cron runner."
+msgstr ""
+"承認または予約後に元の投稿やブランチを変更すると、保存済みのレビューは無効に"
+"なります。予約マージには WP-Cron を使用するため、WordPress の cron が動作して"
+"いる必要があります。"
+
+#: includes/class-workflow-service.php:574
+msgid ""
+"Choose the conflict values in the branch editor before requesting review."
+msgstr ""
+"レビューを依頼する前に、ブランチエディターで競合する値を選択してください。"
+
+#: includes/class-workflow-service.php:576 build/index.js:9 src/index.js:1057
+msgid "Request review"
+msgstr "レビューを依頼"
+
+#: includes/class-workflow-service.php:579 build/index.js:9 src/index.js:1016
+msgid ""
+"Open Review changes in the editor and inspect Base, Original and Branch "
+"before deciding. Approval applies only to the exact requested snapshot."
+msgstr ""
+"エディターで「変更を確認」を開き、承認前に基準・元の投稿・ブランチを比較して"
+"ください。承認は申請時点の内容にのみ適用されます。"
+
+#: includes/class-workflow-service.php:580 build/index.js:9 src/index.js:1105
+msgid "Approve current changes"
+msgstr "現在の変更を承認"
+
+#: includes/class-workflow-service.php:581 build/index.js:9 src/index.js:1121
+msgid "Request changes"
+msgstr "修正を依頼"
+
+#: includes/class-workflow-service.php:583
+msgid "Schedule safe merge"
+msgstr "安全なマージを予約"
+
+#: includes/class-workflow-service.php:587 build/index.js:9 src/index.js:1131
+msgid "Site-local date and time"
+msgstr "サイトの日時"
+
+#: includes/class-workflow-service.php:588 build/index.js:9 src/index.js:1170
+msgid "Schedule merge"
+msgstr "マージを予約"
+
+#: includes/class-workflow-service.php:591 build/index.js:3 build/index.js:9
+#: src/index.js:289 src/index.js:1187
+msgid "Cancel scheduled merge"
+msgstr "予約済みマージを取り消す"
+
+#: includes/class-workflow-service.php:624
+msgid "Pending editorial reviews"
+msgstr "承認待ちの編集レビュー"
+
+#: includes/class-workflow-service.php:635
+msgid "No reviews requiring your approval in the most recent 50 submissions."
+msgstr "直近50件の申請に、あなたの承認が必要なレビューはありません。"
+
+#: includes/class-workflow-service.php:644
+msgid "Site-wide approval policy"
+msgstr "サイト全体の承認ポリシー"
+
+#: includes/class-workflow-service.php:647
+msgid "Require independent approval before every branch merge"
+msgstr "すべてのブランチマージに別の編集者の承認を必須にする"
+
+#: includes/class-workflow-service.php:665 build/index.js:9 src/index.js:1067
+msgid "Review note"
+msgstr "レビューコメント"
+
+#: includes/class-workflow-service.php:725
+msgid "Enter a valid site-local date and time."
+msgstr "サイトのタイムゾーンに基づく有効な日時を入力してください。"
+
+#: includes/class-workflow-service.php:729
+msgid "Unknown workflow operation."
+msgstr "不明なワークフロー操作です。"
+
+#: includes/class-workflow-service.php:741
+msgid "You cannot view this workflow."
+msgstr "このワークフローを表示する権限がありません。"
 
 #: build/index.js:1 src/index.js:17
 msgid "WP Branches For Post could not complete the request."
@@ -367,7 +606,7 @@ msgstr "メタデータ: %s"
 msgid "Taxonomy: %s"
 msgstr "タクソノミー: %s"
 
-#: build/index.js:3 src/index.js:62
+#: build/index.js:3 build/index.js:9 src/index.js:62 src/index.js:965
 msgid "Ready"
 msgstr "マージ可能"
 
@@ -399,19 +638,19 @@ msgstr "元の投稿を利用できません"
 msgid "Three-way comparison"
 msgstr "三方向比較"
 
-#: build/index.js:3 src/index.js:134
+#: build/index.js:3 build/index.js:7 src/index.js:145 src/index.js:643
+msgid "Conflicts"
+msgstr "競合"
+
+#: build/index.js:3 src/index.js:149
 msgid "Base"
 msgstr "基準"
 
-#: build/index.js:3 src/index.js:139
-msgid "Original now"
-msgstr "現在の元の投稿"
+#: build/index.js:3 src/index.js:249
+msgid "Save changes before requesting review or scheduling a merge."
+msgstr "レビュー依頼やマージ予約の前に変更を保存してください。"
 
-#: build/index.js:3 src/index.js:144
-msgid "Branch now"
-msgstr "現在のブランチ"
-
-#: build/index.js:3 src/index.js:206
+#: build/index.js:3 src/index.js:320
 msgid ""
 "Save or discard the current edits to the original before creating a branch. "
 "This prevents unpublished editor changes from being mistaken for the branch "
@@ -420,7 +659,7 @@ msgstr ""
 "ブランチを作成する前に、元の投稿で現在編集中の内容を保存するか破棄してくださ"
 "い。未公開の編集内容がブランチの基準として扱われるのを防ぎます。"
 
-#: build/index.js:3 src/index.js:284
+#: build/index.js:3 src/index.js:406
 msgid ""
 "The review state changed after saving. Review the latest conflicts before "
 "merging."
@@ -428,21 +667,21 @@ msgstr ""
 "保存後に確認状態が変わりました。マージ前に最新の競合を確認してください。"
 
 #. translators: %d: branch post ID.
-#: build/index.js:4 build/index.js:5 src/index.js:341 src/index.js:350
+#: build/index.js:4 build/index.js:5 src/index.js:466 src/index.js:475
 msgid "Branch #%d"
 msgstr "ブランチ #%d"
 
 #. translators: %s: branch creator display name.
-#: build/index.js:6 build/index.js:8 src/index.js:373 src/index.js:631
+#: build/index.js:6 build/index.js:8 src/index.js:498 src/index.js:884
 msgid "Created by %s"
 msgstr "作成者：%s"
 
 #. translators: 1: number of branch changes, 2: number of conflicts.
-#: build/index.js:7 src/index.js:388
+#: build/index.js:7 src/index.js:513
 msgid "%1$d branch changes · %2$d conflicts"
 msgstr "ブランチの変更 %1$d 件 · 競合 %2$d 件"
 
-#: build/index.js:7 src/index.js:404
+#: build/index.js:7 src/index.js:529
 msgid ""
 "Edit safely in a separate draft. The published post stays unchanged until "
 "you merge the branch."
@@ -450,7 +689,7 @@ msgstr ""
 "独立した下書きで安全に編集できます。ブランチをマージするまで、公開中の投稿は"
 "変更されません。"
 
-#: build/index.js:7 src/index.js:413
+#: build/index.js:7 src/index.js:538
 msgid ""
 "This original has unsaved editor changes. Save or discard them before "
 "creating a branch so the baseline matches the saved public post."
@@ -458,15 +697,15 @@ msgstr ""
 "元の投稿に未保存の編集があります。基準を保存済みの公開投稿と一致させるため、"
 "ブランチ作成前に保存または破棄してください。"
 
-#: build/index.js:7 src/index.js:427
+#: build/index.js:7 src/index.js:552
 msgid "Creating…"
 msgstr "作成中…"
 
-#: build/index.js:7 src/index.js:462
+#: build/index.js:7 src/index.js:620
 msgid "Merge review"
 msgstr "マージ確認"
 
-#: build/index.js:7 src/index.js:468
+#: build/index.js:7 src/index.js:626
 msgid ""
 "This branch predates three-way snapshots, so detailed change comparison is "
 "unavailable. Force merge only after manually reviewing the original."
@@ -474,39 +713,47 @@ msgstr ""
 "このブランチは三方向スナップショット導入前に作成されたため、詳細な変更比較を"
 "利用できません。元の投稿を手動で確認した後にのみ強制マージしてください。"
 
-#: build/index.js:7 src/index.js:474
+#: build/index.js:7 src/index.js:632
 msgid "Branch changes"
 msgstr "ブランチの変更"
 
-#: build/index.js:7 src/index.js:478
+#: build/index.js:7 src/index.js:636
 msgid "Original changes since branch creation"
 msgstr "ブランチ作成後の元の投稿の変更"
 
-#: build/index.js:7 src/index.js:485
-msgid "Conflicts"
-msgstr "競合"
-
-#: build/index.js:7 src/index.js:490
+#: build/index.js:7 src/index.js:648
 msgid "Original identity changes preserved by merge"
 msgstr "マージで保持される元の投稿の識別情報の変更"
 
-#: build/index.js:7 src/index.js:502
-msgid "No mergeable branch changes are currently detected."
-msgstr "現在、マージ可能なブランチ変更は検出されていません。"
+#: build/index.js:7 src/index.js:666
+msgid "Resolve each conflicting field"
+msgstr "競合する各項目を解決"
 
-#: build/index.js:7 src/index.js:521 src/index.js:543
+#: build/index.js:7 src/index.js:674
+msgid "Other non-conflicting edits remain preserved. Inspect the values above."
+msgstr "競合しない他の変更は保持されます。上記の値を確認してください。"
+
+#: build/index.js:7 src/index.js:710
+msgid "Choose"
+msgstr "選択してください"
+
+#: build/index.js:7 build/index.js:9 src/index.js:743 src/index.js:1350
+msgid "Merge selected values"
+msgstr "選択した値でマージ"
+
+#: build/index.js:7 src/index.js:773 src/index.js:796
 msgid "Saving and merging…"
 msgstr "保存してマージ中…"
 
-#: build/index.js:7 src/index.js:525
+#: build/index.js:7 src/index.js:777
 msgid "Save & merge into original"
 msgstr "保存して元の投稿へマージ"
 
-#: build/index.js:7 src/index.js:547
+#: build/index.js:7 src/index.js:800
 msgid "Force merge reviewed conflicts"
 msgstr "確認済みの競合を強制マージ"
 
-#: build/index.js:7 src/index.js:560
+#: build/index.js:7 src/index.js:813
 msgid ""
 "The original has newer, non-conflicting changes. You can update this branch "
 "first, or review and merge while preserving those original changes."
@@ -514,7 +761,7 @@ msgstr ""
 "元の投稿に新しい非競合の変更があります。先に元の投稿からブランチを更新する"
 "か、その変更を保持したまま確認してマージできます。"
 
-#: build/index.js:7 src/index.js:569
+#: build/index.js:7 src/index.js:822
 msgid ""
 "The original identity changed (for example status, slug, author, or parent). "
 "Those changes are preserved and are not overwritten by this branch."
@@ -522,7 +769,7 @@ msgstr ""
 "元の投稿の識別情報（ステータス、スラッグ、投稿者、親など）が変更されていま"
 "す。これらは保持され、このブランチでは上書きされません。"
 
-#: build/index.js:7 src/index.js:578
+#: build/index.js:7 src/index.js:831
 msgid ""
 "The branch and original changed the same data differently. Review the "
 "conflicts before deciding whether to force merge."
@@ -530,7 +777,7 @@ msgstr ""
 "ブランチと元の投稿で同じデータが別々に変更されています。強制マージするか判断"
 "する前に競合を確認してください。"
 
-#: build/index.js:7 src/index.js:587
+#: build/index.js:7 src/index.js:840
 msgid ""
 "This older branch cannot provide a precise three-way comparison. Review the "
 "original manually before forcing a merge."
@@ -538,16 +785,16 @@ msgstr ""
 "この旧形式のブランチでは正確な三方向比較を行えません。強制マージ前に元の投稿"
 "を手動で確認してください。"
 
-#: build/index.js:7 src/index.js:609
+#: build/index.js:7 src/index.js:862
 msgid "This draft is isolated from the public original."
 msgstr "この下書きは公開中の元の投稿から独立しています。"
 
-#: build/index.js:7 src/index.js:621
+#: build/index.js:7 src/index.js:874
 msgid "Open original"
 msgstr "元の投稿を開く"
 
 #. translators: %d: number of synced patterns referenced by the branch.
-#: build/index.js:9 src/index.js:646
+#: build/index.js:9 src/index.js:899
 msgid ""
 "This branch references %d synced pattern(s). Editing a synced pattern is "
 "global in WordPress and is not isolated by the branch."
@@ -555,39 +802,43 @@ msgstr ""
 "このブランチは同期パターンを %d 件参照しています。同期パターンの編集は "
 "WordPress 全体に反映され、ブランチでは分離されません。"
 
-#: build/index.js:9 src/index.js:665
+#: build/index.js:9 src/index.js:918
 msgid "Preview branch"
 msgstr "ブランチをプレビュー"
 
-#: build/index.js:9 src/index.js:675
+#: build/index.js:9 src/index.js:928
 msgid "View original"
 msgstr "元の投稿を表示"
 
-#: build/index.js:9 src/index.js:687
+#: build/index.js:9 src/index.js:951 src/index.js:1282 src/index.js:1334
+msgid "Cancel"
+msgstr "キャンセル"
+
+#: build/index.js:9 src/index.js:1213
 msgid "Updating…"
 msgstr "更新中…"
 
-#: build/index.js:9 src/index.js:688
+#: build/index.js:9 src/index.js:1214
 msgid "Update branch from original"
 msgstr "元の投稿からブランチを更新"
 
-#: build/index.js:9 src/index.js:704
+#: build/index.js:9 src/index.js:1230
 msgid "Hide merge review"
 msgstr "マージ確認を閉じる"
 
-#: build/index.js:9 src/index.js:716
+#: build/index.js:9 src/index.js:1242
 msgid "Discard branch"
 msgstr "ブランチを破棄"
 
-#: build/index.js:9 src/index.js:730
+#: build/index.js:9 src/index.js:1256
 msgid "Force merge conflicts?"
 msgstr "競合を強制マージしますか？"
 
-#: build/index.js:9 src/index.js:731
+#: build/index.js:9 src/index.js:1257
 msgid "Discard this branch?"
 msgstr "このブランチを破棄しますか？"
 
-#: build/index.js:9 src/index.js:738
+#: build/index.js:9 src/index.js:1264
 msgid ""
 "Force merge will prefer branch values for the listed conflicts. Non-"
 "conflicting newer work on the original is still preserved."
@@ -595,19 +846,25 @@ msgstr ""
 "強制マージでは、一覧の競合に対してブランチ側の値を優先します。競合しない元の"
 "投稿の新しい変更は引き続き保持されます。"
 
-#: build/index.js:9 src/index.js:742
+#: build/index.js:9 src/index.js:1268
 msgid ""
 "The branch will be moved to Trash. The public original will not be changed."
 msgstr "ブランチはゴミ箱へ移動されます。公開中の元の投稿は変更されません。"
 
-#: build/index.js:9 src/index.js:756
-msgid "Cancel"
-msgstr "キャンセル"
-
-#: build/index.js:9 src/index.js:774
+#: build/index.js:9 src/index.js:1300
 msgid "Force merge"
 msgstr "強制マージ"
 
-#: build/index.js:9 src/index.js:775
+#: build/index.js:9 src/index.js:1301
 msgid "Move to Trash"
 msgstr "ゴミ箱へ移動"
+
+#: build/index.js:9 src/index.js:1311
+msgid "Confirm selected conflict values"
+msgstr "選択した競合解決内容の確認"
+
+#: build/index.js:9 src/index.js:1320
+msgid ""
+"The selected values will replace those conflicts. Other independent edits "
+"remain preserved."
+msgstr "選択した値で競合箇所を置き換えます。競合しない他の変更は保持されます。"
