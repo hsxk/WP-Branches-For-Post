@@ -53,12 +53,12 @@ jobs:
           curl -fsSL -o /tmp/wp-cli.phar https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
           chmod +x /tmp/wp-cli.phar
           sudo mv /tmp/wp-cli.phar /usr/local/bin/wp
-      - name: Install WordPress 7.1.1
+      - name: Install WordPress 7.1.3
         shell: bash
         run: |
           set -euo pipefail
           rm -rf /tmp/wordpress
-          wp core download --path=/tmp/wordpress --version=7.1.1 --force
+          wp core download --path=/tmp/wordpress --version=7.1.3 --force
           wp config create --path=/tmp/wordpress \
             --dbname=wordpress --dbuser=wordpress --dbpass=wordpress --dbhost=127.0.0.1:3306 \
             --skip-check
