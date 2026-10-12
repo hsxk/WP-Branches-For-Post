@@ -943,6 +943,77 @@ try {
 	wbfp_check( $builder_original === $merges->merge( $builder_branch, false ), 'Independent builder and ACF metadata merge' );
 	wbfp_check( 'Public ACF edit' === get_post_meta( $builder_original, 'acf_intro', true ) && str_contains( (string) get_post_meta( $builder_original, '_elementor_data', true ), 'builder-two' ), 'Builder and ACF changes both survive' );
 
+	// 2.3 field-level conflict choices: every reviewed conflict requires an
+	// explicit original/branch selection; original-only edits survive.
+	$choice_original = wbfp_make_post();
+	$choice_branch  = $branches->create( $choice_original );
+	wbfp_check( ! is_wp_error( $choice_branch ), 'Create selective merge candidate' );
+	$choice_branch = (int) $choice_branch;
+	$created_posts[] = $choice_branch;
+	wp_update_post( array(
+		'ID'           => $choice_original,
+		'post_title'   => 'Original latest title',
+		'post_excerpt' => 'Original latest excerpt',
+		'post_content' => 'Original-only new content',
+	) );
+	wp_update_post( array(
+		'ID'           => $choice_branch,
+		'post_title'   => 'Branch proposed title',
+		'post_excerpt' => 'Branch proposed excerpt',
+	) );
+	$choice_analysis = $branches->analyze_branch( $choice_branch );
+	wbfp_check( 2 === count( $choice_analysis['analysis']['conflicts'] ), 'Two independent conflicting post fields are detected' );
+	$only_one = Sync_Service::merged_snapshot(
+		$choice_analysis['base'], $choice_analysis['original'], $choice_analysis['branch'], false,
+		array( 'post.post_title' => 'branch' )
+	);
+	wbfp_check( is_wp_error( $only_one ) && 'wbfp_invalid_resolutions' === $only_one->get_error_code(), 'Partial conflict resolution is rejected' );
+	$invalid_key = Sync_Service::merged_snapshot(
+		$choice_analysis['base'], $choice_analysis['original'], $choice_analysis['branch'], false,
+		array( 'post.post_title' => 'branch', 'post.post_excerpt' => 'original', 'meta.secret' => 'branch' )
+	);
+	wbfp_check( is_wp_error( $invalid_key ) && 'wbfp_invalid_resolutions' === $invalid_key->get_error_code(), 'Unreviewed metadata choices are rejected' );
+	$invalid_choice = Sync_Service::merged_snapshot(
+		$choice_analysis['base'], $choice_analysis['original'], $choice_analysis['branch'], false,
+		array( 'post.post_title' => 'branch', 'post.post_excerpt' => 'delete' )
+	);
+	wbfp_check( is_wp_error( $invalid_choice ), 'Unknown resolution choices are rejected' );
+	$choice_status_request = new WP_REST_Request( 'GET', '/wbfp/v1/posts/' . $choice_branch . '/status' );
+	$choice_status_request->set_param( 'id', $choice_branch );
+	$choice_status = $rest->status( $choice_status_request )->get_data();
+	$choice_token  = $choice_status['review_token'];
+	$choice_request = new WP_REST_Request( 'POST', '/wbfp/v1/branches/' . $choice_branch . '/merge' );
+	$choice_request->set_param( 'id', $choice_branch );
+	$choice_request->set_param( 'review_token', $choice_token );
+	$choice_request->set_param( 'conflict_resolutions', array(
+		'post.post_title'   => 'branch',
+		'post.post_excerpt' => 'original',
+	) );
+	$choice_result = $rest->merge_branch( $choice_request );
+	wbfp_check( ! is_wp_error( $choice_result ), 'Reviewed field choices merge through protected REST endpoint' );
+	$merged_choice = get_post( $choice_original );
+	wbfp_check( 'Branch proposed title' === $merged_choice->post_title && 'Original latest excerpt' === $merged_choice->post_excerpt, 'Each conflicting field uses exactly its selected side' );
+	wbfp_check( 'Original-only new content' === $merged_choice->post_content && 'trash' === get_post_status( $choice_branch ), 'Original-only content survives selective merge and branch is retired' );
+
+	$stale_original = wbfp_make_post();
+	$stale_branch = $branches->create( $stale_original );
+	wbfp_check( ! is_wp_error( $stale_branch ), 'Create stale-selection candidate' );
+	$stale_branch = (int) $stale_branch;
+	$created_posts[] = $stale_branch;
+	wp_update_post( array( 'ID' => $stale_original, 'post_title' => 'Original review title' ) );
+	wp_update_post( array( 'ID' => $stale_branch, 'post_title' => 'Branch review title' ) );
+	$stale_request = new WP_REST_Request( 'GET', '/wbfp/v1/posts/' . $stale_branch . '/status' );
+	$stale_request->set_param( 'id', $stale_branch );
+	$stale_token = $rest->status( $stale_request )->get_data()['review_token'];
+	wp_update_post( array( 'ID' => $stale_original, 'post_title' => 'Original title changed after review' ) );
+	$stale_merge_request = new WP_REST_Request( 'POST', '/wbfp/v1/branches/' . $stale_branch . '/merge' );
+	$stale_merge_request->set_param( 'id', $stale_branch );
+	$stale_merge_request->set_param( 'review_token', $stale_token );
+	$stale_merge_request->set_param( 'conflict_resolutions', array( 'post.post_title' => 'branch' ) );
+	$stale_choice_result = $rest->merge_branch( $stale_merge_request );
+	wbfp_check( is_wp_error( $stale_choice_result ) && 'wbfp_review_state_changed' === $stale_choice_result->get_error_code(), 'Stale field selections cannot merge changed content' );
+	wbfp_check( 'Original title changed after review' === get_post( $stale_original )->post_title, 'Stale selection does not overwrite the public post' );
+
 	// Team review: independent approver, exact snapshot binding and optional policy gate.
 	$approval_original = wbfp_make_post();
 	$approval_branch = $branches->create( $approval_original );
