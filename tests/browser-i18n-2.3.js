@@ -85,7 +85,7 @@ async function checkLocale( browser, selected ) {
 		await page.locator( '#user_login' ).fill( username );
 		await page.locator( '#user_pass' ).fill( password );
 		await Promise.all( [
-			page.waitForURL( /\\/wp-admin\\//, { timeout: 15000 } ),
+			page.waitForURL( ( url ) => url.pathname.startsWith( '/wp-admin/' ), { timeout: 15000 } ),
 			page.locator( '#wp-submit' ).click(),
 		] );
 		await page.goto(
