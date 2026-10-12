@@ -256,9 +256,12 @@ async function openReview( page ) {
 
 async function shot( page, file, locator ) {
 	if ( locator ) {
-		if ( ! ( await visible( locator ) ) ) {
-			throw new Error( 'Tutorial case target is not visible: ' + file );
-		}
+		// Editor panel content loads after Gutenberg's post store becomes ready.
+		// Wait for the actual target instead of checking one transient frame.
+		await locator.first().waitFor( {
+			state: 'visible',
+			timeout: 15000,
+		} );
 		await locator.first().scrollIntoViewIfNeeded();
 		await page.waitForTimeout( 250 );
 	}
